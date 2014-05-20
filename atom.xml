@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Chris Callahan's Blog]]></title>
+  <link href="http://callahanchris.github.io/atom.xml" rel="self"/>
+  <link href="http://callahanchris.github.io/"/>
+  <updated>2014-05-20T15:50:02-04:00</updated>
+  <id>http://callahanchris.github.io/</id>
+  <author>
+    <name><![CDATA[Chris Callahan]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Blog = Blog.new]]></title>
+    <link href="http://callahanchris.github.io/blog/2014/05/20/blog-equals-blog-dot-new/"/>
+    <updated>2014-05-20T15:29:04-04:00</updated>
+    <id>http://callahanchris.github.io/blog/2014/05/20/blog-equals-blog-dot-new</id>
+    <content type="html"><![CDATA[<p>This is the first post on my new blog. My name is Chris, and this blog will be about my journey from zero to hacker. As the first major step on the way to accomplishing this goal, I will be enrolling in the web development track at the Flatiron School in New York starting on June 2, 2014.</p>
+
+<p>Over the course of the past year, I have started learning how to program &mdash; mainly Ruby, but also bits of C, HTML, CSS, JavaScript, and most recently Ruby on Rails. I am now working through the Flatiron School&rsquo;s excellent <a href="http://prework.flatironschool.com/web-development/">prework curriculum</a> in preparation for the course.</p>
+
+<p>I&rsquo;m looking forward to writing down my thoughts and experiences along the way to becoming a professional web dev in this blog. I know that learning how to program will be difficult, so I am also looking forward to sharing some of my problems and difficulties along the way.</p>
+]]></content>
+  </entry>
+  
+</feed>
