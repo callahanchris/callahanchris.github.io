@@ -6,10 +6,6 @@ comments: true
 categories: 
 ---
 
-**It's the truth. Now that I've put that out there, the only way is up.
-
-### I do not know how to program. 
-
 I was struck by this realization recently when going through Michael Hartl's [Ruby on Rails Tutorial](http://railstutorial.org). This was my first exposure to Rails, though I had learned a bit of Ruby before, and as such was under the impression that I knew a thing or two about coding.
 
 Overall, the tutorial was difficult and intense, but at the end I felt very accomplished for having made it all the way through. I learned a ton about Rails, test-driven development (TDD), ERb, and Ruby. Of critical importance to this was my brother, [Andrew Callahan](http://andrewcallahan.github.io), who was on hand to help me with my questions and problems and to offer his insights on programming.
@@ -60,3 +56,5 @@ I tend to work slowly when I am trying to fully grasp the subject matter at hand
 ### Conclusion
 
 I am excited to have begun learning how to program Rails applications and to be making progress on my path to becoming a professional web developer. Though I feel accomplished about completing the Hartl Rails Tutorial, working my way through it really made me realize how little I know and how much learning I have ahead of me. I am glad to have had a taste of the Rails development process and gleaned the lessons above.
+
+I don't know how to program. It's the truth. Now that I've put that out there, the only way is up.
