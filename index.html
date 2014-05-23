@@ -9,7 +9,7 @@
   <meta name="author" content="Chris Callahan">
 
   
-  <meta name="description" content="This is the first post on my new blog. My name is Chris, and this blog will be about my journey from zero to hacker. As the first major step on the &hellip;">
+  <meta name="description" content="**It&rsquo;s the truth. Now that I&rsquo;ve put that out there, the only way is up. I do not know how to program. I was struck by this realization &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -71,6 +71,94 @@
       
   <header>
     
+      <h1 class="entry-title"><a href="/blog/2014/05/23/i-dont-know-how-to-program/">I Don&#8217;t Know How to Program</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-05-23T14:52:35-04:00" pubdate data-updated="true">May 23<span>rd</span>, 2014</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>**It&rsquo;s the truth. Now that I&rsquo;ve put that out there, the only way is up.</p>
+
+<h3>I do not know how to program.</h3>
+
+<p>I was struck by this realization recently when going through Michael Hartl&rsquo;s <a href="http://railstutorial.org">Ruby on Rails Tutorial</a>. This was my first exposure to Rails, though I had learned a bit of Ruby before, and as such was under the impression that I knew a thing or two about coding.</p>
+
+<p>Overall, the tutorial was difficult and intense, but at the end I felt very accomplished for having made it all the way through. I learned a ton about Rails, test-driven development (TDD), ERb, and Ruby. Of critical importance to this was my brother, <a href="http://andrewcallahan.github.io">Andrew Callahan</a>, who was on hand to help me with my questions and problems and to offer his insights on programming.</p>
+
+<p>I learned some important lessons while undertaking this tutorial that I hope can help me in my transition from non-programmer to programmer.</p>
+
+<h3>1. Environment is Essential</h3>
+
+<p>Prior to taking on the Hartl Rails Tutorial, most of the programs I had written were in Ruby alone. In order to get these programs to run, all I needed was a text editor, a terminal, and a Ruby. This setup was relatively simple to get up and running:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>ruby program.rb</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Rails is a bit more complex. First, I installed the Rails gem, then when building the app I had to specify which gems I needed to use to get all aspects of the app up and running. Throughout this process, a number of dependecies were introduced, and I had to do a bit of wrangling with version numbers to get everything working properly. I also installed the Ruby Version Manager (RVM) and got more familiar with using git, GitHub, and Heroku.</p>
+
+<p>I got burned by not paying close attention enough to my environment when going through the Hartl tutorial. For the first example app in the book, I used Rails 4.1 &mdash; the latest version at the time. After finishing, I went back and saw that the Flatiron School <a href="http://prework.flatironschool.com">prework site</a> recommended going through the Rails 3.2 edition fo the tutorial. I went back, installed Rails 3.2 and Ruby 1.9.3, and then made it through the first couple chapters of the tutorial without much issue.</p>
+
+<p>The next day I was surprised to find that railstutorial.org had undergone a redesign, and the Rails 3.2 version of the book had gone behind a paywall. The Rails 4.0 version was still available for free &mdash; and what an incredible free resource it is! &mdash; so I tried to push forward by applying the instructions in the Rails 4.0 version to my Rails 3.2 app. This was a mistake. Eventually, I cut my losses and restarted the tutorial using Rails 4.0.</p>
+
+<p>(As a side note, after writing the first draft of this blog post I made the same mistake as described above, but in reverse, on a <a href="http://teamtreehouse.com">Treehouse</a> Rails tutorial. I ended up having to restart the tutorial using a different version of Rails. I really need to pay better attention to accurately setting up my dev environment!)</p>
+
+<p>Whereas before I considered programming to simply be the act of writing code, after making a sample app in Rails I realized that getting the proper environment set up can often be half the battle. Understanding the tools that make up the technology stack is incredibly important and is something I want to learn more about going forward.</p>
+
+<h3>2. Read the Error Messages</h3>
+
+<p>Another misconception I had was that code should generally work, and when it doesn&rsquo;t it should be debugged. This notion was turned completely on its head thanks to TDD, where code first fails and subsequently is made to work.</p>
+
+<p>Even though I was following the code of the tutorial closely, some unexpected errors (in addition to the expected ones) inevitably popped up. Until Andrew pointed this out to me, I didn&rsquo;t realize that I had unconsciously just been glazing over the error messages showing up in the terminal. Prior to this, my &ldquo;process&rdquo; was essentially:</p>
+
+<ul>
+<li>See an error message surface.</li>
+<li>Ignore its contents.</li>
+<li>Immediately return to the text editor.</li>
+<li>Guess what caused the error.</li>
+</ul>
+
+
+<p>The error messages are there to help you; read them. This lesson seems really basic, but it is a great thing that I learned.</p>
+
+<h3>3. Power Through</h3>
+
+<p>Making a functioning Twitter-like app in Rails was hard. But that&rsquo;s OK &mdash; I have only done it one time, and had never done anything like it before going through Hartl&rsquo;s tutorial. I expected to be able to &ldquo;just get things&rdquo; before going in (remember, I &ldquo;knew&rdquo; about coding), and found that it was nowhere near that simple. Even now, having completed the tutorial, I still have many questions and there are more areas that I don&rsquo;t understand than those I do. That&rsquo;s also OK &mdash; I am going to be learning all about Rails when I start at the <a href="http://flatironschool.com">Flatiron School</a> next month.</p>
+
+<p>I tend to work slowly when I am trying to fully grasp the subject matter at hand or I am trying to do a really excellent job. I could have easily spent twice as much time on the Rails tutorial than I did, but it&rsquo;s probably a good thing that I didn&rsquo;t. Instead of dwelling on everything I didn&rsquo;t understand, I powered through and practiced &ldquo;getting used to&rdquo; the things I didn&rsquo;t understand. Rather than obsessively going down each rabbit hole, I tried to keep an eye on the big picture and take things in stride.</p>
+
+<h3>Conclusion</h3>
+
+<p>I am excited to have begun learning how to program Rails applications and to be making progress on my path to becoming a professional web developer. Though I feel accomplished about completing the Hartl Rails Tutorial, working my way through it really made me realize how little I know and how much learning I have ahead of me. I am glad to have had a taste of the Rails development process and gleaned the lessons above.</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
       <h1 class="entry-title"><a href="/blog/2014/05/20/blog-equals-blog-dot-new/">Blog = Blog.new</a></h1>
     
     
@@ -117,6 +205,10 @@
     <section>
   <h1>Recent Posts</h1>
   <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2014/05/23/i-dont-know-how-to-program/">I Don&#8217;t Know How to Program</a>
+      </li>
     
       <li class="post">
         <a href="/blog/2014/05/20/blog-equals-blog-dot-new/">Blog = Blog.new</a>
