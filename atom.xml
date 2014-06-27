@@ -4,7 +4,7 @@
   <title><![CDATA[Chris Callahan's Blog]]></title>
   <link href="http://callahanchris.github.io/atom.xml" rel="self"/>
   <link href="http://callahanchris.github.io/"/>
-  <updated>2014-06-27T09:54:25-04:00</updated>
+  <updated>2014-06-27T10:03:06-04:00</updated>
   <id>http://callahanchris.github.io/</id>
   <author>
     <name><![CDATA[Chris Callahan]]></name>
@@ -90,7 +90,7 @@
 </span><span class='line'><span class="k">class</span> <span class="nc">Dog</span> <span class="o">&lt;</span> <span class="no">Animal</span>
 </span><span class='line'><span class="k">end</span>
 </span><span class='line'>
-</span><span class='line'><span class="k">class</span> <span class="nc">Dog</span><span class="o">&lt;</span> <span class="no">Mammal</span>
+</span><span class='line'><span class="k">class</span> <span class="nc">Dog</span> <span class="o">&lt;</span> <span class="no">Mammal</span>
 </span><span class='line'><span class="k">end</span>
 </span><span class='line'><span class="c1">#=&gt; TypeError: superclass mismatch for class Dog</span>
 </span></code></pre></td></tr></table></div></figure>
