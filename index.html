@@ -124,6 +124,9 @@
 <span class='line-number'>6</span>
 <span class='line-number'>7</span>
 <span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
 </pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">Mammal</span>
 </span><span class='line'><span class="k">end</span>
 </span><span class='line'>
@@ -132,6 +135,9 @@
 </span><span class='line'>
 </span><span class='line'><span class="k">class</span> <span class="nc">Dog</span> <span class="o">&lt;</span> <span class="no">Animal</span>
 </span><span class='line'><span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="no">Dog</span><span class="o">.</span><span class="n">ancestors</span>
+</span><span class='line'><span class="c1">#=&gt; [Dog, Animal, Mammal, Object, Kernel, BasicObject] </span>
 </span></code></pre></td></tr></table></div></figure>
 
 
@@ -152,23 +158,21 @@
 <span class='line-number'>13</span>
 <span class='line-number'>14</span>
 <span class='line-number'>15</span>
-<span class='line-number'>16</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">Mammal</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">Animal</span>
 </span><span class='line'><span class="k">end</span>
 </span><span class='line'>
-</span><span class='line'><span class="k">class</span> <span class="nc">Animal</span>
+</span><span class='line'><span class="k">class</span> <span class="nc">MansBestFriend</span>
 </span><span class='line'><span class="k">end</span>
-</span><span class='line'>
-</span><span class='line'><span class="k">class</span> <span class="nc">Dog</span> <span class="o">&lt;</span> <span class="no">Animal</span> <span class="o">&lt;</span> <span class="no">Mammal</span>
-</span><span class='line'><span class="k">end</span>
-</span><span class='line'><span class="c1">#=&gt; TypeError: superclass must be a Class (NilClass given)</span>
 </span><span class='line'>
 </span><span class='line'><span class="k">class</span> <span class="nc">Dog</span> <span class="o">&lt;</span> <span class="no">Animal</span>
 </span><span class='line'><span class="k">end</span>
 </span><span class='line'>
-</span><span class='line'><span class="k">class</span> <span class="nc">Dog</span> <span class="o">&lt;</span> <span class="no">Mammal</span>
+</span><span class='line'><span class="k">class</span> <span class="nc">Dog</span> <span class="o">&lt;</span> <span class="no">MansBestFriend</span>
 </span><span class='line'><span class="k">end</span>
 </span><span class='line'><span class="c1">#=&gt; TypeError: superclass mismatch for class Dog</span>
+</span><span class='line'>
+</span><span class='line'><span class="no">Dog</span><span class="o">.</span><span class="n">ancestors</span>
+</span><span class='line'><span class="c1">#=&gt; [Dog, Animal, Object, Kernel, BasicObject] </span>
 </span></code></pre></td></tr></table></div></figure>
 
 
