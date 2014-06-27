@@ -9,7 +9,7 @@
   <meta name="author" content="Chris Callahan">
 
   
-  <meta name="description" content="Modules in Ruby are a great place to store shared behaviors used throughout a program. Writing a module is a convenient way to abstract out shared &hellip;">
+  <meta name="description" content="Modules in Ruby are a great place to store shared behavior and data used throughout a program. Writing a module is a convenient way to abstract out &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -94,7 +94,7 @@
   </header>
 
 
-  <div class="entry-content"><p>Modules in Ruby are a great place to store shared behaviors used throughout a program. Writing a module is a convenient way to abstract out shared methods from multiple classes, thereby making the classes more DRY and manageable.</p>
+  <div class="entry-content"><p>Modules in Ruby are a great place to store shared behavior and data used throughout a program. Writing a module is a convenient way to abstract out shared methods from multiple classes, thereby making the classes more DRY and manageable.</p>
 
 <p>Some of the most popular modules in the Ruby core are <code>Comparable</code>, <code>Math</code>, and <code>Enumerable</code>. Yes, <a href="http://ruby-doc.org/core-2.1.2/Enumerable.html">a module</a> is the reason Rubyists across the world can enjoy <code>each</code> and other higher level iterators like <code>all?</code>, <code>collect</code>, and <code>inject</code>. <code>ActiveRecord</code> and <code>Sinatra</code> are two other popular modules used in the Rails and Sinatra web frameworks, respectively.</p>
 
@@ -397,22 +397,6 @@
 <li><a href="http://dev.af83.com/2012/11/05/ruby-2-0-module-refine.html"><code>refine</code> Classes <code>using</code> Modules</a></li>
 </ul>
 
-
-<p>The conventional wisdom is that modules provide a convenient namespace and the ability to be mixed in to classes. The Ruby documentation says &ldquo;A <code>Module</code> is a collection of methods and constants.&rdquo; But modules are so much more. They are a toolbox or a toychest that contains common behaviors and allows you to DRY out your classes. If that&rsquo;s not enough, DHH likes modules.</p>
-
-<h3>New Additions in Ruby 2.0</h3>
-
-<p>As of Ruby 2.0, there are two new, exciting and extra meta ways to mix modules in to your classes: <code>prepend</code> and <code>using</code>.</p>
-
-<h4><code>prepend</code></h4>
-
-<p>To explain <code>prepend</code>, it first helps to understand the method lookup chain. Maybe explain method lookup chain above?</p>
-
-<p>When a module is prepended, it is placed at the foot of the method lookup chain &mdash; below the class that the instance method is defined in &mdash; making it the first stop that Ruby looks for methods.</p>
-
-<h4><code>using</code></h4>
-
-<p>The <code>using</code> keyword can be used to include mix in modules &hellip;&hellip;&hellip;</p>
 </div>
   
   
