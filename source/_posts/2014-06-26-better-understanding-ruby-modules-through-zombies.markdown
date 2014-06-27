@@ -52,7 +52,7 @@ end
 class Dog < Animal
 end
 
-class Dog< Mammal
+class Dog < Mammal
 end
 #=> TypeError: superclass mismatch for class Dog
 ```
