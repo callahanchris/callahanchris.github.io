@@ -96,7 +96,7 @@
 
   <div class="entry-content"><p>Modules in Ruby are a great place to store shared behavior and data used throughout a program. Writing a module is a convenient way to abstract out shared methods from multiple classes, thereby making the classes more DRY and manageable.</p>
 
-<p>Some of the most popular modules in the Ruby core are <code>Comparable</code>, <code>Math</code>, and <code>Enumerable</code>. Yes, <a href="http://ruby-doc.org/core-2.1.2/Enumerable.html">a module</a> is the reason Rubyists across the world can enjoy <code>each</code> and other higher level iterators like <code>all?</code>, <code>collect</code>, and <code>inject</code>. <code>ActiveRecord</code> and <code>Sinatra</code> are two other popular modules used in the Rails and Sinatra web frameworks, respectively.</p>
+<p>Some of the most popular modules in the Ruby core are <code>Comparable</code>, <code>Math</code>, and <code>Enumerable</code>. Yes, <a href="http://ruby-doc.org/core-2.1.2/Enumerable.html">a module</a> is the reason Rubyists across the world can enjoy <code>each</code> and other higher level iterators like <code>all?</code>, <code>collect</code>, and <code>inject</code>! <code>ActiveRecord</code> and <code>Sinatra</code> are two other popular modules used in the Rails and Sinatra web frameworks, respectively.</p>
 
 <h3>Why Use Modules?</h3>
 
@@ -104,9 +104,9 @@
 
 <h3>How to Name a Module</h3>
 
-<p>Names are important. And since modules are known in technical parlance as namespaces, names are doubly important&hellip; and doubly spacious.</p>
+<p>Names are important in programming. And since modules are known in technical parlance as &ldquo;namespaces&rdquo;, module names are doubly important&hellip; and doubly spacious.</p>
 
-<p>Like classes, modules in Ruby are capitalized in CamelCase. Whereas classes tend to be singular nouns (<code>Person</code>, <code>Dog</code>, <code>Artist</code>), module names tend to be adjectives (<code>Magical</code>, <code>Persistable</code>, <code>Catlike</code>). Modules often have unique names that describes the <em>shared behaviors</em> or <em>characteristics</em> of multiple classes rather than names that could easily be confused for a class itself.</p>
+<p>Like classes, modules in Ruby are capitalized in CamelCase. Whereas classes tend to be singular nouns (<code>Person</code>, <code>Dog</code>, <code>Artist</code>), module names tend to be adjectives (<code>Magical</code>, <code>Persistable</code>, <code>Catlike</code>). Modules often have unique names that describe the behaviors, characteristics, or qualities shared by multiple classes.</p>
 
 <p>These naming conventions make sense because, unlike classes, modules cannot be instantiated. You can make a new <code>Person</code>, but you cannot make a new <code>Magical</code>.</p>
 
@@ -156,13 +156,13 @@
 </span><span class='line'><span class="k">class</span> <span class="nc">Animal</span>
 </span><span class='line'><span class="k">end</span>
 </span><span class='line'>
+</span><span class='line'><span class="k">class</span> <span class="nc">Dog</span> <span class="o">&lt;</span> <span class="no">Animal</span> <span class="o">&lt;</span> <span class="no">Mammal</span>
+</span><span class='line'><span class="k">end</span>
+</span><span class='line'><span class="c1">#=&gt; TypeError: superclass must be a Class (NilClass given)</span>
+</span><span class='line'>
 </span><span class='line'><span class="k">class</span> <span class="nc">Dog</span> <span class="o">&lt;</span> <span class="no">Animal</span><span class="p">,</span> <span class="no">Mammal</span>
 </span><span class='line'><span class="k">end</span>
 </span><span class='line'><span class="c1">#=&gt; SyntaxError: unexpected &#39;,&#39;, expecting &#39;;&#39; or &#39;\n&#39;</span>
-</span><span class='line'>
-</span><span class='line'><span class="k">class</span> <span class="nc">Dog</span> <span class="o">&lt;</span> <span class="no">Animal</span> <span class="o">&lt;</span> <span class="no">Mammal</span>
-</span><span class='line'><span class="k">end</span>
-</span><span class='line'><span class="c1">#=&gt; TypeError: superclass must be a Class (TrueClass given)</span>
 </span></code></pre></td></tr></table></div></figure>
 
 
@@ -307,12 +307,16 @@
 <span class='line-number'>8</span>
 <span class='line-number'>9</span>
 <span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
 </pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">Person</span>
 </span><span class='line'>  <span class="kp">include</span> <span class="ss">Zombified</span><span class="p">:</span><span class="ss">:InstanceMethods</span>
 </span><span class='line'><span class="k">end</span>
 </span><span class='line'>
 </span><span class='line'><span class="n">chris</span> <span class="o">=</span> <span class="no">Person</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="s2">&quot;Brains&quot;</span><span class="p">)</span>
 </span><span class='line'><span class="c1">#=&gt; #&lt;Person:0x00000102250618 @name=&quot;Brains&quot;&gt;</span>
+</span><span class='line'><span class="n">chris</span><span class="o">.</span><span class="n">name</span>
+</span><span class='line'><span class="c1">#=&gt; &quot;Brains&quot;</span>
 </span><span class='line'><span class="n">chris</span><span class="o">.</span><span class="n">preferred_source_of_energy</span>
 </span><span class='line'><span class="c1">#=&gt; &quot;BRAAAAIIINNNNSSSS!!!!!&quot;</span>
 </span><span class='line'><span class="n">chris</span><span class="o">.</span><span class="n">is_alive?</span>
@@ -361,7 +365,7 @@
 
 <p>Humanity is doomed, thanks to our handy module.</p>
 
-<p>From here it&rsquo;s easy to zombify other objects:</p>
+<p>From here it&rsquo;s easy to zombify objects in other classes:</p>
 
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
