@@ -150,6 +150,9 @@
 <span class='line-number'>11</span>
 <span class='line-number'>12</span>
 <span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
 </pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">Mammal</span>
 </span><span class='line'><span class="k">end</span>
 </span><span class='line'>
@@ -160,9 +163,12 @@
 </span><span class='line'><span class="k">end</span>
 </span><span class='line'><span class="c1">#=&gt; TypeError: superclass must be a Class (NilClass given)</span>
 </span><span class='line'>
-</span><span class='line'><span class="k">class</span> <span class="nc">Dog</span> <span class="o">&lt;</span> <span class="no">Animal</span><span class="p">,</span> <span class="no">Mammal</span>
+</span><span class='line'><span class="k">class</span> <span class="nc">Dog</span> <span class="o">&lt;</span> <span class="no">Animal</span>
 </span><span class='line'><span class="k">end</span>
-</span><span class='line'><span class="c1">#=&gt; SyntaxError: unexpected &#39;,&#39;, expecting &#39;;&#39; or &#39;\n&#39;</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">class</span> <span class="nc">Dog</span><span class="o">&lt;</span> <span class="no">Mammal</span>
+</span><span class='line'><span class="k">end</span>
+</span><span class='line'><span class="c1">#=&gt; TypeError: superclass mismatch for class Dog</span>
 </span></code></pre></td></tr></table></div></figure>
 
 
