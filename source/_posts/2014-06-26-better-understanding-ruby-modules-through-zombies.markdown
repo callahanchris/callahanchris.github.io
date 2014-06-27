@@ -27,6 +27,7 @@ In your Rails app, file your modules in the `app/models/concerns`, `app/controll
 ### Ineritance via Modules
 
 Direct class-to-class inheritance in Ruby is a tricky subject: only single inheritance is allowed. For example, this is valid Ruby:
+
 ```ruby
 class Mammal
 end
@@ -36,25 +37,29 @@ end
 
 class Dog < Animal
 end
-```
-but this is not:
-```ruby
-class Mammal
-end
 
+Dog.ancestors
+#=> [Dog, Animal, Mammal, Object, Kernel, BasicObject] 
+```
+
+but this is not:
+
+```ruby
 class Animal
 end
 
-class Dog < Animal < Mammal
+class MansBestFriend
 end
-#=> TypeError: superclass must be a Class (NilClass given)
 
 class Dog < Animal
 end
 
-class Dog < Mammal
+class Dog < MansBestFriend
 end
 #=> TypeError: superclass mismatch for class Dog
+
+Dog.ancestors
+#=> [Dog, Animal, Object, Kernel, BasicObject] 
 ```
 
 Modules solve the problem of multiple inheritance in an interesting way. A class can call the `extend` method to inherit a module's class methods, and a class can call the `include` method to inherit a module's instance methods.
