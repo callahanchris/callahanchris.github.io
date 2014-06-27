@@ -49,9 +49,12 @@ class Dog < Animal < Mammal
 end
 #=> TypeError: superclass must be a Class (NilClass given)
 
-class Dog < Animal, Mammal
+class Dog < Animal
 end
-#=> SyntaxError: unexpected ',', expecting ';' or '\n'
+
+class Dog< Mammal
+end
+#=> TypeError: superclass mismatch for class Dog
 ```
 
 Modules solve the problem of multiple inheritance in an interesting way. A class can call the `extend` method to inherit a module's class methods, and a class can call the `include` method to inherit a module's instance methods.
