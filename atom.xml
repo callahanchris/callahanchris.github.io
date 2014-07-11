@@ -4,7 +4,7 @@
   <title><![CDATA[Chris Callahan's Blog]]></title>
   <link href="http://callahanchris.github.io/atom.xml" rel="self"/>
   <link href="http://callahanchris.github.io/"/>
-  <updated>2014-07-11T09:32:52-04:00</updated>
+  <updated>2014-07-11T09:33:45-04:00</updated>
   <id>http://callahanchris.github.io/</id>
   <author>
     <name><![CDATA[Chris Callahan]]></name>
@@ -308,10 +308,10 @@
 <ul>
 <li><a href="https://www.youtube.com/watch?v=8bZh5LMaSmE">Sandi Metz &ndash; All the Little Things (RailsConf 2014)</a></li>
 <li><a href="http://www.poodr.com/">Practical Object-Oriented Design in Ruby (POODR)</a></li>
+<li><a href="http://www.manning.com/black3/">The Well-Grounded Rubyist</a></li>
 <li><a href="http://rubyrogues.com/087-rr-book-clubpractical-object-oriented-design-in-ruby-with-sandi-metz/">Sandi Metz on the Ruby Rogues podcast</a></li>
 <li><a href="https://www.youtube.com/watch?v=DC-pQPq0acs">Ben Orenstein &ndash; Refactoring from Good to Great (Aloha Ruby Conf 2012)</a></li>
 <li><a href="https://www.youtube.com/watch?v=9LfmrkyP81M">David Heinemeier Hansson &ndash; Writing Software (RailsConf 2014)</a></li>
-<li><a href="http://www.manning.com/black3/">The Well-Grounded Rubyist</a></li>
 </ul>
 
 ]]></content>
