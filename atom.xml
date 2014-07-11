@@ -4,7 +4,7 @@
   <title><![CDATA[Chris Callahan's Blog]]></title>
   <link href="http://callahanchris.github.io/atom.xml" rel="self"/>
   <link href="http://callahanchris.github.io/"/>
-  <updated>2014-06-27T10:37:50-04:00</updated>
+  <updated>2014-07-11T09:29:03-04:00</updated>
   <id>http://callahanchris.github.io/</id>
   <author>
     <name><![CDATA[Chris Callahan]]></name>
@@ -12,6 +12,307 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Lessons From Refactoring Tic Tac Toe]]></title>
+    <link href="http://callahanchris.github.io/blog/2014/07/10/lessons-from-refactoring-tic-tac-toe/"/>
+    <updated>2014-07-10T18:02:50-04:00</updated>
+    <id>http://callahanchris.github.io/blog/2014/07/10/lessons-from-refactoring-tic-tac-toe</id>
+    <content type="html"><![CDATA[<p>As part of my application to the Flatiron School in January of this year, I had to write a tic tac toe computer program. The assignment was purposely left vague; it was up to me to decide what programming language to use, how complex it was, whether it was one-player or two-player, etc.</p>
+
+<p>After four or five days of unchecked obsession (fueled in part by my fiancee&rsquo;s invaluable bug-spotting abilities), I emerged with 438 lines of Ruby code and a working one-player version of tic tac toe that could be played on the command line. It was ugly, but it worked.</p>
+
+<p>Six months later, as I near the halfway point in the web development course at the Flatiron School, I decided to apply my new programming knowledge by refactoring the code of my old tic tac toe game.</p>
+
+<p>In the end, I threw out about 95% of my original code. It was painful to do this, but through the pain, I learned some valuable lessons.</p>
+
+<h3>Make Smaller Methods</h3>
+
+<p>Small methods are the bedrock of semantic, abstract, and reusable code. Until reading <a href="http://www.poodr.com/">POODR</a> and listening to <a href="https://twitter.com/aviflombaum">Avi Flombaum&rsquo;s</a> lectures, I had no clue about the value of the single responsibility principle. When applied to methods, the single responsibility principle means making methods that accomplish only one purpose. A good litmus test is to ask: &ldquo;What does this method do?&rdquo; If there are any &ldquo;and&#8221;s or &#8220;or&#8221;s in the response, the method might be shouldering multiple responsibilities.</p>
+
+<p>Aside of making your code more readable and consise, breaking methods down to smaller and smaller units has an additional (and unexpected) benefit: the emergence of seredipitous recombinations. After breaking down methods into atomic units, you often find that you are able to reuse these methods in contexts outside of that in which you originally designed the method.</p>
+
+<p>It was awesome being able to apply these ideas to my tic tac toe game. I feel much more confident using smaller methods now.</p>
+
+<p>Here is an example from my original tic tac toe game of the <code>empty_spaces</code> method that determines how many empty spaces are left on the board. [<em>Warning: I really did not know how to code when I wrote this program. Just be thankful I&rsquo;m not pasting in the 160(!) line method I had in the original program.</em>]</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">def</span> <span class="nf">empty_spaces</span>
+</span><span class='line'>  <span class="c1"># Check to see how many empty spaces are left on the board</span>
+</span><span class='line'>  <span class="vi">@empty_spaces</span> <span class="o">=</span> <span class="mi">0</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="c1"># Convert the @tttboard variable array a standard array for quick check</span>
+</span><span class='line'>  <span class="n">ttt</span> <span class="o">=</span> <span class="o">[</span><span class="vi">@tttboard</span><span class="o">[</span><span class="mi">0</span><span class="o">][</span><span class="mi">0</span><span class="o">]</span><span class="p">,</span><span class="vi">@tttboard</span><span class="o">[</span><span class="mi">0</span><span class="o">][</span><span class="mi">1</span><span class="o">]</span><span class="p">,</span><span class="vi">@tttboard</span><span class="o">[</span><span class="mi">0</span><span class="o">][</span><span class="mi">2</span><span class="o">]</span><span class="p">,</span><span class="vi">@tttboard</span><span class="o">[</span><span class="mi">1</span><span class="o">][</span><span class="mi">0</span><span class="o">]</span><span class="p">,</span><span class="vi">@tttboard</span><span class="o">[</span><span class="mi">1</span><span class="o">][</span><span class="mi">1</span><span class="o">]</span><span class="p">,</span><span class="vi">@tttboard</span><span class="o">[</span><span class="mi">1</span><span class="o">][</span><span class="mi">2</span><span class="o">]</span><span class="p">,</span><span class="vi">@tttboard</span><span class="o">[</span><span class="mi">2</span><span class="o">][</span><span class="mi">0</span><span class="o">]</span><span class="p">,</span><span class="vi">@tttboard</span><span class="o">[</span><span class="mi">2</span><span class="o">][</span><span class="mi">1</span><span class="o">]</span><span class="p">,</span><span class="vi">@tttboard</span><span class="o">[</span><span class="mi">2</span><span class="o">][</span><span class="mi">2</span><span class="o">]]</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">ttt</span><span class="o">.</span><span class="n">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">x</span><span class="o">|</span>
+</span><span class='line'>    <span class="k">if</span> <span class="n">x</span> <span class="o">==</span> <span class="s1">&#39; &#39;</span>
+</span><span class='line'>      <span class="vi">@empty_spaces</span> <span class="o">+=</span> <span class="mi">1</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="vi">@empty_spaces</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>and here is the refactored version:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">def</span> <span class="nf">empty_spaces</span>
+</span><span class='line'>  <span class="n">board</span><span class="o">.</span><span class="n">flatten</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">)</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>One line methods are awesome! The new implementation of <code>empty_spaces</code> is significantly more readable and easier to understand than the original one. It utilizes the reader method provided by <code>attr_reader :board</code> rather than directly accessing the data <code>@board</code> instance variable, making the code more open to easy changes going forward.</p>
+
+<p>After DRYing up my methods, I had to take on a larger design issue: classes.</p>
+
+<h3>Make Smaller Classes</h3>
+
+<blockquote><p>&ldquo;Applications that are easy to change consist of classes that are easy to reuse. Reusable classes are pluggable units of well-defined behavior that have few entanglements. An application that is easy to change is like a box of building blocks; you can select just the pieces you need and assemble them in unanticipated ways.&rdquo;
+<em>&mdash; Practical Object-Oriented Design in Ruby, page 21</em></p></blockquote>
+
+<p>I didn&rsquo;t understand the purpose of classes back in January when I first wrote my tic tac toe implementation. This partially explains why I originally only included one class (<code>TicTacToe</code>) that stood at a monstrous 405 lines &mdash; a veritable God object towering over my codebase.</p>
+
+<p>I am still far from mastering the principles of object-oriented design, but I have come a long way over the last few months, thanks largely to <em>POODR</em> and <em>The Well-Grounded Rubyist</em>. One of the most important things I&rsquo;ve learned along the way is to not be afraid of classes. Watching tech talks by Sandi Metz, Ben Orenstein, and others showed me that the single responsibility principle also applies to classes.</p>
+
+<p>My new tic tac toe codebase has 9 classes, all of which sit inside of the <code>TTT</code> module. The stubbed out class hierarchy in my program now vaguely looks like this:</p>
+
+<p><code>
+module TTT            #=&gt; namespace and home to the constant BOARD
+|
+--class Game          #=&gt; initializes new Human and Computer objects
+|
+--class CLIRunner     #=&gt; responsible for running the game via CLI
+|
+--class CheckWinner   #=&gt; checks if the game has been won
+|
+--class Human         #=&gt; defines the ground rules for human moves
+|
+--class Computer      #=&gt; delegates the computer's AI logic to subclasses
+  |
+  --class Opener      #=&gt; makes opening moves for the computer
+  |
+  --class Winner      #=&gt; makes winning moves for the computer
+  | |
+  | --class Blocker   #=&gt; piggybacks off of the Winner class's logic to
+  |                   #=&gt; block potential wins by the human player
+  |
+  --class RandomMover #=&gt; moves randomly if the above strategies fail
+</code></p>
+
+<p>It is abundantly clear now what each class does. Here is the computer&rsquo;s original logic for blocking a human from winning, which was imbedded inside of the 160 line <code>computer</code> method:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="c1"># The computer blocks the human player if it does not have a winning move</span>
+</span><span class='line'><span class="c1"># Computer blocks against human&#39;s diagonal wins</span>
+</span><span class='line'><span class="k">elsif</span> <span class="vi">@tttboard</span><span class="o">[</span><span class="mi">1</span><span class="o">][</span><span class="mi">1</span><span class="o">]</span> <span class="o">==</span> <span class="s2">&quot;</span><span class="si">#{</span><span class="vi">@player</span><span class="si">}</span><span class="s2">&quot;</span> <span class="o">&amp;&amp;</span> <span class="vi">@tttboard</span><span class="o">[</span><span class="mi">2</span><span class="o">][</span><span class="mi">2</span><span class="o">]</span> <span class="o">==</span> <span class="s2">&quot;</span><span class="si">#{</span><span class="vi">@player</span><span class="si">}</span><span class="s2">&quot;</span> <span class="o">&amp;&amp;</span> <span class="vi">@tttboard</span><span class="o">[</span><span class="mi">0</span><span class="o">][</span><span class="mi">0</span><span class="o">]</span> <span class="o">==</span> <span class="s1">&#39; &#39;</span>
+</span><span class='line'>  <span class="vi">@tttboard</span><span class="o">[</span><span class="mi">0</span><span class="o">][</span><span class="mi">0</span><span class="o">]</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">#{</span><span class="vi">@opponent</span><span class="si">}</span><span class="s2">&quot;</span>
+</span><span class='line'><span class="k">elsif</span> <span class="vi">@tttboard</span><span class="o">[</span><span class="mi">0</span><span class="o">][</span><span class="mi">0</span><span class="o">]</span> <span class="o">==</span> <span class="s2">&quot;</span><span class="si">#{</span><span class="vi">@player</span><span class="si">}</span><span class="s2">&quot;</span> <span class="o">&amp;&amp;</span> <span class="vi">@tttboard</span><span class="o">[</span><span class="mi">2</span><span class="o">][</span><span class="mi">2</span><span class="o">]</span> <span class="o">==</span> <span class="s2">&quot;</span><span class="si">#{</span><span class="vi">@player</span><span class="si">}</span><span class="s2">&quot;</span> <span class="o">&amp;&amp;</span> <span class="vi">@tttboard</span><span class="o">[</span><span class="mi">1</span><span class="o">][</span><span class="mi">1</span><span class="o">]</span> <span class="o">==</span> <span class="s1">&#39; &#39;</span>
+</span><span class='line'>  <span class="vi">@tttboard</span><span class="o">[</span><span class="mi">1</span><span class="o">][</span><span class="mi">1</span><span class="o">]</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">#{</span><span class="vi">@opponent</span><span class="si">}</span><span class="s2">&quot;</span>
+</span><span class='line'><span class="k">elsif</span> <span class="vi">@tttboard</span><span class="o">[</span><span class="mi">0</span><span class="o">][</span><span class="mi">0</span><span class="o">]</span> <span class="o">==</span> <span class="s2">&quot;</span><span class="si">#{</span><span class="vi">@player</span><span class="si">}</span><span class="s2">&quot;</span> <span class="o">&amp;&amp;</span> <span class="vi">@tttboard</span><span class="o">[</span><span class="mi">1</span><span class="o">][</span><span class="mi">1</span><span class="o">]</span> <span class="o">==</span> <span class="s2">&quot;</span><span class="si">#{</span><span class="vi">@player</span><span class="si">}</span><span class="s2">&quot;</span> <span class="o">&amp;&amp;</span> <span class="vi">@tttboard</span><span class="o">[</span><span class="mi">2</span><span class="o">][</span><span class="mi">2</span><span class="o">]</span> <span class="o">==</span> <span class="s1">&#39; &#39;</span>
+</span><span class='line'>  <span class="vi">@tttboard</span><span class="o">[</span><span class="mi">2</span><span class="o">][</span><span class="mi">2</span><span class="o">]</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">#{</span><span class="vi">@opponent</span><span class="si">}</span><span class="s2">&quot;</span>
+</span><span class='line'><span class="k">elsif</span> <span class="vi">@tttboard</span><span class="o">[</span><span class="mi">1</span><span class="o">][</span><span class="mi">1</span><span class="o">]</span> <span class="o">==</span> <span class="s2">&quot;</span><span class="si">#{</span><span class="vi">@player</span><span class="si">}</span><span class="s2">&quot;</span> <span class="o">&amp;&amp;</span> <span class="vi">@tttboard</span><span class="o">[</span><span class="mi">2</span><span class="o">][</span><span class="mi">0</span><span class="o">]</span> <span class="o">==</span> <span class="s2">&quot;</span><span class="si">#{</span><span class="vi">@player</span><span class="si">}</span><span class="s2">&quot;</span> <span class="o">&amp;&amp;</span> <span class="vi">@tttboard</span><span class="o">[</span><span class="mi">0</span><span class="o">][</span><span class="mi">2</span><span class="o">]</span> <span class="o">==</span> <span class="s1">&#39; &#39;</span>
+</span><span class='line'>  <span class="vi">@tttboard</span><span class="o">[</span><span class="mi">0</span><span class="o">][</span><span class="mi">2</span><span class="o">]</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">#{</span><span class="vi">@opponent</span><span class="si">}</span><span class="s2">&quot;</span>
+</span><span class='line'><span class="k">elsif</span> <span class="vi">@tttboard</span><span class="o">[</span><span class="mi">0</span><span class="o">][</span><span class="mi">2</span><span class="o">]</span> <span class="o">==</span> <span class="s2">&quot;</span><span class="si">#{</span><span class="vi">@player</span><span class="si">}</span><span class="s2">&quot;</span> <span class="o">&amp;&amp;</span> <span class="vi">@tttboard</span><span class="o">[</span><span class="mi">2</span><span class="o">][</span><span class="mi">0</span><span class="o">]</span> <span class="o">==</span> <span class="s2">&quot;</span><span class="si">#{</span><span class="vi">@player</span><span class="si">}</span><span class="s2">&quot;</span> <span class="o">&amp;&amp;</span> <span class="vi">@tttboard</span><span class="o">[</span><span class="mi">1</span><span class="o">][</span><span class="mi">1</span><span class="o">]</span> <span class="o">==</span> <span class="s1">&#39; &#39;</span>
+</span><span class='line'>  <span class="vi">@tttboard</span><span class="o">[</span><span class="mi">1</span><span class="o">][</span><span class="mi">1</span><span class="o">]</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">#{</span><span class="vi">@opponent</span><span class="si">}</span><span class="s2">&quot;</span>
+</span><span class='line'><span class="k">elsif</span> <span class="vi">@tttboard</span><span class="o">[</span><span class="mi">0</span><span class="o">][</span><span class="mi">2</span><span class="o">]</span> <span class="o">==</span> <span class="s2">&quot;</span><span class="si">#{</span><span class="vi">@player</span><span class="si">}</span><span class="s2">&quot;</span> <span class="o">&amp;&amp;</span> <span class="vi">@tttboard</span><span class="o">[</span><span class="mi">1</span><span class="o">][</span><span class="mi">1</span><span class="o">]</span> <span class="o">==</span> <span class="s2">&quot;</span><span class="si">#{</span><span class="vi">@player</span><span class="si">}</span><span class="s2">&quot;</span> <span class="o">&amp;&amp;</span> <span class="vi">@tttboard</span><span class="o">[</span><span class="mi">2</span><span class="o">][</span><span class="mi">0</span><span class="o">]</span> <span class="o">==</span> <span class="s1">&#39; &#39;</span>
+</span><span class='line'>  <span class="vi">@tttboard</span><span class="o">[</span><span class="mi">2</span><span class="o">][</span><span class="mi">0</span><span class="o">]</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">#{</span><span class="vi">@opponent</span><span class="si">}</span><span class="s2">&quot;</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1"># Computer blocks against human&#39;s horizontal wins</span>
+</span><span class='line'><span class="k">elsif</span> <span class="vi">@tttboard</span><span class="o">[</span><span class="mi">0</span><span class="o">][</span><span class="mi">1</span><span class="o">]</span> <span class="o">==</span> <span class="s2">&quot;</span><span class="si">#{</span><span class="vi">@player</span><span class="si">}</span><span class="s2">&quot;</span> <span class="o">&amp;&amp;</span> <span class="vi">@tttboard</span><span class="o">[</span><span class="mi">0</span><span class="o">][</span><span class="mi">2</span><span class="o">]</span> <span class="o">==</span> <span class="s2">&quot;</span><span class="si">#{</span><span class="vi">@player</span><span class="si">}</span><span class="s2">&quot;</span> <span class="o">&amp;&amp;</span> <span class="vi">@tttboard</span><span class="o">[</span><span class="mi">0</span><span class="o">][</span><span class="mi">0</span><span class="o">]</span> <span class="o">==</span> <span class="s1">&#39; &#39;</span>
+</span><span class='line'>  <span class="vi">@tttboard</span><span class="o">[</span><span class="mi">0</span><span class="o">][</span><span class="mi">0</span><span class="o">]</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">#{</span><span class="vi">@opponent</span><span class="si">}</span><span class="s2">&quot;</span>
+</span><span class='line'><span class="c1"># ...10 more lines of code...</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1"># Computer blocks against human&#39;s vertical wins</span>
+</span><span class='line'><span class="k">elsif</span> <span class="vi">@tttboard</span><span class="o">[</span><span class="mi">1</span><span class="o">][</span><span class="mi">0</span><span class="o">]</span> <span class="o">==</span> <span class="s2">&quot;</span><span class="si">#{</span><span class="vi">@player</span><span class="si">}</span><span class="s2">&quot;</span> <span class="o">&amp;&amp;</span> <span class="vi">@tttboard</span><span class="o">[</span><span class="mi">2</span><span class="o">][</span><span class="mi">0</span><span class="o">]</span> <span class="o">==</span> <span class="s2">&quot;</span><span class="si">#{</span><span class="vi">@player</span><span class="si">}</span><span class="s2">&quot;</span> <span class="o">&amp;&amp;</span> <span class="vi">@tttboard</span><span class="o">[</span><span class="mi">0</span><span class="o">][</span><span class="mi">0</span><span class="o">]</span> <span class="o">==</span> <span class="s1">&#39; &#39;</span>
+</span><span class='line'>  <span class="vi">@tttboard</span><span class="o">[</span><span class="mi">0</span><span class="o">][</span><span class="mi">0</span><span class="o">]</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">#{</span><span class="vi">@opponent</span><span class="si">}</span><span class="s2">&quot;</span>
+</span><span class='line'><span class="c1"># ...10 more lines of code...</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>and the new implementation of the <code>Blocker</code> class:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">Blocker</span> <span class="o">&lt;</span> <span class="ss">TTT</span><span class="p">:</span><span class="ss">:Computer</span><span class="o">::</span><span class="no">Winner</span>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">potential_wins</span>
+</span><span class='line'>    <span class="o">[</span><span class="n">opponent</span><span class="p">,</span> <span class="n">opponent</span><span class="p">,</span> <span class="s1">&#39; &#39;</span><span class="o">].</span><span class="n">permutation</span><span class="o">.</span><span class="n">to_a</span><span class="o">.</span><span class="n">uniq</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">can_block?</span>
+</span><span class='line'>    <span class="n">can_win?</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>While the original version hard coded the lookup process on the board and manually altered the data of each square in the <code>@tttboard</code> array, the <code>Blocker</code> class by contrast seems almost empty. <code>Blocker</code> inherits from the <code>Winner</code> class, which implements the logic of finding <code>potential_wins</code> and filling in the <code>piece</code> (&ldquo;X&rdquo; or &ldquo;O&rdquo;) of the computer in the empty space. The <code>Winner</code> class has methods like the following:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">def</span> <span class="nf">can_win_horiz?</span>
+</span><span class='line'>  <span class="n">potential_wins</span><span class="o">.</span><span class="n">any?</span> <span class="k">do</span> <span class="o">|</span><span class="n">pot_win</span><span class="o">|</span>
+</span><span class='line'>    <span class="n">board</span><span class="o">.</span><span class="n">include?</span><span class="p">(</span><span class="n">pot_win</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>which determines if there are any potential wins for the computer horizontally. Another method <code>horiz_win</code> in the <code>Winner</code> class then uses the <code>update_board</code> method inherited from the <code>Computer</code> class to fill in the tic tac toe board with the computer&rsquo;s move.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">def</span> <span class="nf">update_board</span><span class="p">(</span><span class="n">row</span><span class="p">,</span> <span class="n">col</span><span class="p">)</span>
+</span><span class='line'>  <span class="ss">TTT</span><span class="p">:</span><span class="ss">:BOARD</span><span class="o">[</span><span class="n">row</span><span class="o">][</span><span class="n">col</span><span class="o">]</span> <span class="o">=</span> <span class="n">piece</span> <span class="k">if</span> <span class="ss">TTT</span><span class="p">:</span><span class="ss">:BOARD</span><span class="o">[</span><span class="n">row</span><span class="o">][</span><span class="n">col</span><span class="o">]</span> <span class="o">==</span> <span class="s1">&#39; &#39;</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The <code>Blocker</code> class has access to all of the methods of the <code>Winner</code> class. <code>Blocker</code> is essentially solving the same puzzle as <code>Winner</code>, but instead of solving for <em>computer</em> wins, it is solving for <em>human</em> wins. Therefore, all I really needed to change was the <code>potential_wins</code> method, plugging in <code>opponent</code> (indicating the human&rsquo;s &ldquo;X&rdquo; or &ldquo;O&rdquo; piece). This overwrote <code>Winner</code>&rsquo;s implementation of this method:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">def</span> <span class="nf">potential_wins</span>
+</span><span class='line'>  <span class="o">[</span><span class="n">piece</span><span class="p">,</span> <span class="n">piece</span><span class="p">,</span> <span class="s1">&#39; &#39;</span><span class="o">].</span><span class="n">permutation</span><span class="o">.</span><span class="n">to_a</span><span class="o">.</span><span class="n">uniq</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>Make Reusable Code</h3>
+
+<p>This is the overarching lesson I learned in the process of refactoring my tic tac toe code. Writing the original tic tac toe implementation was painful &mdash; not only because I didn&rsquo;t really understand how to code at the time, but also because the code I wrote was extremely resistant to change. My new implementation of tic tac toe, on the other hand, relies more on abstractions and is significantly more open to the possibility of change in the future.</p>
+
+<p>Take, for example, the <code>Computer</code> class&rsquo;s <code>move</code> algorithm:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">def</span> <span class="nf">move</span>
+</span><span class='line'>  <span class="k">if</span> <span class="n">empty_spaces</span> <span class="o">&gt;</span> <span class="mi">7</span>
+</span><span class='line'>    <span class="n">opener</span><span class="o">.</span><span class="n">move</span>
+</span><span class='line'>  <span class="k">elsif</span> <span class="n">winner</span><span class="o">.</span><span class="n">can_win?</span>
+</span><span class='line'>    <span class="n">winner</span><span class="o">.</span><span class="n">move</span>
+</span><span class='line'>  <span class="k">elsif</span> <span class="n">blocker</span><span class="o">.</span><span class="n">can_block?</span>
+</span><span class='line'>    <span class="n">blocker</span><span class="o">.</span><span class="n">move</span>
+</span><span class='line'>  <span class="k">else</span>
+</span><span class='line'>    <span class="n">random_mover</span><span class="o">.</span><span class="n">move</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>But what if I want to make the computer smarter and decide to implement a way for the computer to recognize opportunities to create a fork? In my original implementation, the cost of adding such a feature was simply too high. Not only would I be afraid of breaking my existing code, but I&rsquo;d also have to hardcode every single permutation possible &mdash; something I now know is avoidable.</p>
+
+<p>Instead, with the new code, I could make a <code>Forker</code> class that inherits from <code>Computer</code>. The most significant change I&rsquo;d have to make to <code>Computer</code> to accomplish this would be:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">def</span> <span class="nf">move</span>
+</span><span class='line'>  <span class="k">if</span> <span class="n">empty_spaces</span> <span class="o">&gt;</span> <span class="mi">7</span>
+</span><span class='line'>    <span class="n">opener</span><span class="o">.</span><span class="n">move</span>
+</span><span class='line'>  <span class="k">elsif</span> <span class="n">winner</span><span class="o">.</span><span class="n">can_win?</span>
+</span><span class='line'>    <span class="n">winner</span><span class="o">.</span><span class="n">move</span>
+</span><span class='line'>  <span class="k">elsif</span> <span class="n">blocker</span><span class="o">.</span><span class="n">can_block?</span>
+</span><span class='line'>    <span class="n">blocker</span><span class="o">.</span><span class="n">move</span>
+</span><span class='line'>  <span class="k">elsif</span> <span class="n">forker</span><span class="o">.</span><span class="n">can_fork?</span>
+</span><span class='line'>    <span class="n">forker</span><span class="o">.</span><span class="n">move</span>
+</span><span class='line'>  <span class="k">else</span>
+</span><span class='line'>    <span class="n">random_mover</span><span class="o">.</span><span class="n">move</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>By extension, making a <code>ForkBlocker</code> class would be equally easy to accomplish.</p>
+
+<p>There are many other ways that my tic tac toe codebase can be easily expanded upon now. I could make the game a 4x4 or 5x5 grid instead of a 3x3 grid with ease. I don&rsquo;t even want to think about how many hours and keystrokes it would take to accomplish in the original implementation.</p>
+
+<h3>Going Forward</h3>
+
+<p>Another direction I want to take this project in is bringing tic tac toe to the Internet! I have a basic grasp of the Sinatra and Ruby on Rails web application frameworks, and now that I have tic tac toe running on the command line, the next logical step is figuring out how to deploy it on the web. This could bring about some new and interesting challenges like how to integrate JavaScript and jQuery into the app. I know very little about these technologies but am excited to learn more!</p>
+
+<h3>Links/Resources</h3>
+
+<p><a href="https://www.youtube.com/watch?v=8bZh5LMaSmE">Sandi Metz &ndash; All the Little Things (RailsConf 2014)</a>
+<a href="http://www.poodr.com/">Practical Object-Oriented Design in Ruby (POODR)</a>
+<a href="http://rubyrogues.com/087-rr-book-clubpractical-object-oriented-design-in-ruby-with-sandi-metz/">Sandi Metz on the Ruby Rogues podcast</a>
+<a href="https://www.youtube.com/watch?v=DC-pQPq0acs">Ben Orenstein &ndash; Refactoring from Good to Great (Aloha Ruby Conf 2012)</a>
+<a href="https://www.youtube.com/watch?v=9LfmrkyP81M">David Heinemeier Hansson &ndash; Writing Software (RailsConf 2014)</a>
+<a href="http://www.manning.com/black3/">The Well-Grounded Rubyist</a></p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Better Understanding Ruby Modules Through Zombies]]></title>
