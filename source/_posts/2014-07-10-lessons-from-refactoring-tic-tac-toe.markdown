@@ -56,6 +56,7 @@ After DRYing up my methods, I had to take on a larger design issue: classes.
 ### Make Smaller Classes
 
 >"Applications that are easy to change consist of classes that are easy to reuse. Reusable classes are pluggable units of well-defined behavior that have few entanglements. An application that is easy to change is like a box of building blocks; you can select just the pieces you need and assemble them in unanticipated ways."
+
 *-- Practical Object-Oriented Design in Ruby, page 21*
 
 I didn't understand the purpose of classes back in January when I first wrote my tic tac toe implementation. This partially explains why I originally only included one class (`TicTacToe`) that stood at a monstrous 405 lines -- a veritable God object towering over my codebase.
@@ -64,28 +65,26 @@ I am still far from mastering the principles of object-oriented design, but I ha
 
 My new tic tac toe codebase has 9 classes, all of which sit inside of the `TTT` module. The stubbed out class hierarchy in my program now vaguely looks like this:
 
-`
-module TTT            #=> namespace and home to the constant BOARD
-|
---class Game          #=> initializes new Human and Computer objects
-|
---class CLIRunner     #=> responsible for running the game via CLI
-|
---class CheckWinner   #=> checks if the game has been won
-|
---class Human         #=> defines the ground rules for human moves
-|
---class Computer      #=> delegates the computer's AI logic to subclasses
-  |
-  --class Opener      #=> makes opening moves for the computer
-  |
-  --class Winner      #=> makes winning moves for the computer
-  | |
-  | --class Blocker   #=> piggybacks off of the Winner class's logic to
-  |                   #=> block potential wins by the human player
-  |
-  --class RandomMover #=> moves randomly if the above strategies fail
-`
+    module TTT            #=> namespace and home to the constant BOARD
+    |
+    --class Game          #=> initializes new Human and Computer objects
+    |
+    --class CLIRunner     #=> responsible for running the game via CLI
+    |
+    --class CheckWinner   #=> checks if the game has been won
+    |
+    --class Human         #=> defines the ground rules for human moves
+    |
+    --class Computer      #=> delegates the computer's AI logic to subclasses
+      |
+      --class Opener      #=> makes opening moves for the computer
+      |
+      --class Winner      #=> makes winning moves for the computer
+      | |
+      | --class Blocker   #=> piggybacks off of the Winner class's logic to
+      |                   #=> block potential wins by the human player
+      |
+      --class RandomMover #=> moves randomly if the above strategies fail
 
 It is abundantly clear now what each class does. Here is the computer's original logic for blocking a human from winning, which was imbedded inside of the 160 line `computer` method:
 
@@ -207,9 +206,9 @@ Another direction I want to take this project in is bringing tic tac toe to the 
 
 ### Links/Resources
 
-[Sandi Metz - All the Little Things (RailsConf 2014)](https://www.youtube.com/watch?v=8bZh5LMaSmE)
-[Practical Object-Oriented Design in Ruby (POODR)](http://www.poodr.com/)
-[Sandi Metz on the Ruby Rogues podcast](http://rubyrogues.com/087-rr-book-clubpractical-object-oriented-design-in-ruby-with-sandi-metz/)
-[Ben Orenstein - Refactoring from Good to Great (Aloha Ruby Conf 2012)](https://www.youtube.com/watch?v=DC-pQPq0acs)
-[David Heinemeier Hansson - Writing Software (RailsConf 2014)](https://www.youtube.com/watch?v=9LfmrkyP81M)
-[The Well-Grounded Rubyist](http://www.manning.com/black3/)
+* [Sandi Metz - All the Little Things (RailsConf 2014)](https://www.youtube.com/watch?v=8bZh5LMaSmE)
+* [Practical Object-Oriented Design in Ruby (POODR)](http://www.poodr.com/)
+* [The Well-Grounded Rubyist](http://www.manning.com/black3/)
+* [Sandi Metz on the Ruby Rogues podcast](http://rubyrogues.com/087-rr-book-clubpractical-object-oriented-design-in-ruby-with-sandi-metz/)
+* [Ben Orenstein - Refactoring from Good to Great (Aloha Ruby Conf 2012)](https://www.youtube.com/watch?v=DC-pQPq0acs)
+* [David Heinemeier Hansson - Writing Software (RailsConf 2014)](https://www.youtube.com/watch?v=9LfmrkyP81M)
