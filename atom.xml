@@ -4,7 +4,7 @@
   <title><![CDATA[Chris Callahan's Blog]]></title>
   <link href="http://callahanchris.github.io/atom.xml" rel="self"/>
   <link href="http://callahanchris.github.io/"/>
-  <updated>2014-07-11T09:29:03-04:00</updated>
+  <updated>2014-07-11T09:32:52-04:00</updated>
   <id>http://callahanchris.github.io/</id>
   <author>
     <name><![CDATA[Chris Callahan]]></name>
@@ -86,8 +86,9 @@
 
 <h3>Make Smaller Classes</h3>
 
-<blockquote><p>&ldquo;Applications that are easy to change consist of classes that are easy to reuse. Reusable classes are pluggable units of well-defined behavior that have few entanglements. An application that is easy to change is like a box of building blocks; you can select just the pieces you need and assemble them in unanticipated ways.&rdquo;
-<em>&mdash; Practical Object-Oriented Design in Ruby, page 21</em></p></blockquote>
+<blockquote><p>&ldquo;Applications that are easy to change consist of classes that are easy to reuse. Reusable classes are pluggable units of well-defined behavior that have few entanglements. An application that is easy to change is like a box of building blocks; you can select just the pieces you need and assemble them in unanticipated ways.&rdquo;</p></blockquote>
+
+<p><em>&mdash; Practical Object-Oriented Design in Ruby, page 21</em></p>
 
 <p>I didn&rsquo;t understand the purpose of classes back in January when I first wrote my tic tac toe implementation. This partially explains why I originally only included one class (<code>TicTacToe</code>) that stood at a monstrous 405 lines &mdash; a veritable God object towering over my codebase.</p>
 
@@ -95,8 +96,7 @@
 
 <p>My new tic tac toe codebase has 9 classes, all of which sit inside of the <code>TTT</code> module. The stubbed out class hierarchy in my program now vaguely looks like this:</p>
 
-<p><code>
-module TTT            #=&gt; namespace and home to the constant BOARD
+<pre><code>module TTT            #=&gt; namespace and home to the constant BOARD
 |
 --class Game          #=&gt; initializes new Human and Computer objects
 |
@@ -116,7 +116,7 @@ module TTT            #=&gt; namespace and home to the constant BOARD
   |                   #=&gt; block potential wins by the human player
   |
   --class RandomMover #=&gt; moves randomly if the above strategies fail
-</code></p>
+</code></pre>
 
 <p>It is abundantly clear now what each class does. Here is the computer&rsquo;s original logic for blocking a human from winning, which was imbedded inside of the 160 line <code>computer</code> method:</p>
 
@@ -305,12 +305,15 @@ module TTT            #=&gt; namespace and home to the constant BOARD
 
 <h3>Links/Resources</h3>
 
-<p><a href="https://www.youtube.com/watch?v=8bZh5LMaSmE">Sandi Metz &ndash; All the Little Things (RailsConf 2014)</a>
-<a href="http://www.poodr.com/">Practical Object-Oriented Design in Ruby (POODR)</a>
-<a href="http://rubyrogues.com/087-rr-book-clubpractical-object-oriented-design-in-ruby-with-sandi-metz/">Sandi Metz on the Ruby Rogues podcast</a>
-<a href="https://www.youtube.com/watch?v=DC-pQPq0acs">Ben Orenstein &ndash; Refactoring from Good to Great (Aloha Ruby Conf 2012)</a>
-<a href="https://www.youtube.com/watch?v=9LfmrkyP81M">David Heinemeier Hansson &ndash; Writing Software (RailsConf 2014)</a>
-<a href="http://www.manning.com/black3/">The Well-Grounded Rubyist</a></p>
+<ul>
+<li><a href="https://www.youtube.com/watch?v=8bZh5LMaSmE">Sandi Metz &ndash; All the Little Things (RailsConf 2014)</a></li>
+<li><a href="http://www.poodr.com/">Practical Object-Oriented Design in Ruby (POODR)</a></li>
+<li><a href="http://rubyrogues.com/087-rr-book-clubpractical-object-oriented-design-in-ruby-with-sandi-metz/">Sandi Metz on the Ruby Rogues podcast</a></li>
+<li><a href="https://www.youtube.com/watch?v=DC-pQPq0acs">Ben Orenstein &ndash; Refactoring from Good to Great (Aloha Ruby Conf 2012)</a></li>
+<li><a href="https://www.youtube.com/watch?v=9LfmrkyP81M">David Heinemeier Hansson &ndash; Writing Software (RailsConf 2014)</a></li>
+<li><a href="http://www.manning.com/black3/">The Well-Grounded Rubyist</a></li>
+</ul>
+
 ]]></content>
   </entry>
   
