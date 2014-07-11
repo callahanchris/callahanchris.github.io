@@ -6,9 +6,9 @@ comments: true
 categories: 
 ---
 
-As part of my application to the Flatiron School in January of this year, I had to write a tic tac toe computer program. The assignment was purposely left vague. It was up to me to decide what programming language to use, how complex it was, whether it was one-player or two-player, etc.
+As part of my application to the Flatiron School in January of this year, I had to write a tic tac toe computer program. The assignment was purposely left vague; it was up to me to decide what programming language to use, how complex it was, whether it was one-player or two-player, etc.
 
-After four or five days of unchecked obsession (fueled in part by my fiancee's invaluable bug-spotting abilities), I emerged with 438 lines of Ruby code and a working game. It was ugly, but it worked.
+After four or five days of unchecked obsession (fueled in part by my fiancee's invaluable bug-spotting abilities), I emerged with 438 lines of Ruby code and a working one-player version of tic tac toe that could be played on the command line. It was ugly, but it worked.
 
 Six months later, as I near the halfway point in the web development course at the Flatiron School, I decided to apply my new programming knowledge by refactoring the code of my old tic tac toe game.
 
@@ -16,13 +16,13 @@ In the end, I threw out about 95% of my original code. It was painful to do this
 
 ### Make Smaller Methods
 
-Small methods are the bedrock of highly readable and consise code. Until reading [POODR](http://www.poodr.com/) and listening to [Avi Flombaum's](https://twitter.com/aviflombaum) lectures, I had no idea that methods could actually be more useful if they were reduced to accomplishing only one purpose. This is known as the single responsibility principle, and when applied to methods, it means that each method should only do one thing. A litmus test for this is to ask: "What does this method do?" If there are any "and"s or "or"s in the response, your method might be shouldering multiple responsibilities.
+Small methods are the bedrock of semantic, abstract, and reusable code. Until reading [POODR](http://www.poodr.com/) and listening to [Avi Flombaum's](https://twitter.com/aviflombaum) lectures, I had no clue about the value of the single responsibility principle. When applied to methods, the single responsibility principle means making methods that accomplish only one purpose. A good litmus test is to ask: "What does this method do?" If there are any "and"s or "or"s in the response, the method might be shouldering multiple responsibilities.
 
 Aside of making your code more readable and consise, breaking methods down to smaller and smaller units has an additional (and unexpected) benefit: the emergence of seredipitous recombinations. After breaking down methods into atomic units, you often find that you are able to reuse these methods in contexts outside of that in which you originally designed the method.
 
 It was awesome being able to apply these ideas to my tic tac toe game. I feel much more confident using smaller methods now.
 
-Here is an example from my original tic tac toe game of the `empty_spaces` method that determined how many empty spaces are left on the board. Warning: I *really* did not know how to code when I wrote this program. Just be thankful I'm not pasting in the 160(!) line method I had in the original program.
+Here is an example from my original tic tac toe game of the `empty_spaces` method that determines how many empty spaces are left on the board. [*Warning: I really did not know how to code when I wrote this program. Just be thankful I'm not pasting in the 160(!) line method I had in the original program.*]
 
 ```ruby
 def empty_spaces
@@ -49,14 +49,14 @@ def empty_spaces
 end
 ```
 
-One line methods are awesome! The new implementation of `empty_spaces` is significantly more readable and simpler than the original one. It utilizes the reader method provided by `attr_reader :board` rather than directly accessing the data `@board` instance variable, making for stronger code.
+One line methods are awesome! The new implementation of `empty_spaces` is significantly more readable and easier to understand than the original one. It utilizes the reader method provided by `attr_reader :board` rather than directly accessing the data `@board` instance variable, making the code more open to easy changes going forward.
 
 After DRYing up my methods, I had to take on a larger design issue: classes.
 
 ### Make Smaller Classes
 
-"Applications that are easy to change consist of classes that are easy to reuse. Reusable classes are pluggable units of well-defined behavior that have few entanglements. An application that is easy to change is like a box of building blocks; you can select just the pieces you need and assemble them in unanticipated ways."
--- POODR, page 21
+>"Applications that are easy to change consist of classes that are easy to reuse. Reusable classes are pluggable units of well-defined behavior that have few entanglements. An application that is easy to change is like a box of building blocks; you can select just the pieces you need and assemble them in unanticipated ways."
+*-- Practical Object-Oriented Design in Ruby, page 21*
 
 I didn't understand the purpose of classes back in January when I first wrote my tic tac toe implementation. This partially explains why I originally only included one class (`TicTacToe`) that stood at a monstrous 405 lines -- a veritable God object towering over my codebase.
 
@@ -87,7 +87,7 @@ module TTT            #=> namespace and home to the constant BOARD
   --class RandomMover #=> moves randomly if the above strategies fail
 `
 
-It is abundantly clear now what each class does. Here is the computer's original logic for blocking a human from winning, which was imbedded inside of the 160 line `move` method:
+It is abundantly clear now what each class does. Here is the computer's original logic for blocking a human from winning, which was imbedded inside of the 160 line `computer` method:
 
 ```ruby
 # The computer blocks the human player if it does not have a winning move
@@ -116,7 +116,7 @@ elsif @tttboard[1][0] == "#{@player}" && @tttboard[2][0] == "#{@player}" && @ttt
 # ...10 more lines of code...
 ```
 
-and the new implementation in the `Blocker` class:
+and the new implementation of the `Blocker` class:
 
 ```ruby
 class Blocker < TTT::Computer::Winner
@@ -149,7 +149,7 @@ def update_board(row, col)
 end
 ```
 
-The `Blocker` class has access to all of the methods of the `Winner` class. I realized that `Blocker` is essentially solving the same puzzle as `Winner`, but just using a different piece. Instead of solving for *computer* wins, it is solving for *human* wins. Therefore, all I really needed to change was the `potential_wins` method, plugging in `opponent` (indicating the human's "X" or "O" piece). This overwrote `Winner`'s implementation of this method:
+The `Blocker` class has access to all of the methods of the `Winner` class. `Blocker` is essentially solving the same puzzle as `Winner`, but instead of solving for *computer* wins, it is solving for *human* wins. Therefore, all I really needed to change was the `potential_wins` method, plugging in `opponent` (indicating the human's "X" or "O" piece). This overwrote `Winner`'s implementation of this method:
 
 ```ruby
 def potential_wins
@@ -197,7 +197,9 @@ def move
 end
 ```
 
-There are many other ways that my tic tac toe codebase can be easily expanded upon now. I could make the game a 4x4 or 5x5 grid instead of a 3x3 grid with ease. I don't even want to think about how many hours and keystrokes it would take in the original implementation.
+By extension, making a `ForkBlocker` class would be equally easy to accomplish.
+
+There are many other ways that my tic tac toe codebase can be easily expanded upon now. I could make the game a 4x4 or 5x5 grid instead of a 3x3 grid with ease. I don't even want to think about how many hours and keystrokes it would take to accomplish in the original implementation.
 
 ### Going Forward
 
@@ -205,9 +207,9 @@ Another direction I want to take this project in is bringing tic tac toe to the 
 
 ### Links/Resources
 
-Sandi Metz talk
-Ben Orenstein talk
-DHH talk
-POODR
-The Well-Grounded Rubyist
-
+[Sandi Metz - All the Little Things (RailsConf 2014)](https://www.youtube.com/watch?v=8bZh5LMaSmE)
+[Practical Object-Oriented Design in Ruby (POODR)](http://www.poodr.com/)
+[Sandi Metz on the Ruby Rogues podcast](http://rubyrogues.com/087-rr-book-clubpractical-object-oriented-design-in-ruby-with-sandi-metz/)
+[Ben Orenstein - Refactoring from Good to Great (Aloha Ruby Conf 2012)](https://www.youtube.com/watch?v=DC-pQPq0acs)
+[David Heinemeier Hansson - Writing Software (RailsConf 2014)](https://www.youtube.com/watch?v=9LfmrkyP81M)
+[The Well-Grounded Rubyist](http://www.manning.com/black3/)
