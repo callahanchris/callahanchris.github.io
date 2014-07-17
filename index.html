@@ -9,7 +9,7 @@
   <meta name="author" content="Chris Callahan">
 
   
-  <meta name="description" content="As part of my application to the Flatiron School in January of this year, I had to write a tic tac toe computer program. The assignment was purposely &hellip;">
+  <meta name="description" content="Arrays are a versatile and reliable data structure. The Array class in Ruby comes equipped with a number of extremely useful instance methods, &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -65,6 +65,284 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/07/17/five-useful-ruby-array-methods/">Five Useful Ruby Array Methods</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-07-17T13:25:34-04:00" pubdate data-updated="true">Jul 17<span>th</span>, 2014</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Arrays are a versatile and reliable data structure. The <code>Array</code> class in Ruby comes equipped with a number of extremely useful instance methods, including <code>pop</code>, <code>push</code>, <code>shift</code>, <code>unshift</code>, <code>length</code>, <code>reverse</code>, etc. With the <code>Enumerable</code> module mixin, Ruby arrays have access to even more iterators and other fun methods.</p>
+
+<p>Here are five great instance methods built in to Ruby&rsquo;s <code>Array</code> class that I&rsquo;ve come across recently.</p>
+
+<h3><code>Array#transpose</code></h3>
+
+<p>This is probably the fanciest method on this list. It is used to &ldquo;reflect&rdquo; an array across a diagonal axis. Wikipedia has a good explanation of <a href="http://en.wikipedia.org/wiki/Transpose">matrix transposition</a>, including this handy gif:</p>
+
+<p><img src="http://upload.wikimedia.org/wikipedia/commons/e/e4/Matrix_transpose.gif" alt="transpose" /></p>
+
+<p>Here is how the <code>transpose</code> method looks in Ruby:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="n">array</span> <span class="o">=</span> <span class="o">[</span>
+</span><span class='line'>          <span class="o">[</span> <span class="s2">&quot;a&quot;</span><span class="p">,</span>  <span class="s2">&quot;b&quot;</span><span class="p">,</span>  <span class="s2">&quot;c&quot;</span><span class="p">,</span>  <span class="s2">&quot;d&quot;</span><span class="p">,</span>   <span class="s2">&quot;e&quot;</span>  <span class="o">]</span><span class="p">,</span>
+</span><span class='line'>          <span class="o">[</span>  <span class="mi">1</span><span class="p">,</span>    <span class="mi">2</span><span class="p">,</span>    <span class="mi">3</span><span class="p">,</span>    <span class="mi">4</span><span class="p">,</span>     <span class="mi">5</span>   <span class="o">]</span><span class="p">,</span>
+</span><span class='line'>          <span class="o">[</span><span class="s2">&quot;cat&quot;</span><span class="p">,</span><span class="s2">&quot;dog&quot;</span><span class="p">,</span><span class="s2">&quot;cow&quot;</span><span class="p">,</span><span class="s2">&quot;pig&quot;</span><span class="p">,</span><span class="s2">&quot;horse&quot;</span><span class="o">]</span>
+</span><span class='line'>        <span class="o">]</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">array</span><span class="o">.</span><span class="n">transpose</span>
+</span><span class='line'><span class="c1"># =&gt;    [</span>
+</span><span class='line'><span class="c1">#         [&quot;a&quot;, 1,  &quot;cat&quot; ],</span>
+</span><span class='line'><span class="c1">#         [&quot;b&quot;, 2,  &quot;dog&quot; ],</span>
+</span><span class='line'><span class="c1">#         [&quot;c&quot;, 3,  &quot;cow&quot; ],</span>
+</span><span class='line'><span class="c1">#         [&quot;d&quot;, 4,  &quot;pig&quot; ], </span>
+</span><span class='line'><span class="c1">#         [&quot;e&quot;, 5, &quot;horse&quot;]</span>
+</span><span class='line'><span class="c1">#       ]</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Note that <code>transpose</code> can only be used when you have an array of arrays where all of the nested arrays are the same length.</p>
+
+<p>I got some use out of the <code>transpose</code> method when trying to rotate an array of arrays (a tic tac toe board) 90 degrees to the right. I first called <code>transpose</code> on the array and then chained on <code>map(&amp;:reverse)</code> to reverse all of the nested arrays.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="n">board</span> <span class="o">=</span> <span class="o">[</span>
+</span><span class='line'>          <span class="o">[</span><span class="s2">&quot;O&quot;</span><span class="p">,</span> <span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="s2">&quot;X&quot;</span><span class="o">]</span><span class="p">,</span>
+</span><span class='line'>          <span class="o">[</span><span class="s2">&quot;X&quot;</span><span class="p">,</span> <span class="s2">&quot;X&quot;</span><span class="p">,</span> <span class="s2">&quot;O&quot;</span><span class="o">]</span><span class="p">,</span>
+</span><span class='line'>          <span class="o">[</span><span class="s2">&quot;O&quot;</span><span class="p">,</span> <span class="s2">&quot;X&quot;</span><span class="p">,</span> <span class="s2">&quot; &quot;</span><span class="o">]</span>
+</span><span class='line'>        <span class="o">]</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">rotated_board</span> <span class="o">=</span> <span class="n">board</span><span class="o">.</span><span class="n">transpose</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="o">&amp;</span><span class="ss">:reverse</span><span class="p">)</span>
+</span><span class='line'><span class="c1"># =&gt;    [</span>
+</span><span class='line'><span class="c1">#         [&quot;O&quot;, &quot;X&quot;, &quot;O&quot;],</span>
+</span><span class='line'><span class="c1">#         [&quot;X&quot;, &quot;X&quot;, &quot; &quot;],</span>
+</span><span class='line'><span class="c1">#         [&quot; &quot;, &quot;O&quot;, &quot;X&quot;]</span>
+</span><span class='line'><span class="c1">#       ]</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>With access to both a <code>board</code> and a <code>rotated_board</code>, I was able to easily reuse methods in my tic tac toe game.</p>
+
+<h3><code>Array#fill</code></h3>
+
+<p><code>fill</code> does just what it says: it fills every element in an array with the argument passed to it.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="sx">%w{ a b c }</span><span class="o">.</span><span class="n">fill</span><span class="p">(</span><span class="s2">&quot;Hello world!&quot;</span><span class="p">)</span>
+</span><span class='line'><span class="c1"># =&gt; [&quot;Hello world!&quot;, &quot;Hello world!&quot;, &quot;Hello world!&quot;]</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>You can also pass a starting index and a length as arguments to <code>fill</code>:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="sx">%w{ an array full of words and things }</span><span class="o">.</span><span class="n">fill</span><span class="p">(</span><span class="s2">&quot;surprises&quot;</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+</span><span class='line'><span class="c1"># =&gt; [&quot;an&quot;, &quot;array&quot;, &quot;full&quot;, &quot;of&quot;, &quot;surprises&quot;, &quot;surprises&quot;, &quot;surprises&quot;]</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>You can even pass a block to <code>fill</code>, which yields the array&rsquo;s index as the block argument. Ruby is awesome!</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="sx">%w{ hello world my name is chris }</span><span class="o">.</span><span class="n">fill</span> <span class="p">{</span><span class="o">|</span><span class="n">i</span><span class="o">|</span> <span class="n">i</span> <span class="o">**</span> <span class="mi">2</span> <span class="p">}</span>
+</span><span class='line'><span class="c1"># =&gt; [0, 1, 4, 9, 16, 25]</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Warning: <code>fill</code> is a destructive method. Once an array is <code>fill</code>ed, the old data is permanently gone.</p>
+
+<h3><code>Array#permutation</code></h3>
+
+<p>This method returns all permutations of the array it is sent to. If no block is used, then by default Ruby returns an <code>Enumerator</code> object, so it is useful to chain the <code>to_a</code> method on the end in order to return an array.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="o">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="o">].</span><span class="n">permutation</span>
+</span><span class='line'><span class="c1"># =&gt; #&lt;Enumerator: [1, 2, 3]:permutation&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="o">].</span><span class="n">permutation</span><span class="o">.</span><span class="n">to_a</span>
+</span><span class='line'><span class="c1"># =&gt; [[1, 2, 3], [1, 3, 2], [2, 1, 3], [2, 3, 1], [3, 1, 2], [3, 2, 1]]</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This method sounds a bit esoteric, but I have used it in practice when trying to find all possible anagrams of a string.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="n">all_permutations</span> <span class="o">=</span> <span class="s2">&quot;listens&quot;</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">permutation</span><span class="o">.</span><span class="n">map</span> <span class="p">{</span><span class="o">|</span><span class="n">letters</span><span class="o">|</span> <span class="n">letters</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span> <span class="p">}</span>
+</span><span class='line'><span class="c1"># =&gt; [&quot;listen&quot;,</span>
+</span><span class='line'><span class="c1">#     &quot;listne&quot;,</span>
+</span><span class='line'><span class="c1">#     &quot;lisetn&quot;,</span>
+</span><span class='line'><span class="c1">#     ... 716 more permutations! ...</span>
+</span><span class='line'><span class="c1">#     &quot;snetsil&quot;]</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">all_permutations</span><span class="o">.</span><span class="n">include?</span><span class="p">(</span><span class="s2">&quot;silent&quot;</span><span class="p">)</span>
+</span><span class='line'><span class="c1"># =&gt; true</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">all_permutations</span><span class="o">.</span><span class="n">include?</span><span class="p">(</span><span class="s2">&quot;lentils&quot;</span><span class="p">)</span>
+</span><span class='line'><span class="c1"># =&gt; false</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3><code>Array#sample</code></h3>
+
+<p><code>sample</code> is a convenient way to randomly select one or more elements from an array. If you do not pass an argument to <code>sample</code>, it will return one object from the array. If you pass a number as an argument to <code>sample</code>, it will return an array of that length.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="sx">%w{ cat dog pig pigeon dolphin walrus }</span><span class="o">.</span><span class="n">sample</span>
+</span><span class='line'><span class="c1"># =&gt; &quot;pigeon&quot;</span>
+</span><span class='line'>
+</span><span class='line'><span class="sx">%w{ cat dog pig pigeon dolphin walrus }</span><span class="o">.</span><span class="n">sample</span>
+</span><span class='line'><span class="c1"># =&gt; &quot;dolphin&quot;</span>
+</span><span class='line'>
+</span><span class='line'><span class="sx">%w{ cat dog pig pigeon dolphin walrus }</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+</span><span class='line'><span class="c1"># =&gt; [&quot;cat&quot;, &quot;pigeon&quot;]</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3><code>Array#flatten</code></h3>
+
+<p>This is probably the method I use the most on this list. When doing nested iteration in Ruby, you often end up with an array of arrays. If you want to compare each element in the larger array, you will be confounded by the fact that Ruby tries to compare the nested arrays with each other, rather than the values within these arrays.</p>
+
+<p>To get around this problem, the <code>flatten</code> method turns a nested array into an array one level deep.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="o">[[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="o">]</span><span class="p">,</span> <span class="o">[</span><span class="mi">3</span><span class="p">,</span> <span class="o">[</span><span class="mi">4</span><span class="o">]]</span><span class="p">,</span> <span class="o">[[[</span><span class="mi">5</span><span class="o">]]]].</span><span class="n">flatten</span>
+</span><span class='line'><span class="c1"># =&gt; [1, 2, 3, 4, 5]</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This method is not destructive (though it does have a destructive counterpart in <code>flatten!</code>), so it is mainly useful if you want to perform a specific operation on a flattened array. For example, if you wind up with a nested array after performing multiple <code>collects</code> and then want to perform an operation on the array, <code>flatten</code> can come in handy.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="n">dogs</span> <span class="o">=</span> <span class="o">[[</span><span class="c1">#&lt;Dog:0x00000101d52a30 @name=&quot;Fido&quot;&gt;,</span>
+</span><span class='line'>         <span class="c1">#&lt;Dog:0x00000101d01f90 @name=&quot;Fredo&quot;&gt;,</span>
+</span><span class='line'>         <span class="c1">#&lt;Dog:0x00000101ae2098 @name=&quot;Freida&quot;&gt;,</span>
+</span><span class='line'>         <span class="c1">#&lt;Dog:0x00000106187548 @name=&quot;Francis&quot;&gt;,</span>
+</span><span class='line'>         <span class="c1">#&lt;Dog:0x0000010615d630 @name=&quot;Bailey&quot;&gt;]]</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">dogs</span><span class="o">.</span><span class="n">sort_by</span><span class="p">(</span><span class="o">&amp;</span><span class="ss">:name</span><span class="p">)</span>
+</span><span class='line'><span class="c1"># =&gt; NoMethodError: undefined method `name&#39; for #&lt;Array:0x00000101ee5b18&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">dogs</span><span class="o">.</span><span class="n">flatten</span><span class="o">.</span><span class="n">sort_by</span><span class="p">(</span><span class="o">&amp;</span><span class="ss">:name</span><span class="p">)</span>
+</span><span class='line'><span class="c1"># =&gt; [#&lt;Dog:0x0000010615d630 @name=&quot;Bailey&quot;&gt;,</span>
+</span><span class='line'><span class="c1">#     #&lt;Dog:0x00000101d52a30 @name=&quot;Fido&quot;&gt;,</span>
+</span><span class='line'><span class="c1">#     #&lt;Dog:0x00000106187548 @name=&quot;Francis&quot;&gt;,</span>
+</span><span class='line'><span class="c1">#     #&lt;Dog:0x00000101d01f90 @name=&quot;Fredo&quot;&gt;,</span>
+</span><span class='line'><span class="c1">#     #&lt;Dog:0x00000101ae2098 @name=&quot;Freida&quot;&gt;]</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p><code>flatten</code> also takes an argument to specify how many levels to flatten the nested array by.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="o">[[[</span><span class="mi">1</span><span class="o">]</span><span class="p">,</span> <span class="mi">2</span><span class="o">]].</span><span class="n">flatten</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+</span><span class='line'><span class="c1">#=&gt; [[1], 2]</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>I&rsquo;m not sure how useful passing in an argument is, as I have only used <code>flatten</code> without an argument in practice.</p>
+
+<h3>Closing Thoughts</h3>
+
+<p>Arrays are an interesting Ruby class with a surprising amount of useful builtin methods. Read the Ruby documentation for more info and more unique methods to play around with.</p>
+
+<ul>
+<li><a href="http://www.ruby-doc.org/core-2.1.2/Array.html">Ruby Doc &ndash; Array</a></li>
+</ul>
+
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -1225,6 +1503,10 @@
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2014/07/17/five-useful-ruby-array-methods/">Five Useful Ruby Array Methods</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2014/07/10/lessons-from-refactoring-tic-tac-toe/">Lessons From Refactoring Tic Tac Toe</a>
       </li>
     
@@ -1238,10 +1520,6 @@
     
       <li class="post">
         <a href="/blog/2014/05/23/i-dont-know-how-to-program/">I Don&#8217;t Know How to Program</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2014/05/20/blog-equals-blog-dot-new/">Blog = Blog.new</a>
       </li>
     
   </ul>
