@@ -124,7 +124,7 @@
 </span><span class='line'>        <span class="o">]</span>
 </span><span class='line'>
 </span><span class='line'><span class="n">array</span><span class="o">.</span><span class="n">transpose</span>
-</span><span class='line'><span class="c1"># =&gt;    [</span>
+</span><span class='line'><span class="c1">#    =&gt; [</span>
 </span><span class='line'><span class="c1">#         [&quot;a&quot;, 1,  &quot;cat&quot; ],</span>
 </span><span class='line'><span class="c1">#         [&quot;b&quot;, 2,  &quot;dog&quot; ],</span>
 </span><span class='line'><span class="c1">#         [&quot;c&quot;, 3,  &quot;cow&quot; ],</span>
@@ -136,7 +136,7 @@
 
 <p>Note that <code>transpose</code> can only be used when you have an array of arrays where all of the nested arrays are the same length.</p>
 
-<p>I got some use out of the <code>transpose</code> method when trying to rotate an array of arrays (a tic tac toe board) 90 degrees to the right. I first called <code>transpose</code> on the array and then chained on <code>map(&amp;:reverse)</code> to reverse all of the nested arrays.</p>
+<p>I got some use out of the <code>transpose</code> method when trying to rotate an array of arrays (a tic tac toe board) 90 degrees to the right. I first called <code>transpose</code> on the array and then chained on <code>map(&amp;:reverse)</code> to individually reverse each of the nested arrays.</p>
 
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -157,7 +157,7 @@
 </span><span class='line'>        <span class="o">]</span>
 </span><span class='line'>
 </span><span class='line'><span class="n">rotated_board</span> <span class="o">=</span> <span class="n">board</span><span class="o">.</span><span class="n">transpose</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="o">&amp;</span><span class="ss">:reverse</span><span class="p">)</span>
-</span><span class='line'><span class="c1"># =&gt;    [</span>
+</span><span class='line'><span class="c1">#    =&gt; [</span>
 </span><span class='line'><span class="c1">#         [&quot;O&quot;, &quot;X&quot;, &quot;O&quot;],</span>
 </span><span class='line'><span class="c1">#         [&quot;X&quot;, &quot;X&quot;, &quot; &quot;],</span>
 </span><span class='line'><span class="c1">#         [&quot; &quot;, &quot;O&quot;, &quot;X&quot;]</span>
@@ -191,7 +191,7 @@
 
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="sx">%w{ hello world my name is chris }</span><span class="o">.</span><span class="n">fill</span> <span class="p">{</span><span class="o">|</span><span class="n">i</span><span class="o">|</span> <span class="n">i</span> <span class="o">**</span> <span class="mi">2</span> <span class="p">}</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="sx">%w{ hello world my name is chris }</span><span class="o">.</span><span class="n">fill</span> <span class="p">{</span><span class="o">|</span><span class="n">i</span><span class="o">|</span> <span class="n">i</span> <span class="o">*</span> <span class="n">i</span> <span class="p">}</span>
 </span><span class='line'><span class="c1"># =&gt; [0, 1, 4, 9, 16, 25]</span>
 </span></code></pre></td></tr></table></div></figure>
 
@@ -229,12 +229,12 @@
 <span class='line-number'>10</span>
 <span class='line-number'>11</span>
 <span class='line-number'>12</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="n">all_permutations</span> <span class="o">=</span> <span class="s2">&quot;listens&quot;</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">permutation</span><span class="o">.</span><span class="n">map</span> <span class="p">{</span><span class="o">|</span><span class="n">letters</span><span class="o">|</span> <span class="n">letters</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span> <span class="p">}</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="n">all_permutations</span> <span class="o">=</span> <span class="s2">&quot;listen&quot;</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">permutation</span><span class="o">.</span><span class="n">map</span> <span class="p">{</span><span class="o">|</span><span class="n">letters</span><span class="o">|</span> <span class="n">letters</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span> <span class="p">}</span>
 </span><span class='line'><span class="c1"># =&gt; [&quot;listen&quot;,</span>
 </span><span class='line'><span class="c1">#     &quot;listne&quot;,</span>
 </span><span class='line'><span class="c1">#     &quot;lisetn&quot;,</span>
 </span><span class='line'><span class="c1">#     ... 716 more permutations! ...</span>
-</span><span class='line'><span class="c1">#     &quot;snetsil&quot;]</span>
+</span><span class='line'><span class="c1">#     &quot;netsil&quot;]</span>
 </span><span class='line'>
 </span><span class='line'><span class="n">all_permutations</span><span class="o">.</span><span class="n">include?</span><span class="p">(</span><span class="s2">&quot;silent&quot;</span><span class="p">)</span>
 </span><span class='line'><span class="c1"># =&gt; true</span>
@@ -246,7 +246,7 @@
 
 <h3><code>Array#sample</code></h3>
 
-<p><code>sample</code> is a convenient way to randomly select one or more elements from an array. If you do not pass an argument to <code>sample</code>, it will return one object from the array. If you pass a number as an argument to <code>sample</code>, it will return an array of that length.</p>
+<p><code>sample</code> is a convenient way to randomly select one or more elements from an array. If you do not pass an argument to <code>sample</code>, it will return one object from the array. If you pass a number as an argument to <code>sample</code>, it will return an array including the number of elements specified.</p>
 
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -297,7 +297,7 @@
 <span class='line-number'>13</span>
 <span class='line-number'>14</span>
 <span class='line-number'>15</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="n">dogs</span> <span class="o">=</span> <span class="o">[[</span><span class="c1">#&lt;Dog:0x00000101d52a30 @name=&quot;Fido&quot;&gt;,</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="n">dogs</span> <span class="o">=</span> <span class="o">[[</span><span class="p">\</span><span class="c1">#&lt;Dog:0x00000101d52a30 @name=&quot;Fido&quot;&gt;,</span>
 </span><span class='line'>         <span class="c1">#&lt;Dog:0x00000101d01f90 @name=&quot;Fredo&quot;&gt;,</span>
 </span><span class='line'>         <span class="c1">#&lt;Dog:0x00000101ae2098 @name=&quot;Freida&quot;&gt;,</span>
 </span><span class='line'>         <span class="c1">#&lt;Dog:0x00000106187548 @name=&quot;Francis&quot;&gt;,</span>
