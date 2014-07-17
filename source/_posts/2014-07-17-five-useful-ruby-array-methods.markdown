@@ -26,7 +26,7 @@ array = [
         ]
 
 array.transpose
-# =>    [
+#    => [
 #         ["a", 1,  "cat" ],
 #         ["b", 2,  "dog" ],
 #         ["c", 3,  "cow" ],
@@ -37,7 +37,7 @@ array.transpose
 
 Note that `transpose` can only be used when you have an array of arrays where all of the nested arrays are the same length.
 
-I got some use out of the `transpose` method when trying to rotate an array of arrays (a tic tac toe board) 90 degrees to the right. I first called `transpose` on the array and then chained on `map(&:reverse)` to reverse all of the nested arrays.
+I got some use out of the `transpose` method when trying to rotate an array of arrays (a tic tac toe board) 90 degrees to the right. I first called `transpose` on the array and then chained on `map(&:reverse)` to individually reverse each of the nested arrays.
 
 ```ruby
 board = [
@@ -47,7 +47,7 @@ board = [
         ]
 
 rotated_board = board.transpose.map(&:reverse)
-# =>    [
+#    => [
 #         ["O", "X", "O"],
 #         ["X", "X", " "],
 #         [" ", "O", "X"]
@@ -75,7 +75,7 @@ You can also pass a starting index and a length as arguments to `fill`:
 You can even pass a block to `fill`, which yields the array's index as the block argument. Ruby is awesome!
 
 ```ruby
-%w{ hello world my name is chris }.fill {|i| i ** 2 }
+%w{ hello world my name is chris }.fill {|i| i * i }
 # => [0, 1, 4, 9, 16, 25]
 ```
 
@@ -96,12 +96,12 @@ This method returns all permutations of the array it is sent to. If no block is 
 This method sounds a bit esoteric, but I have used it in practice when trying to find all possible anagrams of a string.
 
 ```ruby
-all_permutations = "listens".split('').permutation.map {|letters| letters.join('') }
+all_permutations = "listen".split('').permutation.map {|letters| letters.join('') }
 # => ["listen",
 #     "listne",
 #     "lisetn",
 #     ... 716 more permutations! ...
-#     "snetsil"]
+#     "netsil"]
 
 all_permutations.include?("silent")
 # => true
@@ -112,7 +112,7 @@ all_permutations.include?("lentils")
 
 ### `Array#sample`
 
-`sample` is a convenient way to randomly select one or more elements from an array. If you do not pass an argument to `sample`, it will return one object from the array. If you pass a number as an argument to `sample`, it will return an array of that length.
+`sample` is a convenient way to randomly select one or more elements from an array. If you do not pass an argument to `sample`, it will return one object from the array. If you pass a number as an argument to `sample`, it will return an array including the number of elements specified.
 
 ```ruby
 %w{ cat dog pig pigeon dolphin walrus }.sample
