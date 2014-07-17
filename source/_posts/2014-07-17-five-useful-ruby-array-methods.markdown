@@ -118,13 +118,16 @@ all_permutations.include?("lentils")
 %w{ cat dog pig pigeon dolphin walrus }.sample
 # => "pigeon"
 
+%w{ cat dog pig pigeon dolphin walrus }.sample
+# => "dolphin"
+
 %w{ cat dog pig pigeon dolphin walrus }.sample(2)
 # => ["cat", "pigeon"]
 ```
 
 ### `Array#flatten`
 
-This is one of the most practical methods on this list. Frequently when you are doing nested iteration in Ruby, you will end up with an array of arrays. If you want to compare each element in the larger array, you will be confounded by the fact that Ruby tries to compare the nested arrays with each other, rather than the values within these arrays.
+This is probably the method I use the most on this list. When doing nested iteration in Ruby, you often end up with an array of arrays. If you want to compare each element in the larger array, you will be confounded by the fact that Ruby tries to compare the nested arrays with each other, rather than the values within these arrays.
 
 To get around this problem, the `flatten` method turns a nested array into an array one level deep.
 
@@ -160,10 +163,10 @@ dogs.flatten.sort_by(&:name)
 #=> [[1], 2]
 ```
 
-I'm not sure how useful this is, as I have only used `flatten` without an argument in practice.
+I'm not sure how useful passing in an argument is, as I have only used `flatten` without an argument in practice.
 
 ### Closing Thoughts
 
-Arrays are an interesting Ruby class with plentiful builtin methods. Read the Ruby documentation for more info and more unique methods to play around with.
+Arrays are an interesting Ruby class with a surprising amount of useful builtin methods. Read the Ruby documentation for more info and more unique methods to play around with.
 
 * [Ruby Doc - Array](http://www.ruby-doc.org/core-2.1.2/Array.html)
