@@ -1,7 +1,7 @@
 ---
 layout: post
-title: "How to Write a Self-Calling Anonymous Function in JavaScript"
-date: 2014-07-22 13:01:25 -0400
+title: "How to Write an Immediately-Invoked Anonymous Function Expression in JavaScript"
+date: 2014-07-24 10:43:07 -0400
 comments: true
 categories: 
 ---
