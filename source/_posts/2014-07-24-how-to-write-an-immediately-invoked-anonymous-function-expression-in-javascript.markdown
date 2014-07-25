@@ -118,7 +118,7 @@ However, a function *expression* can be immediately invoked. This seems like an 
 The IIFE has become a popular pattern in the JavaScript community in recent years. It can be used to create a "ready doc," ensuring that a web page's JavaScript loads after the HTML has all loaded. Here is an example of an anonymous IIFE used when creating a ready doc with jQuery:
 
 ```js
-$(document).ready(function() {
+jQuery( document ).ready(function() {
   // great JavaScript code
 }());
 ```
@@ -136,7 +136,7 @@ $(function() {
 * [Ben Alman - The blog post that coined the term IIFE](http://benalman.com/news/2010/11/immediately-invoked-function-expression/)
 * [Airbnb JavaScript Style Guide](https://github.com/airbnb/javascript)
 * [Crockford on Parens in IIFEs]()
-
+* [jQuery Documentation on `$( document ).ready()`](http://learn.jquery.com/using-jquery-core/document-ready/)
 
 
 
