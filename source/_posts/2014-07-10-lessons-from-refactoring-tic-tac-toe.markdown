@@ -6,6 +6,8 @@ comments: true
 categories: 
 ---
 
+*[Check out my tic tac toe code on github!](https://github.com/callahanchris/tic-tac-toe)*
+
 As part of my application to the Flatiron School in January of this year, I had to write a tic tac toe computer program. The assignment was purposely left vague; it was up to me to decide what programming language to use, how complex it was, whether it was one-player or two-player, etc.
 
 After four or five days of unchecked obsession (fueled in part by my fiancee's invaluable bug-spotting abilities), I emerged with 438 lines of Ruby code and a working one-player version of tic tac toe that could be played on the command line. It was ugly, but it worked.
