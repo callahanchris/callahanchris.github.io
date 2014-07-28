@@ -9,7 +9,7 @@
   <meta name="author" content="Chris Callahan">
 
   
-  <meta name="description" content="Arrays are a versatile and reliable data structure. The Array class in Ruby comes equipped with a number of extremely useful instance methods, &hellip;">
+  <meta name="description" content="Anonymous functions sound mysterious and a bit dangerous, but in fact they are just functions that have not been given a name. In JavaScript, a named &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -65,6 +65,251 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/07/24/how-to-write-an-immediately-invoked-anonymous-function-expression-in-javascript/">How to Write an Immediately-Invoked Anonymous Function Expression in JavaScript</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-07-24T10:43:07-04:00" pubdate data-updated="true">Jul 24<span>th</span>, 2014</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Anonymous functions sound mysterious and a bit dangerous, but in fact they are just functions that have not been given a name. In JavaScript, a named function looks like this:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='js'><span class='line'><span class="kd">function</span> <span class="nx">sayHello</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>  <span class="k">return</span> <span class="s2">&quot;Hello!&quot;</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// undefined</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>and an anonymous function looks like this:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='js'><span class='line'><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>  <span class="k">return</span> <span class="s2">&quot;Hi, my name is REDACTED&quot;</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// SyntaxError: function statement requires a name</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>If you just write an anonymous function out of context like this, you will get a <code>SyntaxError</code>, presumably because the JavaScript interpreter has no clue why you defined a function that you can never use because you have no name with which to call it.</p>
+
+<h3>Calling a Function in JavaScript</h3>
+
+<p>To call, or invoke, a function in JavaScript, append parentheses and a semicolon (<code>();</code>) to the end of the function, passing arguments into the parentheses when necessary.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+</pre></td><td class='code'><pre><code class='js'><span class='line'><span class="c1">// without args</span>
+</span><span class='line'><span class="kd">function</span> <span class="nx">sayHello</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>  <span class="k">return</span> <span class="s2">&quot;Hello world!&quot;</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="nx">sayHello</span><span class="p">();</span>   <span class="c1">// &quot;Hello world!&quot;</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// with args</span>
+</span><span class='line'><span class="kd">function</span> <span class="nx">greet</span><span class="p">(</span> <span class="nx">name</span> <span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>  <span class="k">return</span> <span class="s2">&quot;Hi &quot;</span> <span class="o">+</span> <span class="nx">name</span> <span class="o">+</span> <span class="s2">&quot;!&quot;</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="nx">greet</span><span class="p">(</span> <span class="s2">&quot;Chris&quot;</span> <span class="p">);</span>   <span class="c1">// &quot;Hi Chris!&quot;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>JavaScript provides three good opportunities for storing a function so that you can call it in the future. One is by naming the function as with the <code>sayHello</code> and <code>greet</code> functions above.</p>
+
+<p>To store an anonymous function, you can either assign the function to a variable:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='js'><span class='line'><span class="kd">var</span> <span class="nx">sayHello</span> <span class="o">=</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>  <span class="k">return</span> <span class="s2">&quot;Hi, my name is REDACTED&quot;</span><span class="p">;</span>
+</span><span class='line'><span class="p">};</span>
+</span><span class='line'>
+</span><span class='line'><span class="nx">sayHello</span><span class="p">();</span>   <span class="c1">// &quot;Hi, my name is REDACTED&quot;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>or you can assign the function to a method on the prototype of an object:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+</pre></td><td class='code'><pre><code class='js'><span class='line'><span class="kd">function</span> <span class="nx">Song</span><span class="p">(</span> <span class="nx">title</span><span class="p">,</span> <span class="nx">artist</span><span class="p">,</span> <span class="nx">instrument</span> <span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>  <span class="k">this</span><span class="p">.</span><span class="nx">title</span> <span class="o">=</span> <span class="nx">title</span><span class="p">;</span>
+</span><span class='line'>  <span class="k">this</span><span class="p">.</span><span class="nx">artist</span> <span class="o">=</span> <span class="nx">artist</span><span class="p">;</span>
+</span><span class='line'>  <span class="k">this</span><span class="p">.</span><span class="nx">instrument</span> <span class="o">=</span> <span class="nx">instrument</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="nx">Song</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">play</span> <span class="o">=</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>  <span class="k">return</span> <span class="k">this</span><span class="p">.</span><span class="nx">artist</span> <span class="o">+</span> <span class="s2">&quot;: &quot;</span> <span class="o">+</span> <span class="k">this</span><span class="p">.</span><span class="nx">title</span> <span class="o">+</span> <span class="s2">&quot; for &quot;</span> <span class="o">+</span> <span class="k">this</span><span class="p">.</span><span class="nx">instrument</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="nx">suiteOne</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Song</span><span class="p">(</span> <span class="s2">&quot;Suite #1 in G Major&quot;</span><span class="p">,</span> <span class="s2">&quot;Johann Sebastian Bach&quot;</span><span class="p">,</span> <span class="s2">&quot;Cello&quot;</span> <span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'><span class="nx">suiteOne</span><span class="p">.</span><span class="nx">play</span><span class="p">();</span>    <span class="c1">// &quot;Johann Sebastian Bach: Suite #1 in G Major for Cello&quot;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>Enter the IIFE</h3>
+
+<p>There is a way for an anonymous function to have its cake and eat it too. An immediately-invoked function expression, or IIFE (pronounced &ldquo;iffy&rdquo;), is a function that is called as soon as it is define. An IIFE can be named, but does not need to be.</p>
+
+<p>Due to a quirk in JavaScript, it is not possible to immediately invoke a function <em>declaration</em>. However, a function <em>expression</em> can be immediately invoked. This seems like an arbitrary distinction, but all it practically means is that JavaScript won&rsquo;t allow you to immediately call a statement that begins with the word <code>function</code>. If that same statement is surrounded in parentheses, however, an IIFE is born and the function can be immediately called.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+</pre></td><td class='code'><pre><code class='js'><span class='line'><span class="c1">// function declaration</span>
+</span><span class='line'><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>  <span class="k">return</span> <span class="s2">&quot;They&#39;ll never find me.&quot;</span><span class="p">;</span>
+</span><span class='line'><span class="p">}();</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// SyntaxError: function statement requires a name</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// function expression</span>
+</span><span class='line'><span class="c1">// preferred syntax, calling parens on the inside</span>
+</span><span class='line'><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>  <span class="k">return</span> <span class="s2">&quot;Nice try.&quot;</span><span class="p">;</span>
+</span><span class='line'><span class="p">}());</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// &quot;Nice try.&quot;</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// also a commonly used syntax for function expressions</span>
+</span><span class='line'><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>  <span class="k">return</span> <span class="s2">&quot;That&#39;s classified.&quot;</span><span class="p">;</span>
+</span><span class='line'><span class="p">})();</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// &quot;That&#39;s classified.&quot;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The IIFE has become a popular pattern in the JavaScript community in recent years. It can be used to create a document ready condition, which ensures that a web page&rsquo;s JavaScript does not execute until the page&rsquo;s HTML has fully loaded. Here is an example of an anonymous IIFE used when creating a ready doc with jQuery:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='js'><span class='line'><span class="nx">jQuery</span><span class="p">(</span> <span class="nb">document</span> <span class="p">).</span><span class="nx">ready</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>  <span class="c1">// great JavaScript code</span>
+</span><span class='line'><span class="p">}());</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>jQuery also provides an additional dose of syntactic sugar by allowing you to express the above code in either of the following ways:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class='js'><span class='line'><span class="c1">// explicit calling parens</span>
+</span><span class='line'><span class="nx">$</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>  <span class="c1">// great JavaScript code</span>
+</span><span class='line'><span class="p">}());</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// calling parens omitted</span>
+</span><span class='line'><span class="nx">$</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>  <span class="c1">// great JavaScript code</span>
+</span><span class='line'><span class="p">});</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>Conclusion</h3>
+
+<p>I have only been learning JavaScript for two weeks or so, but I feel a lot more comfortable about using anonymous functions after researching this blog post and playing around with JavaScript some more. Going forward I hope to explore anonymous functions more in Ruby through <code>Proc</code>s, blocks, and <code>lambda</code>s.</p>
+
+<ul>
+<li><a href="http://benalman.com/news/2010/11/immediately-invoked-function-expression/">Ben Alman &ndash; The blog post that coined the term IIFE</a></li>
+<li><a href="https://github.com/airbnb/javascript">Airbnb JavaScript Style Guide</a></li>
+<li><a href="http://youtu.be/taaEzHI9xyY?t=33m36s">Crockford on Parens in IIFEs</a></li>
+<li><a href="http://learn.jquery.com/using-jquery-core/document-ready/">jQuery Documentation on <code>$( document ).ready()</code></a></li>
+<li><a href="http://stackoverflow.com/a/3247044/3437335">Assigning Functions to Variables in JavaScript</a></li>
+</ul>
+
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -1505,6 +1750,10 @@
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2014/07/24/how-to-write-an-immediately-invoked-anonymous-function-expression-in-javascript/">How to Write an Immediately-Invoked Anonymous Function Expression in JavaScript</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2014/07/17/five-useful-ruby-array-methods/">Five Useful Ruby Array Methods</a>
       </li>
     
@@ -1518,10 +1767,6 @@
     
       <li class="post">
         <a href="/blog/2014/06/09/abstraction-and-music-library-sorting/">Abstraction and Music Library Sorting</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2014/05/23/i-dont-know-how-to-program/">I Don&#8217;t Know How to Program</a>
       </li>
     
   </ul>
