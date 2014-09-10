@@ -1,10 +1,9 @@
 ---
 layout: post
-title: "China Map Part 1: Nokogiri and Regular Expressions"
-date: 2014-09-06 17:26:19 -0400
+title: "China Map Part 1: Nokogiri"
+date: 2014-09-10 16:08:05 -0400
 comments: true
 categories: 
-published: false
 ---
 
 Over the past couple months I've been working on a side project to create an [interactive, data-rich map of China](http://amapofchina.herokuapp.com). To accomplish this goal, I made a Ruby on Rails app that scrapes data on all of the Chinese provinces off of Wikipedia, stores this information in a database, and outputs the data as a JSON API. On the frontend, I used JavaScript to create a vector map of China and populate the map with the data consumed from the API. I saw this project as something that could challenge me technically and bring together two of my main interests: China and coding.
