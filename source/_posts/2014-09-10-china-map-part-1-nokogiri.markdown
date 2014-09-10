@@ -1,18 +1,18 @@
 ---
 layout: post
-title: "China Map Part 1: Nokogiri"
+title: "China Map Part 1: Nokogiri, Regular Expressions, and a JSON API"
 date: 2014-09-10 16:08:05 -0400
 comments: true
 categories: 
 ---
 
-Over the past couple months I've been working on a side project to create an [interactive, data-rich map of China](http://amapofchina.herokuapp.com). To accomplish this goal, I made a Ruby on Rails app that scrapes data on all of the Chinese provinces off of Wikipedia, stores this information in a database, and outputs the data as a JSON API. On the frontend, I used JavaScript to create a vector map of China and populate the map with the data consumed from the API. I saw this project as something that could challenge me technically and bring together two of my main interests: China and coding.
+Over the past couple months I've been working on a side project to create an [interactive, data-rich map of China](http://amapofchina.herokuapp.com). To accomplish this goal, I made a Ruby on Rails app that scrapes Wikipedia for data about Chinese provinces, stores this information in a database, and outputs the data as a JSON API. On the frontend, I used JavaScript to create a vector map of China and populate the map with the data consumed from the API. I saw this project as something that could both challenge me technically and bring together two of my main interests: China and coding.
 
 ### Gathering the Data
 
-I used the Nokogiri gem to do all of the web scraping in this project. Starting on the main China page on Wikipedia, I was able to scrape the links to the individual pages for every province, autonomous region, municipality, and special administrative region in China. On each page I was able to take in some basic data about the province, including its population, population density, and GPD per capita.
+I used the Nokogiri gem to do all of the web scraping in this project. Starting on the [main China page on Wikipedia](http://en.wikipedia.org/wiki/China), I was able to scrape the links to the individual pages for every province, autonomous region, municipality, and special administrative region in China. On each page I was able to take in some basic data about the province, including its population, population density, and GPD per capita.
 
-Nokogiri and OpenURI make the process of web scraping super simple. In my `Gemfile`, I required the Nokogiri gem:
+Nokogiri and OpenURI make the process of web scraping very simple. In my `Gemfile`, I required the Nokogiri gem:
 
 ```ruby
 gem 'nokogiri'
@@ -24,9 +24,9 @@ and in the file I did the scraping in (`db/seeds.rb`), I required the OpenURI mo
 require 'open-uri'
 ```
 
-*(As a side note, I have been unable to find out if there is a better place to put the OpenURI requirement. It is a module in Ruby's standard library, so it can't be placed in the `Gemfile`, but it still seems somewhat un-Rails-like to just throw it into whatever file you happen to be using it in.)*
+*(As a side note, I have been unable to find out if there is a better, more centralized place to put the OpenURI requirement in a Rails application. It is a module in Ruby's standard library, so it can't be placed in the `Gemfile`, but it still seems somewhat un-Railslike to just throw the requirement into whatever file you happen to be using it in.)*
 
-Once these requirements were declared, it was easy to capture the HTML contents of the page whose URI I was targeting.
+Once these requirements were declared, it was straighforward to use OpenURI `open` the URL I was targeting and use Nokogiri to capture the HTML contents of the page.
 
 ```ruby
 china_main_page = Nokogiri::HTML(open("http://en.wikipedia.org/wiki/China"))
@@ -57,17 +57,15 @@ class Province < ActiveRecord::Base
 end
 ```
 
-Once I had all of the provinces and their Wikipedia URLs stored in the database, the next step was to iterate over the provinces and use Nokogiri and OpenURI to scrape the HTML contents of each province's page.
+Once I had all of the provinces and their Wikipedia URLs stored in the database, the next step was to iterate over the provinces and use Nokogiri to scrape the HTML contents of each province's page.
 
 ```ruby
-  def scrape_all_provinces
-    Province.all.each do |province|
-      page = Nokogiri::HTML(open(province.url))
-
-      # ...
-
-    end
+def scrape_all_provinces
+  Province.all.each do |province|
+    page = Nokogiri::HTML(open(province.url))
+    # ...
   end
+end
 ```
 
 I wanted to use best practices and make the code adhere to object-oriented design principles, so I put the above methods into a class called `ChinaScraper`, the outline of which roughly looks like this:
@@ -110,10 +108,9 @@ One good example of this was with the data on the page indicating a province's a
 
 ```ruby
 area_info = page.search("tr.mergedrow").select { |t| t.text.match(/km2/i) }
-#=> ????
 ```
 
-I then `split` the appropriate string from the `area_info` array into an array of strings using a regular expression, selected the string with the relevant info, removed any commas from it, and converted it to an integer.
+I then `split` the appropriate string from the `area_info` array into an array of strings using a regular expression, selected the string with the relevant info, removed all commas from the string, and converted it to an integer.
 
 ```ruby
 province.area_km_sq         = area_info.first.text.
@@ -124,9 +121,9 @@ province.population_density = area_info.last.text.
                                 gsub(',', '').to_i
 ```
 
-I originally used only `\s` to split the string on all of its whitespaces, but found that a few whitespaces were still showing up in the resulting array of strings! After some digging, I figured out that whitespaces from the Chinese character set (` `, as opposed to ` `) were included in the text of some of the Wikipedia articles, but they were not recognized by the whitespace indicator in the regexp.
+I originally used only `\s` to split the string on all of its whitespaces, but found that a few whitespaces were still showing up in the resulting array of strings! After some digging, I figured out that whitespaces from the Chinese character set were included in the text of some of the Wikipedia articles, but they were not picked up by the regexp's whitespace identifier.
 
-I was able to solve this problem by adding the Chinese whitespace to the above regexp. However, when I tested this program on a different computer that did not have a Chinese language package installed, `rake db:seed` blew up on this line. After some more digging, I was able to resolve this problem by adding one commented line to the top of the `db/seeds.rb` file:
+I was able to solve this problem by adding the Chinese whitespace as one of the options in the above regexp. However, when I tested this program on a different computer that did not have a Chinese language package installed, `rake db:seed` blew up on this line. After some more digging, I was able to resolve this problem by adding one commented line to the top of the `db/seeds.rb` file:
 
 ```ruby
 # encoding: UTF-8
@@ -134,7 +131,7 @@ I was able to solve this problem by adding the Chinese whitespace to the above r
 
 ### Outputting the Data as a JSON API
 
-Once the data had been scraped from Wikipedia, parsed using Nokogiri and regular expressions, and persisted in the database, it was very straightforward to output the data as a JSON API to be consumed by the JavaScript frontend. The entirety of the `app/controllers/provinces.rb` file is as follows:
+Once the data had been scraped from Wikipedia, parsed using Nokogiri and regular expressions, and persisted in the database, it was then just a matter of outputting the data as a JSON API for easy consumption by the JavaScript frontend. The `app/controllers/provinces.rb` file is as follows:
 
 ```ruby
 class ProvincesController < ApplicationController
@@ -147,6 +144,6 @@ end
 
 ### Closing Thoughts
 
-Though this was not my first data scraping project, it was challenging given the HTML/CSS inconsistencies across different Wikipedia articles. After doing it the brute force way and hardcoding in province data, I was able to bring the code to a more abstract level and learn a lot about parsing text with regular expressions in the process.
+Though this was not my first web scraping project, it was challenging given the HTML/CSS inconsistencies across different Wikipedia articles. After solving the problem in a brute force fashion using hardcoded province data, I was able to bring the code to a more abstract level and learn a lot about parsing text with regular expressions in the process.
 
 Stay tuned for the next part in this series where I will talk about the JavaScript frontend and bringing the map to life!
