@@ -146,4 +146,4 @@ end
 
 Though this was not my first web scraping project, it was challenging given the HTML/CSS inconsistencies across different Wikipedia articles. After solving the problem in a brute force fashion using hardcoded province data, I was able to bring the code to a more abstract level and learn a lot about parsing text with regular expressions in the process.
 
-Stay tuned for the next part in this series where I will talk about the JavaScript frontend and bringing the map to life!
+Check out the [next post](http://callahanchris.github.io/blog/2014/09/11/china-map-project-part-2-bringing-the-map-to-life-with-jvectormap/) in this series where I will talk about the JavaScript frontend and bringing the map to life!
