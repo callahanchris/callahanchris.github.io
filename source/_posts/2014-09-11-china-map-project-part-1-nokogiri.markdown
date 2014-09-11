@@ -6,7 +6,7 @@ comments: true
 categories: 
 ---
 
-Over the past couple months I've been working on a side project to create an [interactive, data-rich map of China](http://amapofchina.herokuapp.com). To accomplish this goal, I made a Ruby on Rails app that scrapes Wikipedia for data about Chinese provinces, stores this information in a database, and outputs the data as a JSON API. On the frontend, I used JavaScript to create a vector map of China and populate the map with the data consumed from the API. I saw this project as something that could both challenge me technically and bring together two of my main interests: China and coding.
+Over the past couple months I've been working on a side project to create an [interactive, data-rich map of China](http://amapofchina.herokuapp.com). ([Check it out on Github!](https://github.com/callahanchris/china-map)) To accomplish this goal, I made a Ruby on Rails app that scrapes Wikipedia for data about Chinese provinces, stores this information in a database, and outputs the data as a JSON API. On the frontend, I used JavaScript to create a vector map of China and populate the map with the data consumed from the API. I saw this project as something that could both challenge me technically and bring together two of my main interests: China and coding.
 
 ### Gathering the Data
 
