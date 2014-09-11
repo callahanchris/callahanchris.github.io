@@ -1,0 +1,411 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>China Map Part 1: Nokogiri, Regular Expressions, and a JSON API - Chris Callahan's Blog</title>
+  <meta name="author" content="Chris Callahan">
+
+  
+  <meta name="description" content="Over the past couple months I&rsquo;ve been working on a side project to create an interactive, data-rich map of China. To accomplish this goal, I &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://callahanchris.github.io/blog/2014/09/10/china-map-part-1-nokogiri">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="Chris Callahan's Blog" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="//fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="//fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">Chris Callahan's Blog</a></h1>
+  
+    <h2>Becoming a hacker.</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="https://www.google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:callahanchris.github.io" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">China Map Part 1: Nokogiri, Regular Expressions, and a JSON API</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-09-10T16:08:05-04:00" pubdate data-updated="true">Sep 10<span>th</span>, 2014</time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>Over the past couple months I&rsquo;ve been working on a side project to create an <a href="http://amapofchina.herokuapp.com">interactive, data-rich map of China</a>. To accomplish this goal, I made a Ruby on Rails app that scrapes Wikipedia for data about Chinese provinces, stores this information in a database, and outputs the data as a JSON API. On the frontend, I used JavaScript to create a vector map of China and populate the map with the data consumed from the API. I saw this project as something that could both challenge me technically and bring together two of my main interests: China and coding.</p>
+
+<h3>Gathering the Data</h3>
+
+<p>I used the Nokogiri gem to do all of the web scraping in this project. Starting on the <a href="http://en.wikipedia.org/wiki/China">main China page on Wikipedia</a>, I was able to scrape the links to the individual pages for every province, autonomous region, municipality, and special administrative region in China. On each page I was able to take in some basic data about the province, including its population, population density, and GPD per capita.</p>
+
+<p>Nokogiri and OpenURI make the process of web scraping very simple. In my <code>Gemfile</code>, I required the Nokogiri gem:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="n">gem</span> <span class="s1">&#39;nokogiri&#39;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>and in the file I did the scraping in (<code>db/seeds.rb</code>), I required the OpenURI module of the Ruby standard library:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="nb">require</span> <span class="s1">&#39;open-uri&#39;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p><em>(As a side note, I have been unable to find out if there is a better, more centralized place to put the OpenURI requirement in a Rails application. It is a module in Ruby&rsquo;s standard library, so it can&rsquo;t be placed in the <code>Gemfile</code>, but it still seems somewhat un-Railslike to just throw the requirement into whatever file you happen to be using it in.)</em></p>
+
+<p>Once these requirements were declared, it was straighforward to use OpenURI <code>open</code> the URL I was targeting and use Nokogiri to capture the HTML contents of the page.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="n">china_main_page</span> <span class="o">=</span> <span class="ss">Nokogiri</span><span class="p">:</span><span class="ss">:HTML</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="s2">&quot;http://en.wikipedia.org/wiki/China&quot;</span><span class="p">))</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p></p>
+
+<p>In the case of my app, I first scraped the contents of the China page on Wikipedia and stored the links to each province listed on that page into an array named <code>province_links</code>. I then iterated over these links (skipping one as there were two links to Taiwan) to create new <code>Province</code> objects.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">def</span> <span class="nf">make_provinces</span>
+</span><span class='line'>  <span class="n">province_links</span><span class="o">.</span><span class="n">each_with_index</span> <span class="k">do</span> <span class="o">|</span><span class="n">url</span><span class="p">,</span> <span class="n">i</span><span class="o">|</span>
+</span><span class='line'>    <span class="k">next</span> <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">22</span>
+</span><span class='line'>    <span class="n">province</span> <span class="o">=</span> <span class="no">Province</span><span class="o">.</span><span class="n">new</span><span class="o">.</span><span class="n">tap</span> <span class="p">{</span> <span class="o">|</span><span class="nb">p</span><span class="o">|</span> <span class="nb">p</span><span class="o">.</span><span class="n">url</span> <span class="o">=</span> <span class="n">url</span> <span class="p">}</span>
+</span><span class='line'>    <span class="n">province</span><span class="o">.</span><span class="n">save</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Behind the scenes in <code>app/models/province.rb</code>, I used the last part of the URL to assign names to each province using the <code>before_create</code> hook.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">Province</span> <span class="o">&lt;</span> <span class="ss">ActiveRecord</span><span class="p">:</span><span class="ss">:Base</span>
+</span><span class='line'>  <span class="n">before_create</span> <span class="ss">:assign_name_from_url</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">assign_name_from_url</span>
+</span><span class='line'>    <span class="nb">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">url</span><span class="o">[</span><span class="mi">29</span><span class="o">.</span><span class="n">.</span><span class="o">-</span><span class="mi">1</span><span class="o">].</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">)</span>
+</span><span class='line'>    <span class="nb">self</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">sub!</span><span class="p">(</span><span class="s1">&#39; Autonomous Region&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span> <span class="k">if</span> <span class="nb">self</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">ends_with?</span><span class="p">(</span><span class="s1">&#39; Autonomous Region&#39;</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Once I had all of the provinces and their Wikipedia URLs stored in the database, the next step was to iterate over the provinces and use Nokogiri to scrape the HTML contents of each province&rsquo;s page.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">def</span> <span class="nf">scrape_all_provinces</span>
+</span><span class='line'>  <span class="no">Province</span><span class="o">.</span><span class="n">all</span><span class="o">.</span><span class="n">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">province</span><span class="o">|</span>
+</span><span class='line'>    <span class="n">page</span> <span class="o">=</span> <span class="ss">Nokogiri</span><span class="p">:</span><span class="ss">:HTML</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="n">province</span><span class="o">.</span><span class="n">url</span><span class="p">))</span>
+</span><span class='line'>    <span class="c1"># ...</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>I wanted to use best practices and make the code adhere to object-oriented design principles, so I put the above methods into a class called <code>ChinaScraper</code>, the outline of which roughly looks like this:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">ChinaScraper</span>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">initialize</span>
+</span><span class='line'>    <span class="n">scrape_index</span>
+</span><span class='line'>    <span class="n">make_provinces</span>
+</span><span class='line'>    <span class="n">scrape_all_provinces</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">scrape_index</span>
+</span><span class='line'>    <span class="c1"># ...</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">make_provinces</span>
+</span><span class='line'>    <span class="c1"># ...</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">scrape_all_provinces</span>
+</span><span class='line'>    <span class="c1"># ...</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Finally, in <code>db/seeds.rb</code> I seeded the database simply by instantiating a new <code>ChinaScraper</code> object.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="no">ChinaScraper</span><span class="o">.</span><span class="n">new</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>Parsing the Data</h3>
+
+<p>If you look at the Wikipedia articles of a few Chinese provinces, you will notice that the structure of each article is fairly similar. Each page has a sidebar on the right with some basic data regarding the specific province: its capital, governor, latitude and longitude, GDP in US dollars and Chinese yuan, etc. These data are all seemingly laid out in the same format, but actually the CSS selectors are slightly different in different articles.</p>
+
+<p>At first, I constructed a large conditional statement that chose the accurate CSS selector to use given some hardcoded information to identify the province. Eventually this hardcoding didn&rsquo;t sit right with me, so I found a more elegant solution: regular expressions.</p>
+
+<p>One good example of this was with the data on the page indicating a province&rsquo;s area and population density. Given the <code>page</code> of a particular <code>province</code>, I isolated all <code>tr</code> HTML elements with the CSS <code>mergedrow</code> class that contained the text <code>km2</code> and stored this into a local variable.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="n">area_info</span> <span class="o">=</span> <span class="n">page</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s2">&quot;tr.mergedrow&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">select</span> <span class="p">{</span> <span class="o">|</span><span class="n">t</span><span class="o">|</span> <span class="n">t</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sr">/km2/i</span><span class="p">)</span> <span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>I then <code>split</code> the appropriate string from the <code>area_info</code> array into an array of strings using a regular expression, selected the string with the relevant info, removed all commas from the string, and converted it to an integer.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="n">province</span><span class="o">.</span><span class="n">area_km_sq</span>         <span class="o">=</span> <span class="n">area_info</span><span class="o">.</span><span class="n">first</span><span class="o">.</span><span class="n">text</span><span class="o">.</span>
+</span><span class='line'>                                <span class="nb">split</span><span class="p">(</span><span class="sr">/\s| /</span><span class="p">)</span><span class="o">[</span><span class="mi">3</span><span class="o">].</span>
+</span><span class='line'>                                <span class="nb">gsub</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">to_i</span>
+</span><span class='line'><span class="n">province</span><span class="o">.</span><span class="n">population_density</span> <span class="o">=</span> <span class="n">area_info</span><span class="o">.</span><span class="n">last</span><span class="o">.</span><span class="n">text</span><span class="o">.</span>
+</span><span class='line'>                                <span class="nb">split</span><span class="p">(</span><span class="sr">/\s| |\//</span><span class="p">)</span><span class="o">[</span><span class="mi">3</span><span class="o">].</span>
+</span><span class='line'>                                <span class="nb">gsub</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">to_i</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>I originally used only <code>\s</code> to split the string on all of its whitespaces, but found that a few whitespaces were still showing up in the resulting array of strings! After some digging, I figured out that whitespaces from the Chinese character set were included in the text of some of the Wikipedia articles, but they were not picked up by the regexp&rsquo;s whitespace identifier.</p>
+
+<p>I was able to solve this problem by adding the Chinese whitespace as one of the options in the above regexp. However, when I tested this program on a different computer that did not have a Chinese language package installed, <code>rake db:seed</code> blew up on this line. After some more digging, I was able to resolve this problem by adding one commented line to the top of the <code>db/seeds.rb</code> file:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="c1"># encoding: UTF-8</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>Outputting the Data as a JSON API</h3>
+
+<p>Once the data had been scraped from Wikipedia, parsed using Nokogiri and regular expressions, and persisted in the database, it was then just a matter of outputting the data as a JSON API for easy consumption by the JavaScript frontend. The <code>app/controllers/provinces.rb</code> file is as follows:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">ProvincesController</span> <span class="o">&lt;</span> <span class="no">ApplicationController</span>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">index</span>
+</span><span class='line'>    <span class="vi">@provinces</span> <span class="o">=</span> <span class="no">Province</span><span class="o">.</span><span class="n">all</span>
+</span><span class='line'>    <span class="n">render</span> <span class="ss">json</span><span class="p">:</span> <span class="vi">@provinces</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>Closing Thoughts</h3>
+
+<p>Though this was not my first web scraping project, it was challenging given the HTML/CSS inconsistencies across different Wikipedia articles. After solving the problem in a brute force fashion using hardcoded province data, I was able to bring the code to a more abstract level and learn a lot about parsing text with regular expressions in the process.</p>
+
+<p>Stay tuned for the next part in this series where I will talk about the JavaScript frontend and bringing the map to life!</p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Chris Callahan</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-09-10T16:08:05-04:00" pubdate data-updated="true">Sep 10<span>th</span>, 2014</time>
+      
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://callahanchris.github.io/blog/2014/09/10/china-map-part-1-nokogiri/" data-via="" data-counturl="http://callahanchris.github.io/blog/2014/09/10/china-map-part-1-nokogiri/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2014/07/24/how-to-write-an-immediately-invoked-anonymous-function-expression-in-javascript/" title="Previous Post: How to Write an Immediately-Invoked Anonymous Function Expression in JavaScript">&laquo; How to Write an Immediately-Invoked Anonymous Function Expression in JavaScript</a>
+      
+      
+    </p>
+  </footer>
+</article>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2014/09/10/china-map-part-1-nokogiri/">China Map Part 1: Nokogiri, Regular Expressions, and a JSON API</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/07/24/how-to-write-an-immediately-invoked-anonymous-function-expression-in-javascript/">How to Write an Immediately-Invoked Anonymous Function Expression in JavaScript</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/07/17/five-useful-ruby-array-methods/">Five Useful Ruby Array Methods</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/07/10/lessons-from-refactoring-tic-tac-toe/">Lessons From Refactoring Tic Tac Toe</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/06/26/better-understanding-ruby-modules-through-zombies/">Better Understanding Ruby Modules Through Zombies</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2014 - Chris Callahan -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>
