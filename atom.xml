@@ -4,7 +4,7 @@
   <title><![CDATA[Chris Callahan's Blog]]></title>
   <link href="http://callahanchris.github.io/atom.xml" rel="self"/>
   <link href="http://callahanchris.github.io/"/>
-  <updated>2014-09-11T16:57:42-04:00</updated>
+  <updated>2014-09-11T17:00:34-04:00</updated>
   <id>http://callahanchris.github.io/</id>
   <author>
     <name><![CDATA[Chris Callahan]]></name>
@@ -12,6 +12,201 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[China Map Project - Part 2: Bringing the Map to Life With jVectorMap]]></title>
+    <link href="http://callahanchris.github.io/blog/2014/09/11/china-map-project-part-2-bringing-the-map-to-life-with-jvectormap/"/>
+    <updated>2014-09-11T12:35:18-04:00</updated>
+    <id>http://callahanchris.github.io/blog/2014/09/11/china-map-project-part-2-bringing-the-map-to-life-with-jvectormap</id>
+    <content type="html"><![CDATA[<p><em>This post is the second in a series about my recent side project, <a href="http://amapofchina.herokuapp.com">A Map of China</a>. Check out the <a href="http://callahanchris.github.io/blog/2014/09/11/china-map-project-part-1-nokogiri/">first post</a> and the <a href="https://github.com/callahanchris/china-map">project repo</a> on Github.</em></p>
+
+<h3>Setting up jVectorMap</h3>
+
+<p>I used the <a href="http://jvectormap.com/">jVectorMap JavaScript library</a> to render a vector map of China on my website. I considered using the Leaflet and/or D3.js JavaScript libraries, but I found it a bit easier to get started with jVectorMap. jVectorMap has maps of a couple dozen countries, a map of the whole world (as seen on their homepage), and even maps of New York City and Chicago, which may be fun to play around with in the future. Importantly for my project, they also have <a href="http://jvectormap.com/maps/countries/china/">a map of mainland China</a>.</p>
+
+<p>To get this map displayed on the index page of my Rails app, I downloaded both the main jVectorMap JS file as well as the China map JS file, put these files into the <code>app/assets/javascripts</code> directory, and included them in the <code>application.js</code> file:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='js'><span class='line'><span class="c1">//= require jquery-jvectormap-1.2.2.min</span>
+</span><span class='line'><span class="c1">//= require jquery-jvectormap-cn-merc-en</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Then in the <code>index.html.erb</code> file in the <code>app/views/main</code> directory, I added an empty div for the map to be drawn in:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='html'><span class='line'><span class="nt">&lt;div</span> <span class="na">id=</span><span class="s">&quot;map&quot;</span> <span class="na">class=</span><span class="s">&quot;center-block&quot;</span> <span class="na">style=</span><span class="s">&quot;width: 960px; height: 720px&quot;</span><span class="nt">&gt;&lt;/div&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>From here, I was able to draw the map in this div using the jQuery plugin <code>vectorMap()</code>, which was defined in the jVectorMap China map file.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='js'><span class='line'><span class="nx">$</span><span class="p">(</span> <span class="s1">&#39;#map&#39;</span> <span class="p">).</span><span class="nx">vectorMap</span><span class="p">(</span> <span class="p">{</span><span class="nx">map</span><span class="o">:</span> <span class="s1">&#39;cn_merc_en&#39;</span><span class="p">}</span> <span class="p">);</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>Customizing the Map</h3>
+
+<p>At this point, I was able to display the map exactly as I saw it on the jVectorMap website. The next step was to customize the styling of the map and incorporate the data from the JSON API that I had output from the Rails backend.</p>
+
+<p>The jVectorMap API documentation was relatively easy to navigate and made it clear what I had to do to accomplish this goal. The <code>vectorMap()</code> plugin takes a JavaScript object of options that alter how the map is displayed.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+</pre></td><td class='code'><pre><code class='js'><span class='line'><span class="kd">var</span> <span class="nx">showPopulationDensity</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span> <span class="nx">popDensity</span> <span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>  <span class="nx">$</span><span class="p">(</span> <span class="s1">&#39;#map&#39;</span> <span class="p">).</span><span class="nx">vectorMap</span><span class="p">({</span>
+</span><span class='line'>    <span class="nx">map</span><span class="o">:</span> <span class="s1">&#39;cn_merc_en&#39;</span><span class="p">,</span>
+</span><span class='line'>    <span class="nx">backgroundColor</span><span class="o">:</span> <span class="s1">&#39;none&#39;</span><span class="p">,</span>
+</span><span class='line'>    <span class="nx">series</span><span class="o">:</span> <span class="p">{</span>
+</span><span class='line'>      <span class="nx">regions</span><span class="o">:</span> <span class="p">[{</span>
+</span><span class='line'>        <span class="nx">values</span><span class="o">:</span> <span class="nx">popDensity</span><span class="p">,</span>
+</span><span class='line'>        <span class="nx">scale</span><span class="o">:</span> <span class="p">[</span><span class="s1">&#39;#FFF0F0&#39;</span><span class="p">,</span> <span class="s1">&#39;#F5442C&#39;</span><span class="p">],</span>
+</span><span class='line'>        <span class="nx">max</span><span class="o">:</span> <span class="mi">600</span>
+</span><span class='line'>      <span class="p">}]</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>  <span class="p">});</span>
+</span><span class='line'><span class="p">};</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>When the <code>showPopulationDensity()</code> function is called, the map is populated with the <code>popDensity</code> dataset that is passed as an argument to the function. By specifying options in the <code>regions</code> parameter, jVectorMap colors in the provinces on a gradient (from light to dark) based on their population densities, capping out at the maximum value provided.</p>
+
+<p>The jVectorMap API provides several other helper functions that can be passed to the <code>mapVector()</code> plugin. I used several of these, including <code>onRegionLabelShow</code> to customize the text displayed when you mouse over a province and <code>markers</code>, <code>markerStyle</code>, and <code>onMarkerLabelShow</code> to display data on Hong Kong and Macau, which are not included in the jVectorMap map of China.</p>
+
+<h3><code>$.getJSON()</code> to the Rescue</h3>
+
+<p>In order to pass the data output by my API into a function like <code>showPopulationDensity()</code>, I had to retrieve the JSON on the frontend using AJAX. Because this was a relatively simple case where I was only making a GET request to one URL &mdash; <code>/provinces</code>, the lone endpoint of my API &mdash; I used the <code>$.getJSON()</code> jQuery function.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='js'><span class='line'><span class="nx">$</span><span class="p">.</span><span class="nx">getJSON</span><span class="p">(</span> <span class="s1">&#39;/provinces&#39;</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span> <span class="nx">data</span> <span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>  <span class="c1">// ...</span>
+</span><span class='line'><span class="p">});</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Inside of this function, I iterated over the JSON returned from this API call and stored the data into JavaScript objects according to the province&rsquo;s code specified in the jVectorMap library.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+</pre></td><td class='code'><pre><code class='js'><span class='line'><span class="kd">var</span> <span class="nx">provinceNames</span> <span class="o">=</span> <span class="p">{},</span>
+</span><span class='line'>    <span class="nx">population</span>    <span class="o">=</span> <span class="p">{},</span>
+</span><span class='line'>    <span class="nx">popDensity</span>    <span class="o">=</span> <span class="p">{},</span>
+</span><span class='line'>    <span class="nx">gdpUsd</span>        <span class="o">=</span> <span class="p">{},</span>
+</span><span class='line'>    <span class="nx">gdpPerCap</span>     <span class="o">=</span> <span class="p">{},</span>
+</span><span class='line'>    <span class="nx">areaKmSq</span>      <span class="o">=</span> <span class="p">{};</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">for</span> <span class="p">(</span> <span class="kd">var</span> <span class="nx">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">i</span> <span class="o">&lt;</span> <span class="nx">data</span><span class="p">.</span><span class="nx">length</span><span class="p">;</span> <span class="nx">i</span><span class="o">++</span> <span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>  <span class="nx">provinceNames</span><span class="p">[</span><span class="nx">data</span><span class="p">[</span><span class="nx">i</span><span class="p">][</span><span class="s2">&quot;jvector_code&quot;</span><span class="p">]]</span> <span class="o">=</span> <span class="nx">data</span><span class="p">[</span><span class="nx">i</span><span class="p">][</span><span class="s2">&quot;name&quot;</span><span class="p">];</span>
+</span><span class='line'>  <span class="nx">population</span><span class="p">[</span><span class="nx">data</span><span class="p">[</span><span class="nx">i</span><span class="p">][</span><span class="s2">&quot;jvector_code&quot;</span><span class="p">]]</span>    <span class="o">=</span> <span class="nx">data</span><span class="p">[</span><span class="nx">i</span><span class="p">][</span><span class="s2">&quot;population&quot;</span><span class="p">];</span>
+</span><span class='line'>  <span class="nx">popDensity</span><span class="p">[</span><span class="nx">data</span><span class="p">[</span><span class="nx">i</span><span class="p">][</span><span class="s2">&quot;jvector_code&quot;</span><span class="p">]]</span>    <span class="o">=</span> <span class="nx">data</span><span class="p">[</span><span class="nx">i</span><span class="p">][</span><span class="s2">&quot;population_density&quot;</span><span class="p">];</span>
+</span><span class='line'>  <span class="nx">gdpUsd</span><span class="p">[</span><span class="nx">data</span><span class="p">[</span><span class="nx">i</span><span class="p">][</span><span class="s2">&quot;jvector_code&quot;</span><span class="p">]]</span>        <span class="o">=</span> <span class="nx">data</span><span class="p">[</span><span class="nx">i</span><span class="p">][</span><span class="s2">&quot;gdp_usd&quot;</span><span class="p">];</span>
+</span><span class='line'>  <span class="nx">gdpPerCap</span><span class="p">[</span><span class="nx">data</span><span class="p">[</span><span class="nx">i</span><span class="p">][</span><span class="s2">&quot;jvector_code&quot;</span><span class="p">]]</span>     <span class="o">=</span> <span class="nx">data</span><span class="p">[</span><span class="nx">i</span><span class="p">][</span><span class="s2">&quot;gdp_per_capita&quot;</span><span class="p">];</span>
+</span><span class='line'>  <span class="nx">areaKmSq</span><span class="p">[</span><span class="nx">data</span><span class="p">[</span><span class="nx">i</span><span class="p">][</span><span class="s2">&quot;jvector_code&quot;</span><span class="p">]]</span>      <span class="o">=</span> <span class="nx">data</span><span class="p">[</span><span class="nx">i</span><span class="p">][</span><span class="s2">&quot;area_km_sq&quot;</span><span class="p">];</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The main focus here was transforming the JSON output from the backend into simple JavaScript objects that could be easily plugged into the jVectorMap helper functions to display different datasets on the map.</p>
+
+<p>Finally, I put a few event listeners on the page so that when a certain bit of text on the page (e.g., &ldquo;Population&rdquo;) is clicked, jVectorMap will display the correct dataset.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+</pre></td><td class='code'><pre><code class='js'><span class='line'><span class="nx">$</span><span class="p">(</span> <span class="s1">&#39;#population&#39;</span> <span class="p">).</span><span class="nx">on</span><span class="p">(</span> <span class="s1">&#39;click&#39;</span><span class="p">,</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>  <span class="nx">clearMap</span><span class="p">();</span>
+</span><span class='line'>  <span class="nx">showPopulation</span><span class="p">(</span> <span class="nx">data</span><span class="p">,</span> <span class="nx">provinceNames</span><span class="p">,</span> <span class="nx">population</span> <span class="p">);</span>
+</span><span class='line'><span class="p">});</span>
+</span><span class='line'>
+</span><span class='line'><span class="nx">$</span><span class="p">(</span> <span class="s1">&#39;#pop-density&#39;</span> <span class="p">).</span><span class="nx">on</span><span class="p">(</span> <span class="s1">&#39;click&#39;</span><span class="p">,</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>  <span class="nx">clearMap</span><span class="p">();</span>
+</span><span class='line'>  <span class="nx">showPopulationDensity</span><span class="p">(</span> <span class="nx">data</span><span class="p">,</span> <span class="nx">provinceNames</span><span class="p">,</span> <span class="nx">popDensity</span> <span class="p">);</span>
+</span><span class='line'><span class="p">});</span>
+</span><span class='line'>
+</span><span class='line'><span class="nx">$</span><span class="p">(</span> <span class="s1">&#39;#gdp-usd&#39;</span> <span class="p">).</span><span class="nx">on</span><span class="p">(</span> <span class="s1">&#39;click&#39;</span><span class="p">,</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>  <span class="nx">clearMap</span><span class="p">();</span>
+</span><span class='line'>  <span class="nx">showGdp</span><span class="p">(</span> <span class="nx">data</span><span class="p">,</span> <span class="nx">provinceNames</span><span class="p">,</span> <span class="nx">gdpUsd</span> <span class="p">);</span>
+</span><span class='line'><span class="p">});</span>
+</span><span class='line'>
+</span><span class='line'><span class="nx">$</span><span class="p">(</span> <span class="s1">&#39;#gdp-per-cap&#39;</span> <span class="p">).</span><span class="nx">on</span><span class="p">(</span> <span class="s1">&#39;click&#39;</span><span class="p">,</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>  <span class="nx">clearMap</span><span class="p">();</span>
+</span><span class='line'>  <span class="nx">showGdpPerCap</span><span class="p">(</span> <span class="nx">data</span><span class="p">,</span> <span class="nx">provinceNames</span><span class="p">,</span> <span class="nx">gdpPerCap</span> <span class="p">);</span>
+</span><span class='line'><span class="p">});</span>
+</span><span class='line'>
+</span><span class='line'><span class="nx">$</span><span class="p">(</span> <span class="s1">&#39;#area-km-sq&#39;</span> <span class="p">).</span><span class="nx">on</span><span class="p">(</span> <span class="s1">&#39;click&#39;</span><span class="p">,</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>  <span class="nx">clearMap</span><span class="p">();</span>
+</span><span class='line'>  <span class="nx">showArea</span><span class="p">(</span> <span class="nx">data</span><span class="p">,</span> <span class="nx">provinceNames</span><span class="p">,</span> <span class="nx">areaKmSq</span> <span class="p">);</span>
+</span><span class='line'><span class="p">});</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>I was unable to figure out how change the dataset displayed on the map without entirely redrawing the vector graphic. Therefore, I call the <code>clearMap()</code> function, which removes the currently displayed map from the page, and then call the desired function to redraw the appropriate map on the page.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='js'><span class='line'><span class="kd">var</span> <span class="nx">clearMap</span> <span class="o">=</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>  <span class="nx">$</span><span class="p">(</span> <span class="s1">&#39;#map&#39;</span> <span class="p">).</span><span class="nx">contents</span><span class="p">().</span><span class="nx">remove</span><span class="p">();</span>
+</span><span class='line'><span class="p">};</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>Closing Thoughts</h3>
+
+<p>This was my first project using a JavaScript map, and it was really fun! I definitely learned a lot about integrating JavaScript libraries into Rails apps, got more comfortable using AJAX on the frontend, and became more confident in my ability to create and consume JSON APIs.</p>
+
+<p>Stay tuned for the next post in this series about one of my favorite topics: refactoring!</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[China Map Project - Part 1: Nokogiri, Regular Expressions, and a JSON API]]></title>
