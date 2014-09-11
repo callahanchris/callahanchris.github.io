@@ -4,7 +4,7 @@
   <title><![CDATA[Chris Callahan's Blog]]></title>
   <link href="http://callahanchris.github.io/atom.xml" rel="self"/>
   <link href="http://callahanchris.github.io/"/>
-  <updated>2014-09-10T22:32:01-04:00</updated>
+  <updated>2014-09-11T11:44:31-04:00</updated>
   <id>http://callahanchris.github.io/</id>
   <author>
     <name><![CDATA[Chris Callahan]]></name>
@@ -14,10 +14,10 @@
 
   
   <entry>
-    <title type="html"><![CDATA[China Map Part 1: Nokogiri, Regular Expressions, and a JSON API]]></title>
-    <link href="http://callahanchris.github.io/blog/2014/09/10/china-map-part-1-nokogiri/"/>
-    <updated>2014-09-10T16:08:05-04:00</updated>
-    <id>http://callahanchris.github.io/blog/2014/09/10/china-map-part-1-nokogiri</id>
+    <title type="html"><![CDATA[China Map Project - Part 1: Nokogiri, Regular Expressions, and a JSON API]]></title>
+    <link href="http://callahanchris.github.io/blog/2014/09/11/china-map-project-part-1-nokogiri/"/>
+    <updated>2014-09-11T11:43:03-04:00</updated>
+    <id>http://callahanchris.github.io/blog/2014/09/11/china-map-project-part-1-nokogiri</id>
     <content type="html"><![CDATA[<p>Over the past couple months I&rsquo;ve been working on a side project to create an <a href="http://amapofchina.herokuapp.com">interactive, data-rich map of China</a>. To accomplish this goal, I made a Ruby on Rails app that scrapes Wikipedia for data about Chinese provinces, stores this information in a database, and outputs the data as a JSON API. On the frontend, I used JavaScript to create a vector map of China and populate the map with the data consumed from the API. I saw this project as something that could both challenge me technically and bring together two of my main interests: China and coding.</p>
 
 <h3>Gathering the Data</h3>
