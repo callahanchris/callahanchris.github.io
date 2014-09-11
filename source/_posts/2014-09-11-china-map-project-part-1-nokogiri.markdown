@@ -1,7 +1,7 @@
 ---
 layout: post
-title: "China Map Part 1: Nokogiri, Regular Expressions, and a JSON API"
-date: 2014-09-10 16:08:05 -0400
+title: "China Map Project - Part 1: Nokogiri, Regular Expressions, and a JSON API"
+date: 2014-09-11 11:43:03 -0400
 comments: true
 categories: 
 ---
