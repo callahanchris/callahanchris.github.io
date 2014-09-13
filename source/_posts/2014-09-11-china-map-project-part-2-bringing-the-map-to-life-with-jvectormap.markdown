@@ -53,24 +53,24 @@ var showPopulationDensity = function( popDensity ) {
 };
 ```
 
-When the `showPopulationDensity()` function is called, the map is populated with the `popDensity` dataset that is passed as an argument to the function. By specifying options in the `regions` parameter, jVectorMap colors in the provinces on a gradient (from light to dark) based on their population densities, capping out at the maximum value provided.
+When the `showPopulationDensity()` function is called, the map is populated with the `popDensity` dataset that is passed as an argument to the function. By specifying options in the `regions` parameter, jVectorMap colors in the regions on a gradient (from light to dark) based on their population densities, capping out at the maximum value provided.
 
-The jVectorMap API provides several other helper functions that can be passed to the `mapVector()` plugin. I used several of these, including `onRegionLabelShow` to customize the text displayed when you mouse over a province and `markers`, `markerStyle`, and `onMarkerLabelShow` to display data on Hong Kong and Macau, which are not included in the jVectorMap map of China.
+The jVectorMap API provides several other helper functions that can be passed to the `mapVector()` plugin. I used several of these, including `onRegionLabelShow` to customize the text displayed when you mouse over a region and `markers`, `markerStyle`, and `onMarkerLabelShow` to display data on Hong Kong and Macau, which are not included in the jVectorMap map of China.
 
 ### `$.getJSON()` to the Rescue
 
-In order to pass the data output by my API into a function like `showPopulationDensity()`, I had to retrieve the JSON on the frontend using AJAX. Because this was a relatively simple case where I was only making a GET request to one URL -- `/provinces`, the lone endpoint of my API -- I used the `$.getJSON()` jQuery function.
+In order to pass the data output by my API into a function like `showPopulationDensity()`, I had to retrieve the JSON on the frontend using AJAX. Because this was a relatively simple case where I was only making a GET request to one URL -- `/regions`, the lone endpoint of my API -- I used the `$.getJSON()` jQuery function.
 
 ```js
-$.getJSON( '/provinces', function( data ) {
+$.getJSON( '/regions', function( data ) {
   // ...
 });
 ```
 
-Inside of this function, I iterated over the JSON returned from this API call and stored the data into JavaScript objects according to the province's code specified in the jVectorMap library.
+Inside of this function, I iterated over the JSON returned from this API call and stored the data into JavaScript objects according to the region's code specified in the jVectorMap library.
 
 ```js
-var provinceNames = {},
+var regionNames = {},
     population    = {},
     popDensity    = {},
     gdpUsd        = {},
@@ -78,7 +78,7 @@ var provinceNames = {},
     areaKmSq      = {};
 
 for ( var i = 0; i < data.length; i++ ) {
-  provinceNames[data[i]["jvector_code"]] = data[i]["name"];
+  regionNames[data[i]["jvector_code"]] = data[i]["name"];
   population[data[i]["jvector_code"]]    = data[i]["population"];
   popDensity[data[i]["jvector_code"]]    = data[i]["population_density"];
   gdpUsd[data[i]["jvector_code"]]        = data[i]["gdp_usd"];
@@ -94,27 +94,27 @@ Finally, I put a few event listeners on the page so that when a certain bit of t
 ```js
 $( '#population' ).on( 'click', function() {
   clearMap();
-  showPopulation( data, provinceNames, population );
+  showPopulation( data, regionNames, population );
 });
 
 $( '#pop-density' ).on( 'click', function() {
   clearMap();
-  showPopulationDensity( data, provinceNames, popDensity );
+  showPopulationDensity( data, regionNames, popDensity );
 });
 
 $( '#gdp-usd' ).on( 'click', function() {
   clearMap();
-  showGdp( data, provinceNames, gdpUsd );
+  showGdp( data, regionNames, gdpUsd );
 });
 
 $( '#gdp-per-cap' ).on( 'click', function() {
   clearMap();
-  showGdpPerCap( data, provinceNames, gdpPerCap );
+  showGdpPerCap( data, regionNames, gdpPerCap );
 });
 
 $( '#area-km-sq' ).on( 'click', function() {
   clearMap();
-  showArea( data, provinceNames, areaKmSq );
+  showArea( data, regionNames, areaKmSq );
 });
 ```
 

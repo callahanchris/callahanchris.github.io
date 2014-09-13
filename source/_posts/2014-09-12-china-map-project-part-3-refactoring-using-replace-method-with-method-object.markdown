@@ -4,6 +4,7 @@ title: "China Map Project - Part 3: Refactoring Using Replace Method with Method
 date: 2014-09-12 15:05:42 -0400
 comments: true
 categories: 
+published: false
 ---
 
 *This post is the third in a series about my recent side project, [A Map of China](http://amapofchina.herokuapp.com). Check out the [first post](http://callahanchris.github.io/blog/2014/09/11/china-map-project-part-1-nokogiri/), [second post](http://callahanchris.github.io/blog/2014/09/11/china-map-project-part-2-bringing-the-map-to-life-with-jvectormap/) and the [project repo](https://github.com/callahanchris/china-map) on Github.*
