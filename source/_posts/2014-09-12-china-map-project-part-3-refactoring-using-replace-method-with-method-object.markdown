@@ -41,70 +41,76 @@ The mechanics of this refactoring are as follows:
 
 ### The Refactoring in Action
 
-In my original `db/seeds.rb` file, I had one `ChinaScraper` class that handled... everything. Even though this was a simple app, that is still a red flag. Before refactoring, the `ChinaScraper` class was just shy of 170 lines of code -- another red flag. Within that class, there was one 94 line method (!!!) -- `scrape_all_provinces` -- doing the bulk of the work. It scraped each province's Wikipedia page, then went through and assigned about ten different attributes to the province.
+In my original `db/seeds.rb` file, I had one `ChinaScraper` class that handled... everything. Even though this was a simple app, that is still a red flag. Before refactoring, the `ChinaScraper` class was just shy of 170 lines of code -- another red flag. Within that class, there was one 94 line method (!!!) -- `scrape_all_regions` -- doing the bulk of the work. It scraped each region's Wikipedia page, then went through and assigned about ten different attributes to the region.
 
 ```ruby
-def scrape_all_provinces
-  Province.all.each do |province|
-    page = Nokogiri::HTML(open(province.url))
+def scrape_all_regions
+  Region.all.each do |region|
+    page = Nokogiri::HTML(open(region.url))
 
-    if %w{ Hong\ Kong Macau }.include?(province.name)
-      province.territorial_designation = page.search("tr td a").find {|a| a.text.match(/special/i) }.text.split(" of ").first
+    if %w{ Hong\ Kong Macau }.include?(region.name)
+      region.territorial_designation = page.search("tr td a").find {|a| a.text.match(/special/i) }.text.split(" of ").first
     else
-      province.territorial_designation = page.search("span.category a").text
+      region.territorial_designation = page.search("span.category a").text
     end
 
-    province.territorial_designation = province.territorial_designation.split(' ').map(&:capitalize).join(' ')
+    region.territorial_designation = region.territorial_designation.split(' ').map(&:capitalize).join(' ')
 
     # ... 80 more lines of code ...
   end
 end
 ```
 
-As you can see in this snippet from the `scrape_all_provinces` method, a considerable amount of type checking occurred in this method as well. I found that this was an inevitability given that the HTML/CSS content of the individual region pages varied significantly based on the territorial designation of the region. Fun fact: China has 22 provinces (e.g. Shaanxi, Guangdong), 5 autonomous regions (e.g. Tibet, Inner Mongolia), 4 municipalities (Beijing, Shanghai, Chongqing, and Tianjin), and 2 special administrative regions (SARs) (Hong Kong and Macau). This was a pretty clear case of polymorphism -- but first the big refactoring!
+As you can see in this snippet from the `scrape_all_regions` method, a considerable amount the conditionals in this method were essentially checking a region's `territorial_designation`. Fun fact: China has 22 provinces (e.g. Shaanxi, Guangdong), 5 autonomous regions (e.g. Tibet, Inner Mongolia), 4 municipalities (Beijing, Shanghai, Chongqing, and Tianjin), and 2 special administrative regions (SARs) (Hong Kong and Macau).
 
-Clearly, the `scrape_all_provinces` method had too many (i.e. more than one) responsibilities, so a heavy duty refactoring was in order.
 
-First, I made a new class and assigned attributes for all parameters and local variables in the `scrape_all_provinces` method:
+### MOVE TO NEXT POST??
+I found that this was type checking was inevitable given that the HTML/CSS content of the individual region pages varied significantly based on their territorial designations -- most of all in the case of the two SARs, Hong Kong and Macau. I considered breaking up the `Region` model into several smaller models (i.e. `Province`, `AutonomousRegion`, etc.), I wanted the data output from the JSON API to all be standardized and accessible from one endpoint, so I decided not to go too far down this polymorphic path.
+
+### ???
+
+It was clear that the `scrape_all_regions` method had too many (i.e. more than one) responsibilities, so a heavy duty refactoring was in order.
+
+First, I made a new class and assigned attributes for all parameters and local variables in the `scrape_all_regions` method:
 
 ```ruby
-class ProvinceScraper
-  attr_reader   :province, :page
+class RegionScraper
+  attr_reader   :region, :page
   attr_accessor :area_info, :monetary_info, :gdp_per_cap
 end
 ```
 
-Of these attributes, the `province` object and `page` containing the HTML contents scraped by Nokogiri would have to be passed through to a new instance of the `ProvinceScraper` class upon initialization.
+Of these attributes, the `region` object and `page` containing the HTML contents scraped by Nokogiri would have to be passed through to a new instance of the `RegionScraper` class upon initialization.
 
 ```ruby
-def initialize(province, page)
-  @province, @page = province, page
+def initialize(region, page)
+  @region, @page = region, page
 end
 ```
 
-Next, I moved the majority of the `scrape_all_provinces` method from the `ChinaScraper` class to the `ProvinceScraper` class and renamed it as `compute` in the `ProvinceScraper` class.
+Next, I moved the majority of the `scrape_all_regions` method from the `ChinaScraper` class to the `RegionScraper` class and renamed it as `compute` in the `RegionScraper` class.
 
 ```ruby
 def compute
-  if %w{ Hong\ Kong Macau }.include?(province.name)
-    province.territorial_designation = page.search("tr td a").find {|a| a.text.match(/special/i) }.text.split(" of ").first
+  if %w{ Hong\ Kong Macau }.include?(region.name)
+    region.territorial_designation = page.search("tr td a").find {|a| a.text.match(/special/i) }.text.split(" of ").first
   else
-    province.territorial_designation = page.search("span.category a").text
+    region.territorial_designation = page.search("span.category a").text
   end
 
-  province.territorial_designation = province.territorial_designation.split(' ').map(&:capitalize).join(' ')
+  region.territorial_designation = region.territorial_designation.split(' ').map(&:capitalize).join(' ')
   
   # ... 80 more lines of code ...
 end
 ```
 
-Finally, from inside the `ChinaScraper` class, I instantiated new `ProvinceScraper` objects and delegated the heavy lifting to them by sending them a simple message: `compute`. 
+Finally, from inside the `ChinaScraper` class, I instantiated new `RegionScraper` objects and delegated the heavy lifting to them by sending them a simple message: `compute`. 
 
 ```ruby
-def scrape_all_provinces
-  Province.all.each do |province|
-    page = Nokogiri::HTML(open(province.url))
-    ProvinceScraper.new(province, page).compute
+def scrape_all_regions
+  Region.all.each do |region|
+    page = Nokogiri::HTML(open(region.url))
+    RegionScraper.new(region, page).compute
   end
 end
 ```
@@ -113,6 +119,6 @@ Awesome four line method!
 
 ### Closing Thoughts
 
-This initial refactoring made all subsequent refactorings to the `db/seeds.rb` file significantly easier. It seems like a pretty minimal refactoring at this point, but replacing the `scrape_all_provinces` method with a class caused me to think more freely about the problem and began the process of reducing the clutter in my code.
+This initial refactoring made all subsequent refactorings to the `db/seeds.rb` file significantly easier. It seems like a pretty minimal refactoring at this point, but replacing the `scrape_all_regions` method with a class caused me to think more freely about the problem and began the process of reducing the clutter in my code.
 
 As I alluded to above, the regional classifications of China that led to my overuse of conditional statements were also an open door to a polymorphic refactoring, which is the topic of the next (and last!) post in this series.
