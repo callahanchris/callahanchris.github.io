@@ -134,7 +134,7 @@
 </pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">def</span> <span class="nf">make_regions</span>
 </span><span class='line'>  <span class="n">region_links</span><span class="o">.</span><span class="n">each_with_index</span> <span class="k">do</span> <span class="o">|</span><span class="n">url</span><span class="p">,</span> <span class="n">i</span><span class="o">|</span>
 </span><span class='line'>    <span class="k">next</span> <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">22</span>
-</span><span class='line'>    <span class="n">region</span> <span class="o">=</span> <span class="no">Region</span><span class="o">.</span><span class="n">new</span><span class="o">.</span><span class="n">tap</span> <span class="p">{</span><span class="o">|</span><span class="nb">p</span><span class="o">|</span> <span class="nb">p</span><span class="o">.</span><span class="n">url</span> <span class="o">=</span> <span class="n">url</span> <span class="p">}</span>
+</span><span class='line'>    <span class="n">region</span> <span class="o">=</span> <span class="no">Region</span><span class="o">.</span><span class="n">new</span><span class="o">.</span><span class="n">tap</span> <span class="p">{</span><span class="o">|</span><span class="n">r</span><span class="o">|</span> <span class="n">r</span><span class="o">.</span><span class="n">url</span> <span class="o">=</span> <span class="n">url</span> <span class="p">}</span>
 </span><span class='line'>    <span class="n">region</span><span class="o">.</span><span class="n">save</span>
 </span><span class='line'>  <span class="k">end</span>
 </span><span class='line'><span class="k">end</span>
