@@ -6,17 +6,19 @@ comments: true
 categories: 
 ---
 
-*This post is the third in a series about my recent side project, [A Map of China](http://amapofchina.herokuapp.com). Check out the [first post](http://callahanchris.github.io/blog/2014/09/11/china-map-project-part-1-nokogiri/), [second post](http://callahanchris.github.io/blog/2014/09/11/china-map-project-part-2-bringing-the-map-to-life-with-jvectormap/) and the [project repo](https://github.com/callahanchris/china-map) on Github.*
+*This post is the third in a series about my recent side project, [A Map of China](http://amapofchina.herokuapp.com). Check out the [first post](http://callahanchris.github.io/blog/2014/09/11/china-map-project-part-1-nokogiri/), [second post](http://callahanchris.github.io/blog/2014/09/11/china-map-project-part-2-bringing-the-map-to-life-with-jvectormap/), and the [project repo](https://github.com/callahanchris/china-map) on Github.*
 
 ### Refactoring!
 
-I enjoy refactoring. I've watched [a few](https://www.youtube.com/watch?v=DC-pQPq0acs) [great](https://www.youtube.com/watch?v=J4dlF0kcThQ) [technical talks](https://www.youtube.com/watch?v=8bZh5LMaSmE) on refactoring and dug further into the topic with two amazing books: [*Practical Object-Oriented Design in Ruby*](http://www.poodr.com/) by Sandi Metz and [*Refactoring: Ruby Edition*](http://martinfowler.com/books/refactoringRubyEd.html) by Jay Fields, Shane Harvie, and Martin Fowler (with Kent Beck). One main lesson I've gleaned from these resources and applying their recommendations to my own code is the importance of having clean, succinct, well-designed code. Code that is easy to read is easy to understand and easy to change when the time comes. I find that pushing my code further towards this goal is both highly challenging and highly rewarding work.
+I enjoy refactoring. I've watched [a few](https://www.youtube.com/watch?v=DC-pQPq0acs) [great](https://www.youtube.com/watch?v=J4dlF0kcThQ) [technical talks](https://www.youtube.com/watch?v=8bZh5LMaSmE) on refactoring and delved further into the topic with two amazing books: [*Practical Object-Oriented Design in Ruby*](http://www.poodr.com/) by Sandi Metz and [*Refactoring: Ruby Edition*](http://martinfowler.com/books/refactoringRubyEd.html) by Jay Fields, Shane Harvie, and Martin Fowler (with Kent Beck).
 
-Recently, I have been reading through *Refactoring: Ruby Edition* and trying to implement some of the refactoring patterns it details in my own code. With regards to my China map application, one pattern struck me as particularly useful: Replace Method with Method Object. Quoting Martin Fowler:
+One main lesson I've gleaned from these resources and applying their recommendations to my own code is the importance of having clean, succinct, well-designed code. Code that is easy to read is easy to understand and easy to change when the time comes. I find that pushing my code further towards this goal is both highly challenging and highly rewarding work.
+
+Recently, I have been reading through *Refactoring: Ruby Edition* and trying to implement some of the refactoring patterns it outlines into my own code. With regards to my China map application, one pattern struck me as particularly useful: Replace Method with Method Object. Quoting Martin Fowler:
 
 > In this book I emphasize the beauty of small methods. By extracting pieces out of a large method, you make things much more comprehensible.
 
-> The difficulty in decomposing a method lies in local variables. If they are rampant, decomposition can be difficult. Using Replace Temp with Query helps to reduce this burden, but occasionally you may find you cannot break down a method that needs breaking. In this case you reach deep in the tool bag and get out your Method Object.
+> The difficulty in decomposing a method lies in local variables. If they are rampant, decomposition can be difficult. Using Replace Temp with Query helps to reduce this burden, but occasionally you may find you cannot break down a method that needs breaking. In this case you reach deep into the tool bag and get out your Method Object.
 
 >  -- Refactoring: Ruby Edition, page 128
 
@@ -133,6 +135,8 @@ def compute
   region.territorial_designation = region.territorial_designation.split(' ').map(&:capitalize).join(' ')
   
   # ... 50 more lines of code ...
+
+  region.save
 end
 ```
 
@@ -147,7 +151,7 @@ def scrape_all_regions
 end
 ```
 
-Awesome four line method! The `ChinaScraper` class is now a relatively slim 36 lines of code -- and adheres much more to the Single Responsibility Principle (SRP) than its previous 170 line incarnation.
+Awesome four line method! The `ChinaScraper` class is now a relatively slim 36 lines of code and adheres much more to the Single Responsibility Principle (SRP) than its previous 170 line incarnation.
 
 ### Closing Thoughts
 
