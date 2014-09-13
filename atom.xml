@@ -4,7 +4,7 @@
   <title><![CDATA[Chris Callahan's Blog]]></title>
   <link href="http://callahanchris.github.io/atom.xml" rel="self"/>
   <link href="http://callahanchris.github.io/"/>
-  <updated>2014-09-13T17:13:55-04:00</updated>
+  <updated>2014-09-13T17:52:24-04:00</updated>
   <id>http://callahanchris.github.io/</id>
   <author>
     <name><![CDATA[Chris Callahan]]></name>
@@ -12,6 +12,236 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[China Map Project - Part 3: Refactoring Using Replace Method With Method Object]]></title>
+    <link href="http://callahanchris.github.io/blog/2014/09/12/china-map-project-part-3-refactoring-using-replace-method-with-method-object/"/>
+    <updated>2014-09-12T15:05:42-04:00</updated>
+    <id>http://callahanchris.github.io/blog/2014/09/12/china-map-project-part-3-refactoring-using-replace-method-with-method-object</id>
+    <content type="html"><![CDATA[<p><em>This post is the third in a series about my recent side project, <a href="http://amapofchina.herokuapp.com">A Map of China</a>. Check out the <a href="http://callahanchris.github.io/blog/2014/09/11/china-map-project-part-1-nokogiri/">first post</a>, <a href="http://callahanchris.github.io/blog/2014/09/11/china-map-project-part-2-bringing-the-map-to-life-with-jvectormap/">second post</a>, and the <a href="https://github.com/callahanchris/china-map">project repo</a> on Github.</em></p>
+
+<h3>Refactoring!</h3>
+
+<p>I enjoy refactoring. I&rsquo;ve watched <a href="https://www.youtube.com/watch?v=DC-pQPq0acs">a few</a> <a href="https://www.youtube.com/watch?v=J4dlF0kcThQ">great</a> <a href="https://www.youtube.com/watch?v=8bZh5LMaSmE">technical talks</a> on refactoring and delved further into the topic with two amazing books: <a href="http://www.poodr.com/"><em>Practical Object-Oriented Design in Ruby</em></a> by Sandi Metz and <a href="http://martinfowler.com/books/refactoringRubyEd.html"><em>Refactoring: Ruby Edition</em></a> by Jay Fields, Shane Harvie, and Martin Fowler (with Kent Beck).</p>
+
+<p>One main lesson I&rsquo;ve gleaned from these resources and applying their recommendations to my own code is the importance of having clean, succinct, well-designed code. Code that is easy to read is easy to understand and easy to change when the time comes. I find that pushing my code further towards this goal is both highly challenging and highly rewarding work.</p>
+
+<p>Recently, I have been reading through <em>Refactoring: Ruby Edition</em> and trying to implement some of the refactoring patterns it outlines into my own code. With regards to my China map application, one pattern struck me as particularly useful: Replace Method with Method Object. Quoting Martin Fowler:</p>
+
+<blockquote><p>In this book I emphasize the beauty of small methods. By extracting pieces out of a large method, you make things much more comprehensible.</p>
+
+<p>The difficulty in decomposing a method lies in local variables. If they are rampant, decomposition can be difficult. Using Replace Temp with Query helps to reduce this burden, but occasionally you may find you cannot break down a method that needs breaking. In this case you reach deep into the tool bag and get out your Method Object.</p>
+
+<p> &mdash; Refactoring: Ruby Edition, page 128</p></blockquote>
+
+<p>The mechanics of this refactoring (which was &ldquo;stolen shamelessly from Kent Beck&rsquo;s <em>Smalltalk Best Practice Patterns</em>&rdquo;) are as follows:</p>
+
+<blockquote><ol>
+<li><p>Create a new class, name it after the method.</p></li>
+<li><p>Give the new class an attribute for the object that hosted the original method (the source object) and an attribute for each temporary variable and each parameter in the method.</p></li>
+<li><p>Give the new class a constructor that takes the source object and each parameter.</p></li>
+<li><p>Give the new class a method named &ldquo;<code>compute</code>&rdquo;</p></li>
+<li><p>Copy the body of the original method into <code>compute</code>. Use the source object instance variable for any invocations of the methods on the original object.</p></li>
+<li><p>Test.</p></li>
+<li><p>Replace the old method with one that creates the new object and calls <code>compute</code>.</p></li>
+</ol>
+
+
+<p> &mdash; Refactoring: Ruby Edition, page 129</p></blockquote>
+
+<h3>Seeing the Opportunity for Refactoring</h3>
+
+<p>In my original <code>db/seeds.rb</code> file, I had one <code>ChinaScraper</code> class that handled&hellip; everything. Even though this was a simple app, that is still a red flag. Before refactoring, the <code>ChinaScraper</code> class was just shy of 170 lines of code &mdash; another big red flag. Within that class, there was one 94 line method (!!!) &mdash; <code>scrape_all_regions</code> &mdash; doing the bulk of the work. It scraped each region&rsquo;s Wikipedia page, then went through and assigned about ten different attributes to the region, then saved the region and its various attributes to the database.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">def</span> <span class="nf">scrape_all_regions</span>
+</span><span class='line'>  <span class="no">Region</span><span class="o">.</span><span class="n">all</span><span class="o">.</span><span class="n">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">region</span><span class="o">|</span>
+</span><span class='line'>    <span class="n">page</span> <span class="o">=</span> <span class="ss">Nokogiri</span><span class="p">:</span><span class="ss">:HTML</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="n">region</span><span class="o">.</span><span class="n">url</span><span class="p">))</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">if</span> <span class="sx">%w{ Hong\ Kong Macau }</span><span class="o">.</span><span class="n">include?</span><span class="p">(</span><span class="n">region</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+</span><span class='line'>      <span class="n">region</span><span class="o">.</span><span class="n">territorial_designation</span> <span class="o">=</span> <span class="n">page</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s2">&quot;tr td a&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">find</span> <span class="p">{</span><span class="o">|</span><span class="n">a</span><span class="o">|</span> <span class="n">a</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sr">/special/i</span><span class="p">)</span> <span class="p">}</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot; of &quot;</span><span class="p">)</span><span class="o">.</span><span class="n">first</span>
+</span><span class='line'>    <span class="k">else</span>
+</span><span class='line'>      <span class="n">region</span><span class="o">.</span><span class="n">territorial_designation</span> <span class="o">=</span> <span class="n">page</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s2">&quot;span.category a&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">text</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">region</span><span class="o">.</span><span class="n">territorial_designation</span> <span class="o">=</span> <span class="n">region</span><span class="o">.</span><span class="n">territorial_designation</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">)</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="o">&amp;</span><span class="ss">:capitalize</span><span class="p">)</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1"># ... 80 more lines of code ...</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">region</span><span class="o">.</span><span class="n">save</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>As you can begin to see in this snippet, the <code>scrape_all_regions</code> method contained many conditional statements that essentially checked a region&rsquo;s <code>territorial_designation</code>. This type checking was inevitable given that the HTML/CSS content of the individual region pages varied significantly based on their territorial designations &mdash; more on this in the next post.</p>
+
+<p>It was clear that the <code>scrape_all_regions</code> method had far too many (i.e. more than one) responsibilities and several local variables, so I reached deep into the tool bag for the Replace Method with Method Object refactoring.</p>
+
+<h3>Implementing Replace Method with Method Object</h3>
+
+<p>First, I made a new class named after the method to be refactored and assigned attributes for all parameters in the <code>scrape_all_regions</code> method:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">RegionScraper</span>
+</span><span class='line'>  <span class="kp">attr_reader</span> <span class="ss">:region</span><span class="p">,</span> <span class="ss">:page</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The <code>region</code> ActiveRecord object and <code>page</code> Nokogiri object would have to be passed through to a new instance of the <code>RegionScraper</code> class upon initialization.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="n">region</span><span class="p">,</span> <span class="n">page</span><span class="p">)</span>
+</span><span class='line'>  <span class="vi">@region</span><span class="p">,</span> <span class="vi">@page</span> <span class="o">=</span> <span class="n">region</span><span class="p">,</span> <span class="n">page</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The local variables from the original <code>scrape_all_regions</code> method were slightly more complicated, so instead of assigning them to <code>attr_reader</code>s, I used Extract Method for the three local variables in <code>scrape_all_regions</code> and placed the extracted methods in the <code>RegionScraper</code> class.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">def</span> <span class="nf">area_info</span>
+</span><span class='line'>  <span class="vi">@area_info</span> <span class="o">||=</span> <span class="n">page</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s2">&quot;tr.mergedrow&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">select</span> <span class="p">{</span><span class="o">|</span><span class="n">t</span><span class="o">|</span> <span class="n">t</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sr">/km2/i</span><span class="p">)</span> <span class="p">}</span>
+</span><span class='line'><span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">def</span> <span class="nf">monetary_info</span>
+</span><span class='line'>  <span class="k">if</span> <span class="sx">%w{ Beijing Chongqing }</span><span class="o">.</span><span class="n">include?</span><span class="p">(</span><span class="n">region</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+</span><span class='line'>    <span class="vi">@monetary_info</span> <span class="o">||=</span> <span class="n">page</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s2">&quot;tr.mergedrow td&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">find</span> <span class="p">{</span><span class="o">|</span><span class="n">tr</span><span class="o">|</span> <span class="n">tr</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sr">/cny/i</span><span class="p">)</span> <span class="p">}</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="sr">/\s| /</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">elsif</span> <span class="sx">%w{ Shanghai Tianjin }</span><span class="o">.</span><span class="n">include?</span><span class="p">(</span><span class="n">region</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+</span><span class='line'>    <span class="vi">@monetary_info</span> <span class="o">||=</span> <span class="n">page</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s2">&quot;tr.mergedrow td&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">find</span> <span class="p">{</span><span class="o">|</span><span class="n">tr</span><span class="o">|</span> <span class="n">tr</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sr">/cny/i</span><span class="p">)</span> <span class="p">}</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="sr">/\s| |cny|usd|\$/i</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">elsif</span> <span class="sx">%w{ Guangdong }</span><span class="o">.</span><span class="n">include?</span><span class="p">(</span><span class="n">region</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+</span><span class='line'>    <span class="vi">@monetary_info</span> <span class="o">||=</span> <span class="n">page</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s2">&quot;tr.mergedtoprow td&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">find</span> <span class="p">{</span><span class="o">|</span><span class="n">tr</span><span class="o">|</span> <span class="n">tr</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sr">/cny/i</span><span class="p">)</span> <span class="p">}</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="sr">/\s| |\$/i</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">elsif</span> <span class="sx">%w{ Hong\ Kong Macau }</span><span class="o">.</span><span class="n">include?</span><span class="p">(</span><span class="n">region</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+</span><span class='line'>    <span class="vi">@monetary_info</span> <span class="o">||=</span> <span class="n">page</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s2">&quot;tr.mergedrow td&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">select</span> <span class="p">{</span><span class="o">|</span><span class="n">tr</span><span class="o">|</span> <span class="n">tr</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sr">/\$/</span><span class="p">)</span> <span class="p">}</span><span class="o">[</span><span class="mi">1</span><span class="o">].</span><span class="n">text</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="sr">/\s|\$/</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">else</span>
+</span><span class='line'>    <span class="vi">@monetary_info</span> <span class="o">||=</span> <span class="n">page</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s2">&quot;tr.mergedtoprow td&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">find</span> <span class="p">{</span><span class="o">|</span><span class="n">tr</span><span class="o">|</span> <span class="n">tr</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sr">/cny/i</span><span class="p">)</span> <span class="p">}</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">def</span> <span class="nf">gdp_per_cap</span>
+</span><span class='line'>  <span class="k">if</span> <span class="sx">%w{ Guangdong Hubei }</span><span class="o">.</span><span class="n">include?</span><span class="p">(</span><span class="n">region</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+</span><span class='line'>    <span class="vi">@gdp_per_cap</span> <span class="o">||=</span> <span class="n">page</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s2">&quot;tr.mergedrow td&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">find</span> <span class="p">{</span><span class="o">|</span><span class="n">tr</span><span class="o">|</span> <span class="n">tr</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sr">/cny/i</span><span class="p">)</span> <span class="p">}</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="sr">/\s|\$/</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">elsif</span> <span class="sx">%w{ Shanghai }</span><span class="o">.</span><span class="n">include?</span><span class="p">(</span><span class="n">region</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+</span><span class='line'>    <span class="vi">@gdp_per_cap</span> <span class="o">||=</span> <span class="n">page</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s2">&quot;tr.mergedrow td&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">select</span> <span class="p">{</span><span class="o">|</span><span class="n">tr</span><span class="o">|</span> <span class="n">tr</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sr">/cny/i</span><span class="p">)</span> <span class="p">}</span><span class="o">.</span><span class="n">last</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="sr">/\s|\$|US/</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">elsif</span> <span class="sx">%w{ Tianjin }</span><span class="o">.</span><span class="n">include?</span><span class="p">(</span><span class="n">region</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+</span><span class='line'>    <span class="vi">@gdp_per_cap</span> <span class="o">||=</span> <span class="n">page</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s2">&quot;tr.mergedrow td&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">select</span> <span class="p">{</span><span class="o">|</span><span class="n">tr</span><span class="o">|</span> <span class="n">tr</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sr">/cny/i</span><span class="p">)</span> <span class="p">}</span><span class="o">.</span><span class="n">last</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="sr">/\s|\)/</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">elsif</span> <span class="sx">%w{ Hong\ Kong Macau }</span><span class="o">.</span><span class="n">include?</span><span class="p">(</span><span class="n">region</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+</span><span class='line'>    <span class="vi">@gdp_per_cap</span> <span class="o">||=</span> <span class="n">page</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s2">&quot;tr.mergedbottomrow td&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">select</span> <span class="p">{</span><span class="o">|</span><span class="n">tr</span><span class="o">|</span> <span class="n">tr</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sr">/\$/</span><span class="p">)</span> <span class="p">}</span><span class="o">.</span><span class="n">last</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="sr">/\s|\$|\[/</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">else</span>
+</span><span class='line'>    <span class="vi">@gdp_per_cap</span> <span class="o">||=</span> <span class="n">page</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s2">&quot;tr.mergedrow td&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">select</span> <span class="p">{</span><span class="o">|</span><span class="n">tr</span><span class="o">|</span> <span class="n">tr</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sr">/cny/i</span><span class="p">)</span> <span class="p">}</span><span class="o">.</span><span class="n">last</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Next, I moved the remainder of the <code>scrape_all_regions</code> method from the <code>ChinaScraper</code> class to the <code>RegionScraper</code> class and renamed it as <code>compute</code> in the <code>RegionScraper</code> class.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">def</span> <span class="nf">compute</span>
+</span><span class='line'>  <span class="k">if</span> <span class="sx">%w{ Hong\ Kong Macau }</span><span class="o">.</span><span class="n">include?</span><span class="p">(</span><span class="n">region</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">region</span><span class="o">.</span><span class="n">territorial_designation</span> <span class="o">=</span> <span class="n">page</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s2">&quot;tr td a&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">find</span> <span class="p">{</span><span class="o">|</span><span class="n">a</span><span class="o">|</span> <span class="n">a</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sr">/special/i</span><span class="p">)</span> <span class="p">}</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot; of &quot;</span><span class="p">)</span><span class="o">.</span><span class="n">first</span>
+</span><span class='line'>  <span class="k">else</span>
+</span><span class='line'>    <span class="n">region</span><span class="o">.</span><span class="n">territorial_designation</span> <span class="o">=</span> <span class="n">page</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s2">&quot;span.category a&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">text</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">region</span><span class="o">.</span><span class="n">territorial_designation</span> <span class="o">=</span> <span class="n">region</span><span class="o">.</span><span class="n">territorial_designation</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">)</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="o">&amp;</span><span class="ss">:capitalize</span><span class="p">)</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="c1"># ... 50 more lines of code ...</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">region</span><span class="o">.</span><span class="n">save</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Finally, from inside the <code>ChinaScraper</code> class, I instantiated new <code>RegionScraper</code> objects and delegated the heavy lifting to them by sending them a simple message: <code>compute</code>.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">def</span> <span class="nf">scrape_all_regions</span>
+</span><span class='line'>  <span class="no">Region</span><span class="o">.</span><span class="n">all</span><span class="o">.</span><span class="n">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">region</span><span class="o">|</span>
+</span><span class='line'>    <span class="n">page</span> <span class="o">=</span> <span class="ss">Nokogiri</span><span class="p">:</span><span class="ss">:HTML</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="n">region</span><span class="o">.</span><span class="n">url</span><span class="p">))</span>
+</span><span class='line'>    <span class="no">RegionScraper</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">region</span><span class="p">,</span> <span class="n">page</span><span class="p">)</span><span class="o">.</span><span class="n">compute</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Awesome four line method! The <code>ChinaScraper</code> class is now a relatively slim 36 lines of code and adheres much more to the Single Responsibility Principle (SRP) than its previous 170 line incarnation.</p>
+
+<h3>Closing Thoughts</h3>
+
+<p>This initial refactoring made all subsequent refactorings to the <code>db/seeds.rb</code> file significantly easier. It seems like a pretty minimal refactoring at this point, but replacing the <code>scrape_all_regions</code> method with a class was a great first step of breaking the problem up into smaller pieces. This allowed me to think more freely about the problem and began the process of reducing the clutter in my code.</p>
+
+<p>As I alluded to above, the regional classifications of China that led to a glut of conditional statements were also an open door to a polymorphic refactoring, which is the topic of the next (and last!) post in this series.</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[China Map Project - Part 2: Bringing the Map to Life With jVectorMap]]></title>

@@ -49,12 +49,18 @@
         <lastmod>2014-09-12T20:51:13-04:00</lastmod>
     </url>
     <url>
+        <loc>
+            http://callahanchris.github.io/blog/2014/09/12/china-map-project-part-3-refactoring-using-replace-method-with-method-object/
+        </loc>
+        <lastmod>2014-09-13T17:51:27-04:00</lastmod>
+    </url>
+    <url>
         <loc>http://callahanchris.github.io/blog/archives/</loc>
-        <lastmod>2014-09-13T17:13:00-04:00</lastmod>
+        <lastmod>2014-09-13T17:51:27-04:00</lastmod>
     </url>
     <url>
         <loc>http://callahanchris.github.io/</loc>
-        <lastmod>2014-09-13T17:13:00-04:00</lastmod>
+        <lastmod>2014-09-13T17:51:27-04:00</lastmod>
     </url>
     <url>
         <loc>http://callahanchris.github.io/robots.txt</loc>
