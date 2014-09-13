@@ -155,24 +155,24 @@
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>When the <code>showPopulationDensity()</code> function is called, the map is populated with the <code>popDensity</code> dataset that is passed as an argument to the function. By specifying options in the <code>regions</code> parameter, jVectorMap colors in the provinces on a gradient (from light to dark) based on their population densities, capping out at the maximum value provided.</p>
+<p>When the <code>showPopulationDensity()</code> function is called, the map is populated with the <code>popDensity</code> dataset that is passed as an argument to the function. By specifying options in the <code>regions</code> parameter, jVectorMap colors in the regions on a gradient (from light to dark) based on their population densities, capping out at the maximum value provided.</p>
 
-<p>The jVectorMap API provides several other helper functions that can be passed to the <code>mapVector()</code> plugin. I used several of these, including <code>onRegionLabelShow</code> to customize the text displayed when you mouse over a province and <code>markers</code>, <code>markerStyle</code>, and <code>onMarkerLabelShow</code> to display data on Hong Kong and Macau, which are not included in the jVectorMap map of China.</p>
+<p>The jVectorMap API provides several other helper functions that can be passed to the <code>mapVector()</code> plugin. I used several of these, including <code>onRegionLabelShow</code> to customize the text displayed when you mouse over a region and <code>markers</code>, <code>markerStyle</code>, and <code>onMarkerLabelShow</code> to display data on Hong Kong and Macau, which are not included in the jVectorMap map of China.</p>
 
 <h3><code>$.getJSON()</code> to the Rescue</h3>
 
-<p>In order to pass the data output by my API into a function like <code>showPopulationDensity()</code>, I had to retrieve the JSON on the frontend using AJAX. Because this was a relatively simple case where I was only making a GET request to one URL &mdash; <code>/provinces</code>, the lone endpoint of my API &mdash; I used the <code>$.getJSON()</code> jQuery function.</p>
+<p>In order to pass the data output by my API into a function like <code>showPopulationDensity()</code>, I had to retrieve the JSON on the frontend using AJAX. Because this was a relatively simple case where I was only making a GET request to one URL &mdash; <code>/regions</code>, the lone endpoint of my API &mdash; I used the <code>$.getJSON()</code> jQuery function.</p>
 
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
-</pre></td><td class='code'><pre><code class='js'><span class='line'><span class="nx">$</span><span class="p">.</span><span class="nx">getJSON</span><span class="p">(</span> <span class="s1">&#39;/provinces&#39;</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span> <span class="nx">data</span> <span class="p">)</span> <span class="p">{</span>
+</pre></td><td class='code'><pre><code class='js'><span class='line'><span class="nx">$</span><span class="p">.</span><span class="nx">getJSON</span><span class="p">(</span> <span class="s1">&#39;/regions&#39;</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span> <span class="nx">data</span> <span class="p">)</span> <span class="p">{</span>
 </span><span class='line'>  <span class="c1">// ...</span>
 </span><span class='line'><span class="p">});</span>
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>Inside of this function, I iterated over the JSON returned from this API call and stored the data into JavaScript objects according to the province&rsquo;s code specified in the jVectorMap library.</p>
+<p>Inside of this function, I iterated over the JSON returned from this API call and stored the data into JavaScript objects according to the region&rsquo;s code specified in the jVectorMap library.</p>
 
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -189,7 +189,7 @@
 <span class='line-number'>13</span>
 <span class='line-number'>14</span>
 <span class='line-number'>15</span>
-</pre></td><td class='code'><pre><code class='js'><span class='line'><span class="kd">var</span> <span class="nx">provinceNames</span> <span class="o">=</span> <span class="p">{},</span>
+</pre></td><td class='code'><pre><code class='js'><span class='line'><span class="kd">var</span> <span class="nx">regionNames</span> <span class="o">=</span> <span class="p">{},</span>
 </span><span class='line'>    <span class="nx">population</span>    <span class="o">=</span> <span class="p">{},</span>
 </span><span class='line'>    <span class="nx">popDensity</span>    <span class="o">=</span> <span class="p">{},</span>
 </span><span class='line'>    <span class="nx">gdpUsd</span>        <span class="o">=</span> <span class="p">{},</span>
@@ -197,7 +197,7 @@
 </span><span class='line'>    <span class="nx">areaKmSq</span>      <span class="o">=</span> <span class="p">{};</span>
 </span><span class='line'>
 </span><span class='line'><span class="k">for</span> <span class="p">(</span> <span class="kd">var</span> <span class="nx">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">i</span> <span class="o">&lt;</span> <span class="nx">data</span><span class="p">.</span><span class="nx">length</span><span class="p">;</span> <span class="nx">i</span><span class="o">++</span> <span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>  <span class="nx">provinceNames</span><span class="p">[</span><span class="nx">data</span><span class="p">[</span><span class="nx">i</span><span class="p">][</span><span class="s2">&quot;jvector_code&quot;</span><span class="p">]]</span> <span class="o">=</span> <span class="nx">data</span><span class="p">[</span><span class="nx">i</span><span class="p">][</span><span class="s2">&quot;name&quot;</span><span class="p">];</span>
+</span><span class='line'>  <span class="nx">regionNames</span><span class="p">[</span><span class="nx">data</span><span class="p">[</span><span class="nx">i</span><span class="p">][</span><span class="s2">&quot;jvector_code&quot;</span><span class="p">]]</span> <span class="o">=</span> <span class="nx">data</span><span class="p">[</span><span class="nx">i</span><span class="p">][</span><span class="s2">&quot;name&quot;</span><span class="p">];</span>
 </span><span class='line'>  <span class="nx">population</span><span class="p">[</span><span class="nx">data</span><span class="p">[</span><span class="nx">i</span><span class="p">][</span><span class="s2">&quot;jvector_code&quot;</span><span class="p">]]</span>    <span class="o">=</span> <span class="nx">data</span><span class="p">[</span><span class="nx">i</span><span class="p">][</span><span class="s2">&quot;population&quot;</span><span class="p">];</span>
 </span><span class='line'>  <span class="nx">popDensity</span><span class="p">[</span><span class="nx">data</span><span class="p">[</span><span class="nx">i</span><span class="p">][</span><span class="s2">&quot;jvector_code&quot;</span><span class="p">]]</span>    <span class="o">=</span> <span class="nx">data</span><span class="p">[</span><span class="nx">i</span><span class="p">][</span><span class="s2">&quot;population_density&quot;</span><span class="p">];</span>
 </span><span class='line'>  <span class="nx">gdpUsd</span><span class="p">[</span><span class="nx">data</span><span class="p">[</span><span class="nx">i</span><span class="p">][</span><span class="s2">&quot;jvector_code&quot;</span><span class="p">]]</span>        <span class="o">=</span> <span class="nx">data</span><span class="p">[</span><span class="nx">i</span><span class="p">][</span><span class="s2">&quot;gdp_usd&quot;</span><span class="p">];</span>
@@ -237,27 +237,27 @@
 <span class='line-number'>24</span>
 </pre></td><td class='code'><pre><code class='js'><span class='line'><span class="nx">$</span><span class="p">(</span> <span class="s1">&#39;#population&#39;</span> <span class="p">).</span><span class="nx">on</span><span class="p">(</span> <span class="s1">&#39;click&#39;</span><span class="p">,</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
 </span><span class='line'>  <span class="nx">clearMap</span><span class="p">();</span>
-</span><span class='line'>  <span class="nx">showPopulation</span><span class="p">(</span> <span class="nx">data</span><span class="p">,</span> <span class="nx">provinceNames</span><span class="p">,</span> <span class="nx">population</span> <span class="p">);</span>
+</span><span class='line'>  <span class="nx">showPopulation</span><span class="p">(</span> <span class="nx">data</span><span class="p">,</span> <span class="nx">regionNames</span><span class="p">,</span> <span class="nx">population</span> <span class="p">);</span>
 </span><span class='line'><span class="p">});</span>
 </span><span class='line'>
 </span><span class='line'><span class="nx">$</span><span class="p">(</span> <span class="s1">&#39;#pop-density&#39;</span> <span class="p">).</span><span class="nx">on</span><span class="p">(</span> <span class="s1">&#39;click&#39;</span><span class="p">,</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
 </span><span class='line'>  <span class="nx">clearMap</span><span class="p">();</span>
-</span><span class='line'>  <span class="nx">showPopulationDensity</span><span class="p">(</span> <span class="nx">data</span><span class="p">,</span> <span class="nx">provinceNames</span><span class="p">,</span> <span class="nx">popDensity</span> <span class="p">);</span>
+</span><span class='line'>  <span class="nx">showPopulationDensity</span><span class="p">(</span> <span class="nx">data</span><span class="p">,</span> <span class="nx">regionNames</span><span class="p">,</span> <span class="nx">popDensity</span> <span class="p">);</span>
 </span><span class='line'><span class="p">});</span>
 </span><span class='line'>
 </span><span class='line'><span class="nx">$</span><span class="p">(</span> <span class="s1">&#39;#gdp-usd&#39;</span> <span class="p">).</span><span class="nx">on</span><span class="p">(</span> <span class="s1">&#39;click&#39;</span><span class="p">,</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
 </span><span class='line'>  <span class="nx">clearMap</span><span class="p">();</span>
-</span><span class='line'>  <span class="nx">showGdp</span><span class="p">(</span> <span class="nx">data</span><span class="p">,</span> <span class="nx">provinceNames</span><span class="p">,</span> <span class="nx">gdpUsd</span> <span class="p">);</span>
+</span><span class='line'>  <span class="nx">showGdp</span><span class="p">(</span> <span class="nx">data</span><span class="p">,</span> <span class="nx">regionNames</span><span class="p">,</span> <span class="nx">gdpUsd</span> <span class="p">);</span>
 </span><span class='line'><span class="p">});</span>
 </span><span class='line'>
 </span><span class='line'><span class="nx">$</span><span class="p">(</span> <span class="s1">&#39;#gdp-per-cap&#39;</span> <span class="p">).</span><span class="nx">on</span><span class="p">(</span> <span class="s1">&#39;click&#39;</span><span class="p">,</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
 </span><span class='line'>  <span class="nx">clearMap</span><span class="p">();</span>
-</span><span class='line'>  <span class="nx">showGdpPerCap</span><span class="p">(</span> <span class="nx">data</span><span class="p">,</span> <span class="nx">provinceNames</span><span class="p">,</span> <span class="nx">gdpPerCap</span> <span class="p">);</span>
+</span><span class='line'>  <span class="nx">showGdpPerCap</span><span class="p">(</span> <span class="nx">data</span><span class="p">,</span> <span class="nx">regionNames</span><span class="p">,</span> <span class="nx">gdpPerCap</span> <span class="p">);</span>
 </span><span class='line'><span class="p">});</span>
 </span><span class='line'>
 </span><span class='line'><span class="nx">$</span><span class="p">(</span> <span class="s1">&#39;#area-km-sq&#39;</span> <span class="p">).</span><span class="nx">on</span><span class="p">(</span> <span class="s1">&#39;click&#39;</span><span class="p">,</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
 </span><span class='line'>  <span class="nx">clearMap</span><span class="p">();</span>
-</span><span class='line'>  <span class="nx">showArea</span><span class="p">(</span> <span class="nx">data</span><span class="p">,</span> <span class="nx">provinceNames</span><span class="p">,</span> <span class="nx">areaKmSq</span> <span class="p">);</span>
+</span><span class='line'>  <span class="nx">showArea</span><span class="p">(</span> <span class="nx">data</span><span class="p">,</span> <span class="nx">regionNames</span><span class="p">,</span> <span class="nx">areaKmSq</span> <span class="p">);</span>
 </span><span class='line'><span class="p">});</span>
 </span></code></pre></td></tr></table></div></figure>
 

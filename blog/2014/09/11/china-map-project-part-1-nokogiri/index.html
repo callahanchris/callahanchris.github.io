@@ -91,11 +91,11 @@
   </header>
 
 
-<div class="entry-content"><p>Over the past couple months I&rsquo;ve been working on a side project to create an <a href="http://amapofchina.herokuapp.com">interactive, data-rich map of China</a>. (<a href="https://github.com/callahanchris/china-map">Check out the source code on Github!</a>) To accomplish this goal, I made a Ruby on Rails app that scrapes Wikipedia for data about Chinese provinces, stores this information in a database, and outputs the data as a JSON API. On the frontend, I used JavaScript to create a vector map of China and populate the map with the data consumed from the API. I saw this project as something that could both challenge me technically and bring together two of my main interests: China and coding.</p>
+<div class="entry-content"><p>Over the past couple months I&rsquo;ve been working on a side project to create an <a href="http://amapofchina.herokuapp.com">interactive, data-rich map of China</a>. (<a href="https://github.com/callahanchris/china-map">Check out the source code on Github!</a>) To accomplish this goal, I made a Ruby on Rails app that scrapes Wikipedia for data about all of the regions in China, stores this information in a database, and outputs the data as a JSON API. On the frontend, I used JavaScript to create a vector map of China and populate the map with the data consumed from the API. I saw this project as something that could both challenge me technically and bring together two of my main interests: China and coding.</p>
 
 <h3>Gathering the Data</h3>
 
-<p>I used the Nokogiri gem to do all of the web scraping in this project. Starting on the <a href="http://en.wikipedia.org/wiki/China">main China page on Wikipedia</a>, I was able to scrape the links to the individual pages for every province, autonomous region, municipality, and special administrative region in China. On each page I was able to take in some basic data about the province, including its population, population density, and GPD per capita.</p>
+<p>I used the Nokogiri gem to do all of the web scraping in this project. Starting on the <a href="http://en.wikipedia.org/wiki/China">main China page on Wikipedia</a>, I was able to scrape the links to the individual pages for every province, autonomous region, municipality, and special administrative region in China. On each page I was able to take in some basic data about the region, including its population, population density, and GPD per capita.</p>
 
 <p>Nokogiri and OpenURI make the process of web scraping very simple. In my <code>Gemfile</code>, I required the Nokogiri gem:</p>
 
@@ -122,7 +122,7 @@
 
 <p></p>
 
-<p>In the case of my app, I first scraped the contents of the China page on Wikipedia and stored the links to each province listed on that page into an array named <code>province_links</code>. I then iterated over these links (skipping one as there were two links to Taiwan) to create new <code>Province</code> objects.</p>
+<p>In the case of my app, I first scraped the contents of the China page on Wikipedia and stored the links to each region listed on that page into an array named <code>region_links</code>. I then iterated over these links (skipping one as there were two links to Taiwan) to create new <code>Region</code> objects.</p>
 
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -131,17 +131,17 @@
 <span class='line-number'>5</span>
 <span class='line-number'>6</span>
 <span class='line-number'>7</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">def</span> <span class="nf">make_provinces</span>
-</span><span class='line'>  <span class="n">province_links</span><span class="o">.</span><span class="n">each_with_index</span> <span class="k">do</span> <span class="o">|</span><span class="n">url</span><span class="p">,</span> <span class="n">i</span><span class="o">|</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">def</span> <span class="nf">make_regions</span>
+</span><span class='line'>  <span class="n">region_links</span><span class="o">.</span><span class="n">each_with_index</span> <span class="k">do</span> <span class="o">|</span><span class="n">url</span><span class="p">,</span> <span class="n">i</span><span class="o">|</span>
 </span><span class='line'>    <span class="k">next</span> <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">22</span>
-</span><span class='line'>    <span class="n">province</span> <span class="o">=</span> <span class="no">Province</span><span class="o">.</span><span class="n">new</span><span class="o">.</span><span class="n">tap</span> <span class="p">{</span> <span class="o">|</span><span class="nb">p</span><span class="o">|</span> <span class="nb">p</span><span class="o">.</span><span class="n">url</span> <span class="o">=</span> <span class="n">url</span> <span class="p">}</span>
-</span><span class='line'>    <span class="n">province</span><span class="o">.</span><span class="n">save</span>
+</span><span class='line'>    <span class="n">region</span> <span class="o">=</span> <span class="no">Region</span><span class="o">.</span><span class="n">new</span><span class="o">.</span><span class="n">tap</span> <span class="p">{</span><span class="o">|</span><span class="nb">p</span><span class="o">|</span> <span class="nb">p</span><span class="o">.</span><span class="n">url</span> <span class="o">=</span> <span class="n">url</span> <span class="p">}</span>
+</span><span class='line'>    <span class="n">region</span><span class="o">.</span><span class="n">save</span>
 </span><span class='line'>  <span class="k">end</span>
 </span><span class='line'><span class="k">end</span>
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>Behind the scenes in <code>app/models/province.rb</code>, I used the last part of the URL to assign names to each province using the <code>before_create</code> hook.</p>
+<p>Behind the scenes in <code>app/models/region.rb</code>, I used the last part of the URL to assign names to each region using the <code>before_create</code> hook.</p>
 
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -151,7 +151,7 @@
 <span class='line-number'>6</span>
 <span class='line-number'>7</span>
 <span class='line-number'>8</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">Province</span> <span class="o">&lt;</span> <span class="ss">ActiveRecord</span><span class="p">:</span><span class="ss">:Base</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">Region</span> <span class="o">&lt;</span> <span class="ss">ActiveRecord</span><span class="p">:</span><span class="ss">:Base</span>
 </span><span class='line'>  <span class="n">before_create</span> <span class="ss">:assign_name_from_url</span>
 </span><span class='line'>
 </span><span class='line'>  <span class="k">def</span> <span class="nf">assign_name_from_url</span>
@@ -162,7 +162,7 @@
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>Once I had all of the provinces and their Wikipedia URLs stored in the database, the next step was to iterate over the provinces and use Nokogiri to scrape the HTML contents of each province&rsquo;s page.</p>
+<p>Once I had all of the regions and their Wikipedia URLs stored in the database, the next step was to iterate over the regions and use Nokogiri to scrape the HTML contents of each region&rsquo;s page.</p>
 
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -170,9 +170,9 @@
 <span class='line-number'>4</span>
 <span class='line-number'>5</span>
 <span class='line-number'>6</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">def</span> <span class="nf">scrape_all_provinces</span>
-</span><span class='line'>  <span class="no">Province</span><span class="o">.</span><span class="n">all</span><span class="o">.</span><span class="n">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">province</span><span class="o">|</span>
-</span><span class='line'>    <span class="n">page</span> <span class="o">=</span> <span class="ss">Nokogiri</span><span class="p">:</span><span class="ss">:HTML</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="n">province</span><span class="o">.</span><span class="n">url</span><span class="p">))</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">def</span> <span class="nf">scrape_all_regions</span>
+</span><span class='line'>  <span class="no">Region</span><span class="o">.</span><span class="n">all</span><span class="o">.</span><span class="n">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">region</span><span class="o">|</span>
+</span><span class='line'>    <span class="n">page</span> <span class="o">=</span> <span class="ss">Nokogiri</span><span class="p">:</span><span class="ss">:HTML</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="n">region</span><span class="o">.</span><span class="n">url</span><span class="p">))</span>
 </span><span class='line'>    <span class="c1"># ...</span>
 </span><span class='line'>  <span class="k">end</span>
 </span><span class='line'><span class="k">end</span>
@@ -203,19 +203,19 @@
 </pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">ChinaScraper</span>
 </span><span class='line'>  <span class="k">def</span> <span class="nf">initialize</span>
 </span><span class='line'>    <span class="n">scrape_index</span>
-</span><span class='line'>    <span class="n">make_provinces</span>
-</span><span class='line'>    <span class="n">scrape_all_provinces</span>
+</span><span class='line'>    <span class="n">make_regions</span>
+</span><span class='line'>    <span class="n">scrape_all_regions</span>
 </span><span class='line'>  <span class="k">end</span>
 </span><span class='line'>
 </span><span class='line'>  <span class="k">def</span> <span class="nf">scrape_index</span>
 </span><span class='line'>    <span class="c1"># ...</span>
 </span><span class='line'>  <span class="k">end</span>
 </span><span class='line'>
-</span><span class='line'>  <span class="k">def</span> <span class="nf">make_provinces</span>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">make_regions</span>
 </span><span class='line'>    <span class="c1"># ...</span>
 </span><span class='line'>  <span class="k">end</span>
 </span><span class='line'>
-</span><span class='line'>  <span class="k">def</span> <span class="nf">scrape_all_provinces</span>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">scrape_all_regions</span>
 </span><span class='line'>    <span class="c1"># ...</span>
 </span><span class='line'>  <span class="k">end</span>
 </span><span class='line'><span class="k">end</span>
@@ -231,11 +231,11 @@
 
 <h3>Parsing the Data</h3>
 
-<p>If you look at the Wikipedia articles of a few Chinese provinces, you will notice that the structure of each article is fairly similar. Each page has a sidebar on the right with some basic data regarding the specific province: its capital, governor, latitude and longitude, GDP in US dollars and Chinese yuan, etc. These data are all seemingly laid out in the same format, but actually the CSS selectors are slightly different in different articles.</p>
+<p>If you look at the Wikipedia articles of a few Chinese provinces, you will notice that the structure of each article is fairly similar. Each page has a sidebar on the right with some basic data regarding the specific region: its capital, governor, latitude and longitude, GDP in US dollars and Chinese yuan, etc. These data are all seemingly laid out in the same format, but actually the CSS selectors are slightly different in different articles.</p>
 
-<p>At first, I constructed a large conditional statement that chose the accurate CSS selector to use given some hardcoded information to identify the province. Eventually this hardcoding didn&rsquo;t sit right with me, so I found a more elegant solution: regular expressions.</p>
+<p>At first, I constructed a large conditional statement that chose the accurate CSS selector to use given some hardcoded information to identify the region. Eventually this hardcoding didn&rsquo;t sit right with me, so I found a more elegant solution: regular expressions.</p>
 
-<p>One good example of this was with the data on the page indicating a province&rsquo;s area and population density. Given the <code>page</code> of a particular <code>province</code>, I isolated all <code>tr</code> HTML elements with the CSS <code>mergedrow</code> class that contained the text <code>km2</code> and stored this into a local variable.</p>
+<p>One good example of this was with the data on the page indicating a region&rsquo;s area and population density. Given the <code>page</code> of a particular <code>region</code>, I isolated all <code>tr</code> HTML elements with the CSS <code>mergedrow</code> class that contained the text <code>km2</code> and stored this into a local variable.</p>
 
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 </pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="n">area_info</span> <span class="o">=</span> <span class="n">page</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s2">&quot;tr.mergedrow&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">select</span> <span class="p">{</span> <span class="o">|</span><span class="n">t</span><span class="o">|</span> <span class="n">t</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sr">/km2/i</span><span class="p">)</span> <span class="p">}</span>
@@ -250,12 +250,12 @@
 <span class='line-number'>4</span>
 <span class='line-number'>5</span>
 <span class='line-number'>6</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="n">province</span><span class="o">.</span><span class="n">area_km_sq</span>         <span class="o">=</span> <span class="n">area_info</span><span class="o">.</span><span class="n">first</span><span class="o">.</span><span class="n">text</span><span class="o">.</span>
-</span><span class='line'>                                <span class="nb">split</span><span class="p">(</span><span class="sr">/\s| /</span><span class="p">)</span><span class="o">[</span><span class="mi">3</span><span class="o">].</span>
-</span><span class='line'>                                <span class="nb">gsub</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">to_i</span>
-</span><span class='line'><span class="n">province</span><span class="o">.</span><span class="n">population_density</span> <span class="o">=</span> <span class="n">area_info</span><span class="o">.</span><span class="n">last</span><span class="o">.</span><span class="n">text</span><span class="o">.</span>
-</span><span class='line'>                                <span class="nb">split</span><span class="p">(</span><span class="sr">/\s| |\//</span><span class="p">)</span><span class="o">[</span><span class="mi">3</span><span class="o">].</span>
-</span><span class='line'>                                <span class="nb">gsub</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">to_i</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="n">region</span><span class="o">.</span><span class="n">area_km_sq</span>         <span class="o">=</span> <span class="n">area_info</span><span class="o">.</span><span class="n">first</span><span class="o">.</span><span class="n">text</span><span class="o">.</span>
+</span><span class='line'>                              <span class="nb">split</span><span class="p">(</span><span class="sr">/\s| /</span><span class="p">)</span><span class="o">[</span><span class="mi">3</span><span class="o">].</span>
+</span><span class='line'>                              <span class="nb">gsub</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">to_i</span>
+</span><span class='line'><span class="n">region</span><span class="o">.</span><span class="n">population_density</span> <span class="o">=</span> <span class="n">area_info</span><span class="o">.</span><span class="n">last</span><span class="o">.</span><span class="n">text</span><span class="o">.</span>
+</span><span class='line'>                              <span class="nb">split</span><span class="p">(</span><span class="sr">/\s| |\//</span><span class="p">)</span><span class="o">[</span><span class="mi">3</span><span class="o">].</span>
+</span><span class='line'>                              <span class="nb">gsub</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">to_i</span>
 </span></code></pre></td></tr></table></div></figure>
 
 
@@ -270,7 +270,7 @@
 
 <h3>Outputting the Data as a JSON API</h3>
 
-<p>Once the data had been scraped from Wikipedia, parsed using Nokogiri and regular expressions, and persisted in the database, it was then just a matter of outputting the data as a JSON API for easy consumption by the JavaScript frontend. The <code>app/controllers/provinces.rb</code> file is as follows:</p>
+<p>Once the data had been scraped from Wikipedia, parsed using Nokogiri and regular expressions, and persisted in the database, it was then just a matter of outputting the data as a JSON API for easy consumption by the JavaScript frontend. The <code>app/controllers/regions_controller.rb</code> file is as follows:</p>
 
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -278,10 +278,10 @@
 <span class='line-number'>4</span>
 <span class='line-number'>5</span>
 <span class='line-number'>6</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">ProvincesController</span> <span class="o">&lt;</span> <span class="no">ApplicationController</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">RegionsController</span> <span class="o">&lt;</span> <span class="no">ApplicationController</span>
 </span><span class='line'>  <span class="k">def</span> <span class="nf">index</span>
-</span><span class='line'>    <span class="vi">@provinces</span> <span class="o">=</span> <span class="no">Province</span><span class="o">.</span><span class="n">all</span>
-</span><span class='line'>    <span class="n">render</span> <span class="ss">json</span><span class="p">:</span> <span class="vi">@provinces</span>
+</span><span class='line'>    <span class="vi">@regions</span> <span class="o">=</span> <span class="no">Region</span><span class="o">.</span><span class="n">all</span>
+</span><span class='line'>    <span class="n">render</span> <span class="ss">json</span><span class="p">:</span> <span class="vi">@regions</span>
 </span><span class='line'>  <span class="k">end</span>
 </span><span class='line'><span class="k">end</span>
 </span></code></pre></td></tr></table></div></figure>
@@ -289,7 +289,7 @@
 
 <h3>Closing Thoughts</h3>
 
-<p>Though this was not my first web scraping project, it was challenging given the HTML/CSS inconsistencies across different Wikipedia articles. After solving the problem in a brute force fashion using hardcoded province data, I was able to bring the code to a more abstract level and learn a lot about parsing text with regular expressions in the process.</p>
+<p>Though this was not my first web scraping project, it was challenging given the HTML/CSS inconsistencies across different Wikipedia articles. After solving the problem in a brute force fashion using hardcoded region data, I was able to bring the code to a more abstract level and learn a lot about parsing text with regular expressions in the process.</p>
 
 <p>Check out the <a href="http://callahanchris.github.io/blog/2014/09/11/china-map-project-part-2-bringing-the-map-to-life-with-jvectormap/">next post</a> in this series where I will talk about the JavaScript frontend and bringing the map to life!</p>
 </div>
