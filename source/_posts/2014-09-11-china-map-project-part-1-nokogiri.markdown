@@ -38,7 +38,7 @@ In the case of my app, I first scraped the contents of the China page on Wikiped
 def make_regions
   region_links.each_with_index do |url, i|
     next if i == 22
-    region = Region.new.tap {|p| p.url = url }
+    region = Region.new.tap {|r| r.url = url }
     region.save
   end
 end

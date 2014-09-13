@@ -61,26 +61,25 @@ def scrape_all_regions
 end
 ```
 
-As you can see in this snippet from the `scrape_all_regions` method, a considerable amount the conditionals in this method were essentially checking a region's `territorial_designation`. Fun fact: China has 22 provinces (e.g. Shaanxi, Guangdong), 5 autonomous regions (e.g. Tibet, Inner Mongolia), 4 municipalities (Beijing, Shanghai, Chongqing, and Tianjin), and 2 special administrative regions (SARs) (Hong Kong and Macau).
-
+As you can begin to see in this snippet, the `scrape_all_regions` method contained many conditional statements that essentially checked a region's `territorial_designation`. This type checking was inevitable given that the HTML/CSS content of the individual region pages varied significantly based on their territorial designations -- more on this in the next post. 
 
 ### MOVE TO NEXT POST??
-I found that this was type checking was inevitable given that the HTML/CSS content of the individual region pages varied significantly based on their territorial designations -- most of all in the case of the two SARs, Hong Kong and Macau. I considered breaking up the `Region` model into several smaller models (i.e. `Province`, `AutonomousRegion`, etc.), I wanted the data output from the JSON API to all be standardized and accessible from one endpoint, so I decided not to go too far down this polymorphic path.
+Fun fact: China has 22 provinces (e.g. Shaanxi, Guangdong), 5 autonomous regions (e.g. Tibet, Inner Mongolia), 4 municipalities (Beijing, Shanghai, Chongqing, and Tianjin), and 2 special administrative regions (SARs) (Hong Kong and Macau).
 
+I considered breaking up the `Region` model into several smaller models (i.e. `Province`, `AutonomousRegion`, etc.), I wanted the data output from the JSON API to all be standardized and accessible from one endpoint, so I decided not to go too far down this polymorphic path.
 ### ???
 
-It was clear that the `scrape_all_regions` method had too many (i.e. more than one) responsibilities, so a heavy duty refactoring was in order.
+It was clear that the `scrape_all_regions` method had far too many (i.e. more than one) responsibilities and several local variables, so I reached deep into the tool bag for Replace Method with Method Object.
 
-First, I made a new class and assigned attributes for all parameters and local variables in the `scrape_all_regions` method:
+First, I made a new class named after the method to be refactored and assigned attributes for all parameters in the `scrape_all_regions` method:
 
 ```ruby
 class RegionScraper
-  attr_reader   :region, :page
-  attr_accessor :area_info, :monetary_info, :gdp_per_cap
+  attr_reader :region, :page
 end
 ```
 
-Of these attributes, the `region` object and `page` containing the HTML contents scraped by Nokogiri would have to be passed through to a new instance of the `RegionScraper` class upon initialization.
+The `region` object and `page` (containing the HTML contents scraped by Nokogiri) would have to be passed through to a new instance of the `RegionScraper` class upon initialization.
 
 ```ruby
 def initialize(region, page)
@@ -88,7 +87,43 @@ def initialize(region, page)
 end
 ```
 
-Next, I moved the majority of the `scrape_all_regions` method from the `ChinaScraper` class to the `RegionScraper` class and renamed it as `compute` in the `RegionScraper` class.
+The local variables from the original `scrape_all_regions` method were slightly more complicated, so instead of assigning them to `attr_reader`s, I used Extract Method for each of these and placed them in the `RegionScraper` class.
+
+```ruby
+def area_info
+  @area_info ||= page.search("tr.mergedrow").select {|t| t.text.match(/km2/i) }
+end
+
+def monetary_info
+  if %w{ Beijing Chongqing }.include?(region.name)
+    @monetary_info ||= page.search("tr.mergedrow td").find {|tr| tr.text.match(/cny/i) }.text.split(/\s| /)
+  elsif %w{ Shanghai Tianjin }.include?(region.name)
+    @monetary_info ||= page.search("tr.mergedrow td").find {|tr| tr.text.match(/cny/i) }.text.split(/\s| |cny|usd|\$/i)
+  elsif %w{ Guangdong }.include?(region.name)
+    @monetary_info ||= page.search("tr.mergedtoprow td").find {|tr| tr.text.match(/cny/i) }.text.split(/\s| |\$/i)
+  elsif %w{ Hong\ Kong Macau }.include?(region.name)
+    @monetary_info ||= page.search("tr.mergedrow td").select {|tr| tr.text.match(/\$/) }[1].text.split(/\s|\$/)
+  else
+    @monetary_info ||= page.search("tr.mergedtoprow td").find {|tr| tr.text.match(/cny/i) }.text.split(' ')
+  end
+end
+
+def gdp_per_cap
+  if %w{ Guangdong Hubei }.include?(region.name)
+    @gdp_per_cap ||= page.search("tr.mergedrow td").find {|tr| tr.text.match(/cny/i) }.text.split(/\s|\$/)
+  elsif %w{ Shanghai }.include?(region.name)
+    @gdp_per_cap ||= page.search("tr.mergedrow td").select {|tr| tr.text.match(/cny/i) }.last.text.split(/\s|\$|US/)
+  elsif %w{ Tianjin }.include?(region.name)
+    @gdp_per_cap ||= page.search("tr.mergedrow td").select {|tr| tr.text.match(/cny/i) }.last.text.split(/\s|\)/)
+  elsif %w{ Hong\ Kong Macau }.include?(region.name)
+    @gdp_per_cap ||= page.search("tr.mergedbottomrow td").select {|tr| tr.text.match(/\$/) }.last.text.split(/\s|\$|\[/)
+  else
+    @gdp_per_cap ||= page.search("tr.mergedrow td").select {|tr| tr.text.match(/cny/i) }.last.text.split(' ')
+  end
+end
+```
+
+Next, I moved the remainder of the `scrape_all_regions` method from the `ChinaScraper` class to the `RegionScraper` class and renamed it as `compute` in the `RegionScraper` class.
 
 ```ruby
 def compute
@@ -100,7 +135,7 @@ def compute
 
   region.territorial_designation = region.territorial_designation.split(' ').map(&:capitalize).join(' ')
   
-  # ... 80 more lines of code ...
+  # ... 50 more lines of code ...
 end
 ```
 
@@ -115,7 +150,7 @@ def scrape_all_regions
 end
 ```
 
-Awesome four line method!
+Awesome four line method! The `ChinaScraper` class is now a relatively slim 36 lines of code -- *much* DRYer than its previous 170 line incarnation.
 
 ### Closing Thoughts
 
