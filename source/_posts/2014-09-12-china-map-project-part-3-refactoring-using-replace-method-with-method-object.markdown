@@ -70,15 +70,15 @@ It was clear that the `scrape_all_regions` method had far too many (i.e. more th
 
 ### Implementing Replace Method with Method Object
 
-First, I made a new class named after the method to be refactored and assigned attributes for all parameters in the `scrape_all_regions` method:
+First, I made a new `RegionAssembler` class (a slightly more accurate name than the original method) and assigned attributes for all parameters in the `scrape_all_regions` method:
 
 ```ruby
-class RegionScraper
+class RegionAssembler
   attr_reader :region, :page
 end
 ```
 
-The `region` ActiveRecord object and `page` Nokogiri object would have to be passed through to a new instance of the `RegionScraper` class upon initialization.
+The `region` ActiveRecord object and `page` Nokogiri object would have to be passed through to a new instance of the `RegionAssembler` class upon initialization.
 
 ```ruby
 def initialize(region, page)
@@ -86,7 +86,7 @@ def initialize(region, page)
 end
 ```
 
-The local variables from the original `scrape_all_regions` method were slightly more complicated, so instead of assigning them to `attr_reader`s, I used Extract Method for the three local variables in `scrape_all_regions` and placed the extracted methods in the `RegionScraper` class.
+The local variables from the original `scrape_all_regions` method were slightly more complicated, so instead of assigning them to `attr_reader`s, I used Extract Method for the three local variables in `scrape_all_regions` and placed the extracted methods in the `RegionAssembler` class.
 
 ```ruby
 def area_info
@@ -122,7 +122,7 @@ def gdp_per_cap
 end
 ```
 
-Next, I moved the remainder of the `scrape_all_regions` method from the `ChinaScraper` class to the `RegionScraper` class and renamed it as `compute` in the `RegionScraper` class.
+Next, I moved the remainder of the `scrape_all_regions` method from the `ChinaScraper` class to the `RegionAssembler` class and renamed it as `compute` in the `RegionAssembler` class.
 
 ```ruby
 def compute
@@ -140,13 +140,13 @@ def compute
 end
 ```
 
-Finally, from inside the `ChinaScraper` class, I instantiated new `RegionScraper` objects and delegated the heavy lifting to them by sending them a simple message: `compute`. 
+Finally, from inside the `ChinaScraper` class, I instantiated new `RegionAssembler` objects and delegated the heavy lifting to them by sending them a simple message: `compute`. 
 
 ```ruby
 def scrape_all_regions
   Region.all.each do |region|
     page = Nokogiri::HTML(open(region.url))
-    RegionScraper.new(region, page).compute
+    RegionAssembler.new(region, page).compute
   end
 end
 ```
