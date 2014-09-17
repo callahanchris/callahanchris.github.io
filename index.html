@@ -173,18 +173,18 @@
 
 <h3>Implementing Replace Method with Method Object</h3>
 
-<p>First, I made a new class named after the method to be refactored and assigned attributes for all parameters in the <code>scrape_all_regions</code> method:</p>
+<p>First, I made a new <code>RegionAssembler</code> class (a slightly more accurate name than the original method) and assigned attributes for all parameters in the <code>scrape_all_regions</code> method:</p>
 
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">RegionScraper</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">RegionAssembler</span>
 </span><span class='line'>  <span class="kp">attr_reader</span> <span class="ss">:region</span><span class="p">,</span> <span class="ss">:page</span>
 </span><span class='line'><span class="k">end</span>
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>The <code>region</code> ActiveRecord object and <code>page</code> Nokogiri object would have to be passed through to a new instance of the <code>RegionScraper</code> class upon initialization.</p>
+<p>The <code>region</code> ActiveRecord object and <code>page</code> Nokogiri object would have to be passed through to a new instance of the <code>RegionAssembler</code> class upon initialization.</p>
 
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -195,7 +195,7 @@
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>The local variables from the original <code>scrape_all_regions</code> method were slightly more complicated, so instead of assigning them to <code>attr_reader</code>s, I used Extract Method for the three local variables in <code>scrape_all_regions</code> and placed the extracted methods in the <code>RegionScraper</code> class.</p>
+<p>The local variables from the original <code>scrape_all_regions</code> method were slightly more complicated, so instead of assigning them to <code>attr_reader</code>s, I used Extract Method for the three local variables in <code>scrape_all_regions</code> and placed the extracted methods in the <code>RegionAssembler</code> class.</p>
 
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -262,7 +262,7 @@
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>Next, I moved the remainder of the <code>scrape_all_regions</code> method from the <code>ChinaScraper</code> class to the <code>RegionScraper</code> class and renamed it as <code>compute</code> in the <code>RegionScraper</code> class.</p>
+<p>Next, I moved the remainder of the <code>scrape_all_regions</code> method from the <code>ChinaScraper</code> class to the <code>RegionAssembler</code> class and renamed it as <code>compute</code> in the <code>RegionAssembler</code> class.</p>
 
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -293,7 +293,7 @@
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>Finally, from inside the <code>ChinaScraper</code> class, I instantiated new <code>RegionScraper</code> objects and delegated the heavy lifting to them by sending them a simple message: <code>compute</code>.</p>
+<p>Finally, from inside the <code>ChinaScraper</code> class, I instantiated new <code>RegionAssembler</code> objects and delegated the heavy lifting to them by sending them a simple message: <code>compute</code>.</p>
 
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -304,7 +304,7 @@
 </pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">def</span> <span class="nf">scrape_all_regions</span>
 </span><span class='line'>  <span class="no">Region</span><span class="o">.</span><span class="n">all</span><span class="o">.</span><span class="n">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">region</span><span class="o">|</span>
 </span><span class='line'>    <span class="n">page</span> <span class="o">=</span> <span class="ss">Nokogiri</span><span class="p">:</span><span class="ss">:HTML</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="n">region</span><span class="o">.</span><span class="n">url</span><span class="p">))</span>
-</span><span class='line'>    <span class="no">RegionScraper</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">region</span><span class="p">,</span> <span class="n">page</span><span class="p">)</span><span class="o">.</span><span class="n">compute</span>
+</span><span class='line'>    <span class="no">RegionAssembler</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">region</span><span class="p">,</span> <span class="n">page</span><span class="p">)</span><span class="o">.</span><span class="n">compute</span>
 </span><span class='line'>  <span class="k">end</span>
 </span><span class='line'><span class="k">end</span>
 </span></code></pre></td></tr></table></div></figure>
