@@ -28,7 +28,7 @@ I considered breaking up the `Region` model into several smaller models (i.e. `P
 
 > 6. Test.
 
-> 7. Do the same for the other type classes, removing the method on the mod- ule when you're done.
+> 7. Do the same for the other type classes, removing the method on the module when you're done.
 
 > 8. Test.
 
@@ -39,6 +39,60 @@ I considered breaking up the `Region` model into several smaller models (i.e. `P
 > 11. Remove the module if it no longer houses useful behavior.
 
 >  -- Refactoring: Ruby Edition, page 226-227
+
+
+do a bit of refactoring first
+Extract Method
+
+
+```ruby
+def compute
+  # ...
+  if %w{ Hong\ Kong Macau }.include?(region.name)
+    region.gdp_per_capita = gdp_per_cap[1].gsub(',', '').to_i
+  else
+    region.gdp_per_capita = gdp_per_cap[3].gsub(',', '').to_i
+  end
+  # ...
+end
+```
+
+```ruby
+def compute
+  # ...
+  assign_gdp_per_cap
+  # ...
+end
+
+def assign_gdp_per_cap
+  if %w{ Hong\ Kong Macau }.include?(region.name)
+    region.gdp_per_capita = gdp_per_cap[1].gsub(',', '').to_i
+  else
+    region.gdp_per_capita = gdp_per_cap[3].gsub(',', '').to_i
+  end
+end
+```
+
+
+
+preserved `compute` API
+
+at the end it looked like this:
+```ruby
+  def compute
+    assign_territorial_designation
+    assign_lat_lng
+    assign_capital
+    assign_area_info
+    assign_gdp
+    assign_gdp_per_cap
+    assign_jvector_code
+    region.save
+  end
+```
+
+
+
 
 
 1-2.
@@ -88,4 +142,80 @@ def scrape_all_regions
 end
 ```
 
-done through 4
+5. 
+
+
+extracted method
+```ruby
+def assign_territorial_designation
+  if %w{ Hong\ Kong Macau }.include?(region.name)
+    region.territorial_designation = page.search("tr td a").find {|a| a.text.match(/special/i) }.text.split(" of ").first
+  else
+    region.territorial_designation = page.search("span.category a").text
+  end
+
+  region.territorial_designation = region.territorial_designation.split(' ').map(&:capitalize).join(' ')
+end
+```
+
+move into `SARAssembler` class
+
+```ruby
+def assign_territorial_designation
+  region.territorial_designation = title_caps(page.search("tr td a").
+                                     find {|a| a.text.match(/special/i) }.
+                                     attributes["title"].value)
+end
+```
+
+then in the `RegionAssembler` module this becomes a nice one-liner:
+
+```ruby
+def assign_territorial_designation
+  region.territorial_designation = page.search("span.category a").text.
+                                     split(' ').map(&:capitalize).join(' ')
+end
+```
+
+
+then becomes apparent to make a method responsible for making title caps
+
+```ruby
+def title_caps(string)
+  string.split(' ').map(&:capitalize).join(' ')
+end
+
+def assign_territorial_designation
+  region.territorial_designation = title_caps(page.search("span.category a").text)
+end
+```
+
+
+a method like this:
+
+
+with methods like the one above and:
+
+```ruby
+def assign_capital
+  if !%w{ Beijing Chongqing Shanghai Tianjin Hong\ Kong Macau }.include?(region.name)
+    region.capital = page.search("tr.mergedtoprow a")[0].text
+  end
+end
+```
+
+
+becomes this in the module:
+```ruby
+def assign_capital
+  region.capital = page.search("tr.mergedtoprow a")[0].text
+end
+```
+
+and this in `SARAssembler` and `MunicipalityAssembler`:
+
+```ruby
+def assign_capital
+end
+```
+
