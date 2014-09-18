@@ -157,4 +157,4 @@ Awesome four line method! The `ChinaScraper` class is now a relatively slim 36 l
 
 This initial refactoring made all subsequent refactorings to the `db/seeds.rb` file significantly easier. It seems like a pretty minimal refactoring at this point, but replacing the `scrape_all_regions` method with a class was a great first step of breaking the problem up into smaller pieces. This allowed me to think more freely about the problem and began the process of reducing the clutter in my code.
 
-As I alluded to above, the regional classifications of China that led to a glut of conditional statements were also an open door to a polymorphic refactoring, which is the topic of the next (and last!) post in this series.
+As I alluded to above, the regional classifications of China that led to a glut of conditional statements were also an open door to a polymorphic refactoring, which is the topic of the [next](http://callahanchris.github.io/blog/2014/09/13/china-map-project-part-4-introducing-polymorphism/) (and last!) post in this series.

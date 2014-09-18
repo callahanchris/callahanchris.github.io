@@ -130,4 +130,4 @@ var clearMap = function() {
 
 This was my first project using a JavaScript map, and it was really fun! I definitely learned a lot about integrating JavaScript libraries into Rails apps, got more comfortable using AJAX on the frontend, and became more confident in my ability to create and consume JSON APIs.
 
-Check out the [next post](http://callahanchris.github.io/blog/2014/09/12/china-map-project-part-3-refactoring-using-replace-method-with-method-object/) in this series about one of my favorite topics: refactoring!
+Check out the next [two](http://callahanchris.github.io/blog/2014/09/12/china-map-project-part-3-refactoring-using-replace-method-with-method-object/) [posts](http://callahanchris.github.io/blog/2014/09/13/china-map-project-part-4-introducing-polymorphism/) in this series about one of my favorite topics: refactoring!
