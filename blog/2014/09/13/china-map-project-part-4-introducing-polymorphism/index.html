@@ -1,0 +1,583 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>China Map Project - Part 4: Introducing Polymorphism - Chris Callahan's Blog</title>
+  <meta name="author" content="Chris Callahan">
+
+  
+  <meta name="description" content="This the fourth and final post in a series about my recent side project, A Map of China. Check out the first post, second post, third post, and the &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://callahanchris.github.io/blog/2014/09/13/china-map-project-part-4-introducing-polymorphism">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="Chris Callahan's Blog" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="//fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="//fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">Chris Callahan's Blog</a></h1>
+  
+    <h2>Becoming a hacker.</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="https://www.google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:callahanchris.github.io" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+  <li><a href="https://github.com/callahanchris" target="_blank">Github</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">China Map Project - Part 4: Introducing Polymorphism</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-09-13T17:33:42-04:00" pubdate data-updated="true">Sep 13<span>th</span>, 2014</time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p><em>This the fourth and final post in a series about my recent side project, <a href="http://amapofchina.herokuapp.com">A Map of China</a>. Check out the <a href="http://callahanchris.github.io/blog/2014/09/11/china-map-project-part-1-nokogiri/">first post</a>, <a href="http://callahanchris.github.io/blog/2014/09/11/china-map-project-part-2-bringing-the-map-to-life-with-jvectormap/">second post</a>, <a href="http://callahanchris.github.io/blog/2014/09/12/china-map-project-part-3-refactoring-using-replace-method-with-method-object/">third post</a>, and the <a href="https://github.com/callahanchris/china-map">project repo</a> on Github.</em></p>
+
+<h3>The Road to Polymorphism</h3>
+
+<p>When I started this project, I set out to make an interactive map that displayed a variety of data about the Chinese provinces. But this very premise &mdash; mapping Chinese provinces &mdash; turned out to be far more nuanced and complex than I realized at the outset.</p>
+
+<p>Technically speaking, China has 22 provinces (e.g. Shaanxi, Guangdong), 5 autonomous regions (e.g. Tibet, Inner Mongolia), 4 municipalities (Beijing, Shanghai, Chongqing, and Tianjin), and 2 special administrative regions (SARs) (Hong Kong and Macau). <em>[Note: Any issues pertaining to Taiwan fall outside the scope of this project.]</em></p>
+
+<p>Originally, I had named the main model in my Rails app <code>Province</code>, but later decided that <code>Region</code> would be more suitable. I considered breaking up the <code>Region</code> model into several smaller models (i.e. <code>Province</code>, <code>AutonomousRegion</code>, etc.), but I wanted the data output from the JSON API to all be standardized and accessible from one endpoint, so I kept all regions contained in one model.</p>
+
+<p>The issue of polymorphism came up when I realized that I was using a large number of conditional checks on the region&rsquo;s name in my Wikipedia scraping code. The most prominent among these was the following:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">if</span> <span class="sx">%w{ Hong\ Kong Macau }</span><span class="o">.</span><span class="n">include?</span><span class="p">(</span><span class="n">region</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+</span><span class='line'>  <span class="c1"># ...</span>
+</span><span class='line'><span class="k">else</span>
+</span><span class='line'>  <span class="c1"># ...</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>While I didn&rsquo;t have a <code>SpecialAdministrativeRegion</code> model, this conditional logic more or less amounted to a type check that significantly bogged down the readability and clarity of my code.</p>
+
+<p>Recently I have been reading through <a href="http://martinfowler.com/books/refactoringRubyEd.html"><em>Refactoring: Ruby Edition</em></a>, and found a refactoring that suited my needs in this case: Replace Type Code with Polymorphism.</p>
+
+<h3>Extract Method</h3>
+
+<p>Before I was able to implement the Replace Type Code with Polymorphism refactoring, I needed to continue refactoring the lengthy <code>compute</code> method in the <code>RegionAssembler</code> class from the <a href="http://callahanchris.github.io/blog/2014/09/12/china-map-project-part-3-refactoring-using-replace-method-with-method-object/">last post</a>. Within the <code>compute</code> method, I had been assigning about ten different pieces of data to the <code>Region</code> objects and saving them to the database. In order to preserve the <code>compute</code> API set up in the last post, I had <code>compute</code> delegate to a number of smaller methods, which I removed from <code>compute</code> using Extract Method.</p>
+
+<p>Quoting Martin Fowler:</p>
+
+<blockquote><p>Extract Method is one of the most common refactorings I do. I look at a method that is too long or look at code that needs a comment to understand its purpose. I then turn that fragment of code into its own method.</p>
+
+<p>I prefer short, well-named methods for several reasons. First, it increases the chances that other methods can use a method when the method is finely grained. Second, it allows the higher-level methods to read more like a series of comments. Overriding also is easier when the methods are finely grained.</p>
+
+<p> &mdash; Refactoring: Ruby Edition, page 102</p></blockquote>
+
+<p>Extract Method is an incredibly useful and easy refactoring to undertake. The mechanics are as follows:</p>
+
+<blockquote>
+1. Create a new method, and name it after the intention of the method (name it by what it does, not by how it does it).
+<br>
+2. Copy the extracted code from the source method into the new target method.
+</blockquote>
+
+
+<p>Steps 3-6 deal with handling local variables, which I already extracted out of <code>compute</code> in the Replace Method with Method Object refactoring in the last post.</p>
+
+<blockquote>
+7. Replace the extracted code in the source method with a call to the target method.
+<br>
+8. Test.
+<br>
+&#8211; Refactoring: Ruby Edition, page 103
+</blockquote>
+
+
+<p>In practice, I looked for chunks of code in the <code>compute</code> method like this:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">def</span> <span class="nf">compute</span>
+</span><span class='line'>  <span class="c1"># ...</span>
+</span><span class='line'>  <span class="k">if</span> <span class="sx">%w{ Hong\ Kong Macau }</span><span class="o">.</span><span class="n">include?</span><span class="p">(</span><span class="n">region</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">region</span><span class="o">.</span><span class="n">gdp_per_capita</span> <span class="o">=</span> <span class="n">gdp_per_cap</span><span class="o">[</span><span class="mi">1</span><span class="o">].</span><span class="n">gsub</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">to_i</span>
+</span><span class='line'>  <span class="k">else</span>
+</span><span class='line'>    <span class="n">region</span><span class="o">.</span><span class="n">gdp_per_capita</span> <span class="o">=</span> <span class="n">gdp_per_cap</span><span class="o">[</span><span class="mi">3</span><span class="o">].</span><span class="n">gsub</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">to_i</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>  <span class="c1"># ...</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>then I copied the code out into its own method:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">def</span> <span class="nf">assign_gdp_per_cap</span>
+</span><span class='line'>  <span class="k">if</span> <span class="sx">%w{ Hong\ Kong Macau }</span><span class="o">.</span><span class="n">include?</span><span class="p">(</span><span class="n">region</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">region</span><span class="o">.</span><span class="n">gdp_per_capita</span> <span class="o">=</span> <span class="n">gdp_per_cap</span><span class="o">[</span><span class="mi">1</span><span class="o">].</span><span class="n">gsub</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">to_i</span>
+</span><span class='line'>  <span class="k">else</span>
+</span><span class='line'>    <span class="n">region</span><span class="o">.</span><span class="n">gdp_per_capita</span> <span class="o">=</span> <span class="n">gdp_per_cap</span><span class="o">[</span><span class="mi">3</span><span class="o">].</span><span class="n">gsub</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">to_i</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>and replaced the original chunk of code with a call to the extracted method:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">def</span> <span class="nf">compute</span>
+</span><span class='line'>  <span class="c1"># ...</span>
+</span><span class='line'>  <span class="n">assign_gdp_per_cap</span>
+</span><span class='line'>  <span class="c1"># ...</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>I methodically went through the <code>compute</code> method and used Extract Method until all logical units of work had been extracted. In the end, the <code>compute</code> method had shrunk from almost 100 lines into this succinct delegator method:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">def</span> <span class="nf">compute</span>
+</span><span class='line'>  <span class="n">assign_territorial_designation</span>
+</span><span class='line'>  <span class="n">assign_lat_lng</span>
+</span><span class='line'>  <span class="n">assign_capital</span>
+</span><span class='line'>  <span class="n">assign_area_info</span>
+</span><span class='line'>  <span class="n">assign_gdp_usd</span>
+</span><span class='line'>  <span class="n">assign_gdp_cny</span>
+</span><span class='line'>  <span class="n">assign_gdp_per_cap</span>
+</span><span class='line'>  <span class="n">assign_jvector_code</span>
+</span><span class='line'>  <span class="n">region</span><span class="o">.</span><span class="n">save</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>Replace Type Code with Polymorphism</h3>
+
+<p>With the <code>RegionAssembler</code> class now broken down into small methods, it was much easier to see how to implement the Replace Type Code with Polymorphism refactoring. Here are the mechanics for carrying out this refactoring:</p>
+
+<blockquote><ol>
+<li><p>Create a class to represent each type code variant.</p></li>
+<li><p>Change the class that uses the type code into a module. Include the module into each of the new type classes.</p></li>
+<li><p>Change the callers of the original class to create an instance of the desired type instead.</p></li>
+<li><p>Test.</p></li>
+<li><p>Choose one of the methods that use the type code. Override the method on one of the type classes.</p></li>
+<li><p>Test.</p></li>
+<li><p>Do the same for the other type classes, removing the method on the module when you&rsquo;re done.</p></li>
+<li><p>Test.</p></li>
+<li><p>Repeat for the other methods that use the type code.</p></li>
+<li><p>Test.</p></li>
+<li><p>Remove the module if it no longer houses useful behavior.</p></li>
+</ol>
+
+
+<p> &mdash; Refactoring: Ruby Edition, page 226-227</p></blockquote>
+
+<p>In practice my execution was also a bit similar to the Replace Conditional with Polymorphism refactoring (<em>Refactoring: Ruby Edition</em>, page 279-284).</p>
+
+<p>First I made classes for each regional classification, turned the <code>RegionAssembler</code> class into a module, and included the <code>RegionAssembler</code> module in each class.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">module</span> <span class="nn">RegionAssembler</span>
+</span><span class='line'>  <span class="c1"># ...</span>
+</span><span class='line'><span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">class</span> <span class="nc">ProvinceAssembler</span>
+</span><span class='line'>  <span class="kp">include</span> <span class="no">RegionAssembler</span>
+</span><span class='line'><span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">class</span> <span class="nc">AutonomousRegionAssembler</span>
+</span><span class='line'>  <span class="kp">include</span> <span class="no">RegionAssembler</span>
+</span><span class='line'><span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">class</span> <span class="nc">MunicipalityAssembler</span>
+</span><span class='line'>  <span class="kp">include</span> <span class="no">RegionAssembler</span>
+</span><span class='line'><span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">class</span> <span class="nc">SARAssembler</span>
+</span><span class='line'>  <span class="kp">include</span> <span class="no">RegionAssembler</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Next I modified the <code>scrape_all_regions</code> method in the <code>ChinaScraper</code> class to appropriately call each of these new classes.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">def</span> <span class="nf">scrape_all_regions</span>
+</span><span class='line'>  <span class="no">Region</span><span class="o">.</span><span class="n">all</span><span class="o">.</span><span class="n">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">region</span><span class="o">|</span>
+</span><span class='line'>    <span class="n">page</span> <span class="o">=</span> <span class="ss">Nokogiri</span><span class="p">:</span><span class="ss">:HTML</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="n">region</span><span class="o">.</span><span class="n">url</span><span class="p">))</span>
+</span><span class='line'>    <span class="k">case</span> <span class="n">region</span><span class="o">.</span><span class="n">name</span>
+</span><span class='line'>    <span class="k">when</span> <span class="s2">&quot;Hong Kong&quot;</span><span class="p">,</span> <span class="s2">&quot;Macau&quot;</span>
+</span><span class='line'>      <span class="no">SARAssembler</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">region</span><span class="p">,</span> <span class="n">page</span><span class="p">)</span><span class="o">.</span><span class="n">compute</span>
+</span><span class='line'>    <span class="k">when</span> <span class="s2">&quot;Beijing&quot;</span><span class="p">,</span> <span class="s2">&quot;Chongqing&quot;</span><span class="p">,</span> <span class="s2">&quot;Shanghai&quot;</span><span class="p">,</span> <span class="s2">&quot;Tianjin&quot;</span>
+</span><span class='line'>      <span class="no">MunicipalityAssembler</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">region</span><span class="p">,</span> <span class="n">page</span><span class="p">)</span><span class="o">.</span><span class="n">compute</span>
+</span><span class='line'>    <span class="k">when</span> <span class="s2">&quot;Guangxi&quot;</span><span class="p">,</span> <span class="s2">&quot;Inner Mongolia&quot;</span><span class="p">,</span> <span class="s2">&quot;Ningxia&quot;</span><span class="p">,</span> <span class="s2">&quot;Xinjiang&quot;</span><span class="p">,</span> <span class="s2">&quot;Tibet&quot;</span>
+</span><span class='line'>      <span class="no">AutonomousRegionAssembler</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">region</span><span class="p">,</span> <span class="n">page</span><span class="p">)</span><span class="o">.</span><span class="n">compute</span>
+</span><span class='line'>    <span class="k">else</span>
+</span><span class='line'>      <span class="no">ProvinceAssembler</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">region</span><span class="p">,</span> <span class="n">page</span><span class="p">)</span><span class="o">.</span><span class="n">compute</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Then, one at a time, I began overriding the methods from the <code>RegionAssembler</code> module in individual classes. I started doing this in the <code>SARAssembler</code> class first because the Hong Kong and Macau Wikipedia pages had the most special cases that led to the overuse of conditionals in the first place.</p>
+
+<p>In practice, here&rsquo;s how the overriding worked. I started with the <code>assign_territorial_designation</code> method (extracted out of the <code>compute</code> method above) in the <code>RegionAssembler</code> module:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">def</span> <span class="nf">assign_territorial_designation</span>
+</span><span class='line'>  <span class="k">if</span> <span class="sx">%w{ Hong\ Kong Macau }</span><span class="o">.</span><span class="n">include?</span><span class="p">(</span><span class="n">region</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">region</span><span class="o">.</span><span class="n">territorial_designation</span> <span class="o">=</span> <span class="n">page</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s2">&quot;tr td a&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">find</span> <span class="p">{</span> <span class="o">|</span><span class="n">a</span><span class="o">|</span> <span class="n">a</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sr">/special/i</span><span class="p">)</span> <span class="p">}</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot; of &quot;</span><span class="p">)</span><span class="o">.</span><span class="n">first</span>
+</span><span class='line'>  <span class="k">else</span>
+</span><span class='line'>    <span class="n">region</span><span class="o">.</span><span class="n">territorial_designation</span> <span class="o">=</span> <span class="n">page</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s2">&quot;span.category a&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">text</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">region</span><span class="o">.</span><span class="n">territorial_designation</span> <span class="o">=</span> <span class="n">region</span><span class="o">.</span><span class="n">territorial_designation</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">)</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="o">&amp;</span><span class="ss">:capitalize</span><span class="p">)</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">)</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>I copied this method into the <code>SARAssembler</code> class, removed all but one line, and slightly refactored the text selector.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">def</span> <span class="nf">assign_territorial_designation</span>
+</span><span class='line'>  <span class="n">region</span><span class="o">.</span><span class="n">territorial_designation</span> <span class="o">=</span> <span class="n">page</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s2">&quot;tr td a&quot;</span><span class="p">)</span><span class="o">.</span>
+</span><span class='line'>                                     <span class="n">find</span> <span class="p">{</span> <span class="o">|</span><span class="n">a</span><span class="o">|</span> <span class="n">a</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sr">/special/i</span><span class="p">)</span> <span class="p">}</span><span class="o">.</span>
+</span><span class='line'>                                     <span class="n">attributes</span><span class="o">[</span><span class="s2">&quot;title&quot;</span><span class="o">].</span><span class="n">value</span><span class="o">.</span>
+</span><span class='line'>                                     <span class="nb">split</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">)</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="o">&amp;</span><span class="ss">:capitalize</span><span class="p">)</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">)</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Then in the <code>RegionAssembler</code> module, I was able to turn this method into a nice one-liner.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">def</span> <span class="nf">assign_territorial_designation</span>
+</span><span class='line'>  <span class="n">region</span><span class="o">.</span><span class="n">territorial_designation</span> <span class="o">=</span> <span class="n">page</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s2">&quot;span.category a&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">text</span><span class="o">.</span>
+</span><span class='line'>                                     <span class="nb">split</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">)</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="o">&amp;</span><span class="ss">:capitalize</span><span class="p">)</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">)</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>At this point, it became apparent that this method actually had two responsibilities: assigning the accurate text and making sure it was in title caps. There was a clear opportunity to extract a <code>title_caps</code> method:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">def</span> <span class="nf">title_caps</span><span class="p">(</span><span class="n">string</span><span class="p">)</span>
+</span><span class='line'>  <span class="n">string</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">)</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="o">&amp;</span><span class="ss">:capitalize</span><span class="p">)</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">)</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>I could then further simplify the <code>assign_territorial_designation</code> method as such:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">def</span> <span class="nf">assign_territorial_designation</span>
+</span><span class='line'>  <span class="n">region</span><span class="o">.</span><span class="n">territorial_designation</span> <span class="o">=</span> <span class="n">title_caps</span><span class="p">(</span><span class="n">page</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s2">&quot;span.category a&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This refactoring was particularly helpful for methods that applied to certain classes but not to others. Take for instance the <code>assign_capital</code> method. Municipalities and SARs are cities, and therefore don&rsquo;t have capitals. This method clearly doesn&rsquo;t apply to them. Yet the original <code>assign_capital</code> method spent a significant amount of effort checking whether or not it applied.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">def</span> <span class="nf">assign_capital</span>
+</span><span class='line'>  <span class="k">if</span> <span class="o">!</span><span class="sx">%w{ Beijing Chongqing Shanghai Tianjin Hong\ Kong Macau }</span><span class="o">.</span><span class="n">include?</span><span class="p">(</span><span class="n">region</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">region</span><span class="o">.</span><span class="n">capital</span> <span class="o">=</span> <span class="n">page</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s2">&quot;tr.mergedtoprow a&quot;</span><span class="p">)</span><span class="o">[</span><span class="mi">0</span><span class="o">].</span><span class="n">text</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>In the <code>SARAssembler</code> and <code>MunicipalityAssembler</code> classes, I overwrote this with an empty method:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">def</span> <span class="nf">assign_capital</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>and then was able to refactor the <code>assign_capital</code> method in the module into a much simpler version:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">def</span> <span class="nf">assign_capital</span>
+</span><span class='line'>  <span class="n">region</span><span class="o">.</span><span class="n">capital</span> <span class="o">=</span> <span class="n">page</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s2">&quot;tr.mergedtoprow a&quot;</span><span class="p">)</span><span class="o">[</span><span class="mi">0</span><span class="o">].</span><span class="n">text</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>In the end, I kept the <code>RegionAssembler</code> module, as there would have been too much code duplication if I copied over all of the methods into each of the four classes. At 80 lines, the <code>RegionAssembler</code> module is not exactly small, but the majority of its methods are one-liners, and the type checking is gone.</p>
+
+<h3>Room for Improvement</h3>
+
+<p>This was a fun project and I really enjoyed taking the time to refactor my code and make it much more clear, concise, and easy to expand upon going forward.</p>
+
+<p>There are a few areas in which I think I can improve upon in this and future projects:</p>
+
+<ul>
+<li><p><strong>Regular Expressions.</strong> I think I got better at writing regular expressions in this project, but it is possible that I would not have needed the polymorphic refactoring if I had used more accurate regular expressions. Regexps are incredibly powerful, and I want to learn a lot more about them.</p></li>
+<li><p><strong>Testing.</strong> You may have noticed that I did not follow one very important step of the refactorings from Martin Fowler&rsquo;s book: &ldquo;Test.&rdquo; I am a bit ashamed to admit that I do not have any test coverage on this app. I am not sure whether/how to test the entire Nokogiri and web scraping aspect of the project. This is something I have to look into more for this specific use case, and in general I need to gain more experience doing test-first development.</p></li>
+<li><p><strong>Working more with maps.</strong> I am glad that I was able to get the China map up and running, and now I am excited to try working with other third-party libraries to create more interesting data visualizations!</p></li>
+</ul>
+
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Chris Callahan</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-09-13T17:33:42-04:00" pubdate data-updated="true">Sep 13<span>th</span>, 2014</time>
+      
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://callahanchris.github.io/blog/2014/09/13/china-map-project-part-4-introducing-polymorphism/" data-via="" data-counturl="http://callahanchris.github.io/blog/2014/09/13/china-map-project-part-4-introducing-polymorphism/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2014/09/12/china-map-project-part-3-refactoring-using-replace-method-with-method-object/" title="Previous Post: China Map Project - Part 3: Refactoring Using Replace Method with Method Object">&laquo; China Map Project - Part 3: Refactoring Using Replace Method with Method Object</a>
+      
+      
+    </p>
+  </footer>
+</article>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2014/09/13/china-map-project-part-4-introducing-polymorphism/">China Map Project - Part 4: Introducing Polymorphism</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/09/12/china-map-project-part-3-refactoring-using-replace-method-with-method-object/">China Map Project - Part 3: Refactoring Using Replace Method With Method Object</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/09/11/china-map-project-part-2-bringing-the-map-to-life-with-jvectormap/">China Map Project - Part 2: Bringing the Map to Life With jVectorMap</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/09/11/china-map-project-part-1-nokogiri/">China Map Project - Part 1: Nokogiri, Regular Expressions, and a JSON API</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/07/24/how-to-write-an-immediately-invoked-anonymous-function-expression-in-javascript/">How to Write an Immediately-Invoked Anonymous Function Expression in JavaScript</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2014 - Chris Callahan -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>
