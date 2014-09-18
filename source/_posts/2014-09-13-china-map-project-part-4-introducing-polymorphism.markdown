@@ -4,7 +4,6 @@ title: "China Map Project - Part 4: Introducing Polymorphism"
 date: 2014-09-13 17:33:42 -0400
 comments: true
 categories: 
-published: false
 ---
 
 
@@ -34,7 +33,7 @@ Recently I have been reading through [*Refactoring: Ruby Edition*](http://martin
 
 ### Extract Method
 
-Before I was able to implement this refactoring, I needed to continue refactoring the lengthy `compute` method in the `RegionAssembler` class from the last post. Within the `compute` method, I had been assigning about ten different pieces of data to the `Region` objects and saving them to the database. In order to preserve the `compute` API set up in the last post, I simply used the `compute` method to call a number of smaller methods, which I removed from `compute` using Extract Method.
+Before I was able to implement the Replace Type Code with Polymorphism refactoring, I needed to continue refactoring the lengthy `compute` method in the `RegionAssembler` class from the [last post](http://callahanchris.github.io/blog/2014/09/12/china-map-project-part-3-refactoring-using-replace-method-with-method-object/). Within the `compute` method, I had been assigning about ten different pieces of data to the `Region` objects and saving them to the database. In order to preserve the `compute` API set up in the last post, I had `compute` delegate to a number of smaller methods, which I removed from `compute` using Extract Method.
 
 Quoting Martin Fowler:
 
@@ -42,23 +41,25 @@ Quoting Martin Fowler:
 
 > I prefer short, well-named methods for several reasons. First, it increases the chances that other methods can use a method when the method is finely grained. Second, it allows the higher-level methods to read more like a series of comments. Overriding also is easier when the methods are finely grained.
 
-> It does take a little getting used to if you are used to seeing larger methods. And small methods really work only when you have good names, so you need to pay attention to naming. People sometimes ask me what length I look for in a method. To me length is not the issue. The key is the semantic distance between the method name and the method body. If extracting improves clarity, do it, even if the name is longer than the code you have extracted.
-
 >  -- Refactoring: Ruby Edition, page 102
 
 Extract Method is an incredibly useful and easy refactoring to undertake. The mechanics are as follows:
 
-> 1. Create a new method, and name it after the intention of the method (name it by what it does, not by how it does it).
-
-> 2. Copy the extracted code from the source method into the new target method.
+<blockquote>
+1. Create a new method, and name it after the intention of the method (name it by what it does, not by how it does it).
+<br>
+2. Copy the extracted code from the source method into the new target method.
+</blockquote>
 
 Steps 3-6 deal with handling local variables, which I already extracted out of `compute` in the Replace Method with Method Object refactoring in the last post.
 
-> 7. Replace the extracted code in the source method with a call to the target method.
-
-> 8. Test.
-
->  -- Refactoring: Ruby Edition, page 103
+<blockquote>
+7. Replace the extracted code in the source method with a call to the target method.
+<br>
+8. Test.
+<br>
+-- Refactoring: Ruby Edition, page 103
+</blockquote>
 
 In practice, I looked for chunks of code in the `compute` method like this:
 
@@ -86,7 +87,7 @@ def assign_gdp_per_cap
 end
 ```
 
-and replaced the original chunk of code with a call to this method:
+and replaced the original chunk of code with a call to the extracted method:
 
 ```ruby
 def compute
@@ -142,7 +143,7 @@ With the `RegionAssembler` class now broken down into small methods, it was much
 
 In practice my execution was also a bit similar to the Replace Conditional with Polymorphism refactoring (*Refactoring: Ruby Edition*, page 279-284).
 
-First I made classes for each regional classification, turned the `RegionAssembler` class into a module, and included the `RegionAssembler` module into each class.
+First I made classes for each regional classification, turned the `RegionAssembler` class into a module, and included the `RegionAssembler` module in each class.
 
 ```ruby
 module RegionAssembler
@@ -171,7 +172,6 @@ Next I modified the `scrape_all_regions` method in the `ChinaScraper` class to a
 ```ruby
 def scrape_all_regions
   Region.all.each do |region|
-    puts "Scraping #{region.name}..."
     page = Nokogiri::HTML(open(region.url))
     case region.name
     when "Hong Kong", "Macau"
@@ -187,14 +187,14 @@ def scrape_all_regions
 end
 ```
 
-Then, one at a time, I began overriding the methods in the `RegionAssembler` module. I started doing this in the `SARAssembler` class first because the Hong Kong and Macau Wikipedia pages were the biggest special cases that led to the overuse of conditionals in the first place.
+Then, one at a time, I began overriding the methods from the `RegionAssembler` module in individual classes. I started doing this in the `SARAssembler` class first because the Hong Kong and Macau Wikipedia pages had the most special cases that led to the overuse of conditionals in the first place.
 
 In practice, here's how the overriding worked. I started with the `assign_territorial_designation` method (extracted out of the `compute` method above) in the `RegionAssembler` module:
 
 ```ruby
 def assign_territorial_designation
   if %w{ Hong\ Kong Macau }.include?(region.name)
-    region.territorial_designation = page.search("tr td a").find {|a| a.text.match(/special/i) }.text.split(" of ").first
+    region.territorial_designation = page.search("tr td a").find { |a| a.text.match(/special/i) }.text.split(" of ").first
   else
     region.territorial_designation = page.search("span.category a").text
   end
@@ -203,12 +203,12 @@ def assign_territorial_designation
 end
 ```
 
-I copied this method into `SARAssembler` class, removed all but one line, and slightly refactored the text isolation.
+I copied this method into the `SARAssembler` class, removed all but one line, and slightly refactored the text selector.
 
 ```ruby
 def assign_territorial_designation
   region.territorial_designation = page.search("tr td a").
-                                     find {|a| a.text.match(/special/i) }.
+                                     find { |a| a.text.match(/special/i) }.
                                      attributes["title"].value.
                                      split(' ').map(&:capitalize).join(' ')
 end
@@ -229,20 +229,17 @@ At this point, it became apparent that this method actually had two responsibili
 def title_caps(string)
   string.split(' ').map(&:capitalize).join(' ')
 end
+```
 
+I could then further simplify the `assign_territorial_designation` method as such:
+
+```ruby
 def assign_territorial_designation
   region.territorial_designation = title_caps(page.search("span.category a").text)
 end
 ```
 
-
-
-
-
-a method like this:
-
-
-with methods like the one above and:
+This refactoring was particularly helpful for methods that applied to certain classes but not to others. Take for instance the `assign_capital` method. Municipalities and SARs are cities, and therefore don't have capitals. This method clearly doesn't apply to them. Yet the original `assign_capital` method spent a significant amount of effort checking whether or not it applied.
 
 ```ruby
 def assign_capital
@@ -252,18 +249,31 @@ def assign_capital
 end
 ```
 
+In the `SARAssembler` and `MunicipalityAssembler` classes, I overwrote this with an empty method:
 
-becomes this in the module:
+```ruby
+def assign_capital
+end
+```
+
+and then was able to refactor the `assign_capital` method in the module into a much simpler version: 
+
 ```ruby
 def assign_capital
   region.capital = page.search("tr.mergedtoprow a")[0].text
 end
 ```
 
-and this in `SARAssembler` and `MunicipalityAssembler`:
+In the end, I kept the `RegionAssembler` module, as there would have been too much code duplication if I copied over all of the methods into each of the four classes. At 80 lines, the `RegionAssembler` module is not exactly small, but the majority of its methods are one-liners, and the type checking is gone.
 
-```ruby
-def assign_capital
-end
-```
+### Room for Improvement
 
+This was a fun project and I really enjoyed taking the time to refactor my code and make it much more clear, concise, and easy to expand upon going forward.
+
+There are a few areas in which I think I can improve upon in this and future projects:
+
+* **Regular Expressions.** I think I got better at writing regular expressions in this project, but it is possible that I would not have needed the polymorphic refactoring if I had used more accurate regular expressions. Regexps are incredibly powerful, and I want to learn a lot more about them.
+
+* **Testing.** You may have noticed that I did not follow one very important step of the refactorings from Martin Fowler's book: "Test." I am a bit ashamed to admit that I do not have any test coverage on this app. I am not sure whether/how to test the entire Nokogiri and web scraping aspect of the project. This is something I have to look into more for this specific use case, and in general I need to gain more experience doing test-first development.
+
+* **Working more with maps.** I am glad that I was able to get the China map up and running, and now I am excited to try working with other third-party libraries to create more interesting data visualizations!
