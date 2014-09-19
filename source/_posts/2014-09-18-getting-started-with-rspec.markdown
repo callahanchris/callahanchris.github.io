@@ -330,7 +330,9 @@ Going forward, I could also add `context`s for things like "without ice" and "wi
 
 ### Next Steps
 
-This is a basic introduction to writing the first few tests of a Ruby app with RSpec, and is far from a complete resource. Already we can see that there is some repetition in the tests above (`espresso = Espresso.new`) that should be abstracted out. RSpec has a number of convenient methods to help you DRY out your tests, such as `let`, `before`, `subject`, and `it_behaves_like`. For more comprehensive info about RSpec, check out the resources below!
+This is a basic introduction to writing the first few tests of a Ruby app with RSpec, and is far from a complete resource. Already we can see that there is some repetition in the tests above (`espresso = Espresso.new`) that should be abstracted out. RSpec has a number of convenient methods to help you DRY out your tests, such as `let`, `before`, `subject`, and `it_behaves_like`. There's also clearly some more refactoring that can be done on the code itself -- but now we have a safety net to fall back on when we start refactoring.
+
+For more comprehensive info about RSpec, check out the resources below!
 
 ### Resources
 
