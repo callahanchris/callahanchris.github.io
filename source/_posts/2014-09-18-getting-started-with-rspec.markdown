@@ -81,7 +81,7 @@ class Espresso
 end
 ```
 
-I want to take a test-first approach to this app, so I'll go ahead and set up a spec file to test the `Espresso` class. Any file that ends in `_spec.rb` will be run by the `rspec` command, and it is best practice to name the spec files in the `model_name_spec.rb` format. In the `spec` directory, I made a `espresso_spec.rb` file to house all tests on the `Espresso` model.
+I want to take a test-first approach to this app, so I'll go ahead and set up a spec file to test the `Espresso` class. Any file that ends in `_spec.rb` will be run by the `rspec` command, but it is best to name the spec files in the `model_name_spec.rb` format. In the `spec` directory, I made an `espresso_spec.rb` file to house all the tests I'll write for the `Espresso` model.
 
 ```ruby
 require_relative 'spec_helper'
@@ -136,18 +136,18 @@ end
 
 Within each `describe` block, I can open `it` blocks that will contain the actual expectations to be tested. `it` takes a terse (less than 40 characters) description of the specific expectation I'm setting on the method for this test as an argument.
 
-Inside the `it` blocks, the RSpec 3 syntax uses the `expect` method to set up an expectation. 
+Inside of `it` blocks, the RSpec 3 syntax uses the `expect` method to set up an expectation. 
 
 ```ruby
 expect(1 + 1).to eq(2)
 ```
 
-In general, you pass an expression to be evaluated to the `expect` method and chain `to` to the end of the method call. Then you call a matcher method and pass as an argument what you expect the `expect` argument to evaluate to. Some of the most common RSpec matcher methods are `eq`, `include`, `match`, and `respond_to`, all of which correspond to similar Ruby methods.
+In general, you pass an expression to be evaluated to the `expect` method and chain `to` to the end of this method. Then you call a matcher method and pass in the value you expect the argument passed to `expect` to evaluate to. Some of the most common RSpec matcher methods are `eq`, `include`, `match`, and `respond_to`, all of which closely correspond to Ruby methods.
 
 ```ruby
 expect([1, 2, 3]).to include(3)
 expect("Hello world, my name is Chris!").to match(/Hello world/)
-expect("an ordinary string").to respond_to(:capitalize)
+expect("an ordinary string").to respond_to(:upcase)
 ```
 
 ### Writing the Specs
@@ -165,7 +165,7 @@ describe Espresso do
 end
 ```
 
-Here we're instantiating a new `Espresso` object, and setting up an expectation that this drink is named "espresso". We run `rspec` and the test fails.
+Here we're instantiating a new `Espresso` object and setting up an expectation that the `#name` method will return the value "espresso" when it is sent to an instance of the `Espresso` class. We run `rspec` and the test fails.
 
 ```bash
 $ rspec
@@ -190,7 +190,9 @@ Failed examples:
 rspec ./spec/espresso_spec.rb:5 # Espresso#name is espresso
 ```
 
-Now the cycle of "Red, Green, Refactor" can begin. We have a failing (red) test, now let's do the minimum possible work to get the test to pass (green). Once we have green tests, then we can mercilessly refactor while ensuring the tests stay green. Based on the error message above, I know the first step should be adding a `name` method to the `Espresso` class.
+Now the cycle of "Red, Green, Refactor" can begin. We have a failing (red) test, now let's do the minimum possible work to get the test to pass (green). Once we have green tests, then we can mercilessly refactor while ensuring the tests stay green, and thus the functionality of the code stays the same.
+
+Based on the error message above, I know the first step should be adding a `name` method to the `Espresso` class.
 
 ```ruby
 class Espresso
@@ -238,7 +240,7 @@ Success!
 
 ### Introducing `context`s
 
-Let's say that I want to have the `#name` method to return different things depending on whether or not the espresso has milk in it. I could just write a new `it '...'` expectation inside of the `describe "#name"` block, but this might get unwieldy before long. Namespacing is important to writing readable, easy-to-follow tests. If there are many facets of a method we need to test, we can group the nested `it` blocks inside of `context` blocks. 
+Now I want to have the `#name` method return different results depending on whether or not the espresso has milk in it. I could just write a new `it '...'` expectation inside of the `describe "#name"` block, but this might get unwieldy in short order. Namespacing is important to writing readable, easy-to-follow tests. If there are many facets of a method to be tested, we can group the nested `it` blocks inside of `context` blocks.
 
 ```ruby
 describe Espresso do
@@ -262,7 +264,7 @@ describe Espresso do
 end
 ```
 
-Here I've written two `context` blocks, one for an espresso with milk and one for an espresso without milk. In order to get the milk into the espresso, I've also included an `add_milk` method -- this should also be tested as part of the `Espresso` API. Before getting the next test to pass, I fleshed out the `Espresso` class a bit to support this new method.
+Here I've written two `context` blocks, one for an espresso with milk and one for an espresso without milk. In order to get the milk into the espresso, I've also included an `add_milk` method -- this should also be tested as part of `Espresso`'s API. Before getting the next test to pass, I fleshed out the `Espresso` class a bit to support this new method.
 
 ```ruby
 class Espresso
@@ -286,7 +288,7 @@ class Espresso
 end
 ```
 
-The RSpec failure for the second test now read:
+The RSpec failure for the second test then read:
 
 ```bash
 Failures:
@@ -328,7 +330,7 @@ Going forward, I could also add `context`s for things like "without ice" and "wi
 
 ### Next Steps
 
-This is a basic introduction to writing the first few tests of a test-first app with RSpec, and is far from a complete resource. Already we can see that there is some repetition in the tests above (`espresso = Espresso.new`) that should be abstracted out. RSpec has a number of convenient methods to help you DRY out your tests, such as `let`, `before`, `subject`, and `it_behaves_like`. For more comprehensive info about RSpec, check out the resources below!
+This is a basic introduction to writing the first few tests of a Ruby app with RSpec, and is far from a complete resource. Already we can see that there is some repetition in the tests above (`espresso = Espresso.new`) that should be abstracted out. RSpec has a number of convenient methods to help you DRY out your tests, such as `let`, `before`, `subject`, and `it_behaves_like`. For more comprehensive info about RSpec, check out the resources below!
 
 ### Resources
 
