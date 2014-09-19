@@ -6,9 +6,9 @@ comments: true
 categories: 
 ---
 
-RSpec is tool to test Ruby code using a very English-like syntax. RSpec is one of the most popular testing frameworks in the Ruby and Rails communities today, along with MiniTest (the default testing framework used in Rails 4) and Test::Unit.
+RSpec is tool to test Ruby code using a very English-like syntax. RSpec is one of the most popular testing frameworks in the Ruby and Rails communities today, along with minitest (the default testing framework used in Rails 4) and Test::Unit.
 
-Testing is an essential part of making reliable code, as it establishes a rapid feedback loop and allows you to refactor code to your heart's content while ensuring that the code retains its original functionality.
+Testing is essential to writing reliable code. Not only does it establish a rapid feedback loop, but it also gives you the freedom to refactor your code to your heart's content while ensuring that the code retains its original functionality.
 
 ### How to Integrate RSpec Into Your App
 
@@ -83,7 +83,7 @@ end
 
 I want to take a test-first approach to this app, so I'll go ahead and set up a spec file to test the `Espresso` class. Any file that ends in `_spec.rb` will be run by the `rspec` command, and it is best practice to name the spec files in the `model_name_spec.rb` format. In the `spec` directory, I made a `espresso_spec.rb` file to house all tests on the `Espresso` model.
 
-```rspec
+```ruby
 require_relative 'spec_helper'
 
 describe Espresso do
@@ -100,7 +100,7 @@ require_relative '../lib/espresso'
 
 Without this `require_relative` statement, RSpec will not understand what `Espresso` is and will throw an uninitialized constant NameError.
 
-```rspec
+```ruby
 describe Espresso do
   describe '#name' do
   end
@@ -115,7 +115,7 @@ end
 
 Inside the `describe Espresso` block, I opened a `describe` block for each public method that will be part of `Espresso`'s API. These method-specific `describe` blocks should use the `#method_name` notation for instance methods and the `.method_name` notation for class methods.
 
-```rspec
+```ruby
 describe Espresso do
   describe '#name' do
     it 'is espresso' do
@@ -138,13 +138,13 @@ Within each `describe` block, I can open `it` blocks that will contain the actua
 
 Inside the `it` blocks, the RSpec 3 syntax uses the `expect` method to set up an expectation. 
 
-```rspec
+```ruby
 expect(1 + 1).to eq(2)
 ```
 
 In general, you pass an expression to be evaluated to the `expect` method and chain `to` to the end of the method call. Then you call a matcher method and pass as an argument what you expect the `expect` argument to evaluate to. Some of the most common RSpec matcher methods are `eq`, `include`, `match`, and `respond_to`, all of which correspond to similar Ruby methods.
 
-```rspec
+```ruby
 expect([1, 2, 3]).to include(3)
 expect("Hello world, my name is Chris!").to match(/Hello world/)
 expect("an ordinary string").to respond_to(:capitalize)
@@ -154,10 +154,10 @@ expect("an ordinary string").to respond_to(:capitalize)
 
 Now it's time to write our first test!
 
-```rspec
+```ruby
 describe Espresso do
   describe '#name' do
-    it 'returns espresso' do
+    it 'is espresso' do
       espresso = Espresso.new
       expect(espresso.name).to eq("espresso")
     end
@@ -172,11 +172,11 @@ $ rspec
 
 Espresso
   #name
-    returns espresso (FAILED - 1)
+    is espresso (FAILED - 1)
 
 Failures:
 
-  1) Espresso#name returns espresso
+  1) Espresso#name is espresso
      Failure/Error: expect(espresso.name).to eq("espresso")
      NoMethodError:
        undefined method `name' for #<Espresso:0x00000103131178>
@@ -187,10 +187,10 @@ Finished in 0.00057 seconds (files took 0.11633 seconds to load)
 
 Failed examples:
 
-rspec ./spec/espresso_spec.rb:5 # Espresso#name returns espresso
+rspec ./spec/espresso_spec.rb:5 # Espresso#name is espresso
 ```
 
-Now the cycle of "Red, Green, Refactor" can begin. We have a failing (red) test, now let's do the minimum possible work to get the test to pass. Based on the error message above, I know the first step should be adding a `name` method to the `Espresso` class.
+Now the cycle of "Red, Green, Refactor" can begin. We have a failing (red) test, now let's do the minimum possible work to get the test to pass (green). Once we have green tests, then we can mercilessly refactor while ensuring the tests stay green. Based on the error message above, I know the first step should be adding a `name` method to the `Espresso` class.
 
 ```ruby
 class Espresso
@@ -204,7 +204,7 @@ Running `rspec` again gives a bit more guidance about what the `name` method sho
 ```bash
 Failures:
 
-  1) Espresso#name returns espresso
+  1) Espresso#name is espresso
      Failure/Error: expect(espresso.name).to eq("espresso")
        
        expected: "espresso"
@@ -228,7 +228,7 @@ $ rspec
 
 Espresso
   #name
-    returns espresso
+    is espresso
 
 Finished in 0.00158 seconds (files took 0.12372 seconds to load)
 1 example, 0 failures
@@ -236,19 +236,99 @@ Finished in 0.00158 seconds (files took 0.12372 seconds to load)
 
 Success!
 
+### Introducing `context`s
 
+Let's say that I want to have the `#name` method to return different things depending on whether or not the espresso has milk in it. I could just write a new `it '...'` expectation inside of the `describe "#name"` block, but this might get unwieldy before long. Namespacing is important to writing readable, easy-to-follow tests. If there are many facets of a method we need to test, we can group the nested `it` blocks inside of `context` blocks. 
 
-Namespacing is important to writing readable, easy-to-follow tests. If there are many facets of a method we need to test, we can group the nested `it` blocks inside of `context` blocks. The rough outline of a spec file using namespacing well might look something like this:
-
-```rspec
+```ruby
 describe Espresso do
-  describe '#'
+
+  describe '#name' do
+    context 'without milk' do
+      it 'is espresso' do
+        espresso = Espresso.new
+        expect(espresso.name).to eq("espresso")
+      end
+    end
+
+    context 'with milk' do
+      it 'is macchiato' do
+        espresso = Espresso.new
+        espresso.add_milk
+        expect(espresso.name).to eq("macchiato")
+      end
+    end
+  end
 end
 ```
 
+Here I've written two `context` blocks, one for an espresso with milk and one for an espresso without milk. In order to get the milk into the espresso, I've also included an `add_milk` method -- this should also be tested as part of the `Espresso` API. Before getting the next test to pass, I fleshed out the `Espresso` class a bit to support this new method.
 
+```ruby
+class Espresso
+  def initialize
+    @milk = false
+  end
 
+  def name
+    "espresso"
+  end
 
+  def add_milk
+    self.milk = true
+  end
+
+  private
+    attr_accessor :milk
+    def has_milk?
+      milk
+    end
+end
+```
+
+The RSpec failure for the second test now read:
+
+```bash
+Failures:
+
+  1) Espresso#name with milk is macchiato
+     Failure/Error: expect(espresso.name).to eq("macchiato")
+       
+       expected: "macchiato"
+            got: "espresso"
+       
+       (compared using ==)
+```
+
+In order to get this test to pass, I implemented the simplest change possible to the `name` method:
+
+```ruby
+def name
+  has_milk? ? "macchiato" : "espresso"
+end
+```
+
+then ran `rspec` and enjoyed the nicely namespaced RSpec output:
+
+```bash
+$ rspec
+
+Espresso
+  #name
+    without milk
+      is espresso
+    with milk
+      is macchiato
+
+Finished in 0.00147 seconds (files took 0.12149 seconds to load)
+2 examples, 0 failures
+```
+
+Going forward, I could also add `context`s for things like "without ice" and "with ice".
+
+### Next Steps
+
+This is a basic introduction to writing the first few tests of a test-first app with RSpec, and is far from a complete resource. Already we can see that there is some repetition in the tests above (`espresso = Espresso.new`) that should be abstracted out. RSpec has a number of convenient methods to help you DRY out your tests, such as `let`, `before`, `subject`, and `it_behaves_like`. For more comprehensive info about RSpec, check out the resources below!
 
 ### Resources
 
