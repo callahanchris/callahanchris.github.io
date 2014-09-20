@@ -1003,6 +1003,66 @@
 
 <p>In the end, I kept the <code>RegionAssembler</code> module, as there would have been too much code duplication if I copied over all of the methods into each of the four classes. At 80 lines, the <code>RegionAssembler</code> module is not exactly small, but the majority of its methods are one-liners, and the type checking is gone.</p>
 
+<h3>The Final Step (For Now&hellip;)</h3>
+
+<p>Starting from one monolithic <code>ChinaScraper</code> class, I used Replace Method with Method Object to extract out most of the logic from this class into a <code>RegionScraper</code> class. Then I went to town using Extract Method to create a bunch of small methods that followed the Single Responsibility Principle (SRP). Having done this, it was clear that my code could benefit from a Replace Type Code with Polymorphism refactoring.</p>
+
+<p>All told, the shape of my code morphed from its original form &mdash; one 170 line class hinging on a 90 line method &mdash; to a more modular form where code was sectioned off into five classes and two modules, and methods were used for one purpose only.</p>
+
+<p>The final step here was to take all of this code out of the <code>db/seeds.rb</code> file and put it into the <code>app/models</code> directory. This directory&rsquo;s file structure now looks like this:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="n">app</span><span class="o">/</span>
+</span><span class='line'><span class="o">|</span>
+</span><span class='line'><span class="o">|</span><span class="n">__</span> <span class="n">models</span><span class="o">/</span>
+</span><span class='line'>    <span class="o">|</span>
+</span><span class='line'>    <span class="o">|</span><span class="n">__</span> <span class="n">concerns</span><span class="o">/</span>
+</span><span class='line'>    <span class="o">|</span>   <span class="o">|</span>
+</span><span class='line'>    <span class="o">|</span>   <span class="o">|</span><span class="n">__</span> <span class="n">j_vectorable</span><span class="o">.</span><span class="n">rb</span>
+</span><span class='line'>    <span class="o">|</span>   <span class="o">|</span>
+</span><span class='line'>    <span class="o">|</span>   <span class="o">|</span><span class="n">__</span> <span class="n">region_assembler</span><span class="o">.</span><span class="n">rb</span>
+</span><span class='line'>    <span class="o">|</span>
+</span><span class='line'>    <span class="o">|</span><span class="n">__</span> <span class="n">autonomous_region_assembler</span><span class="o">.</span><span class="n">rb</span>
+</span><span class='line'>    <span class="o">|</span>
+</span><span class='line'>    <span class="o">|</span><span class="n">__</span> <span class="n">china_scraper</span><span class="o">.</span><span class="n">rb</span>
+</span><span class='line'>    <span class="o">|</span>
+</span><span class='line'>    <span class="o">|</span><span class="n">__</span> <span class="n">municipality_assembler</span><span class="o">.</span><span class="n">rb</span>
+</span><span class='line'>    <span class="o">|</span>
+</span><span class='line'>    <span class="o">|</span><span class="n">__</span> <span class="n">province_assembler</span><span class="o">.</span><span class="n">rb</span>
+</span><span class='line'>    <span class="o">|</span>
+</span><span class='line'>    <span class="o">|</span><span class="n">__</span> <span class="n">region</span><span class="o">.</span><span class="n">rb</span>
+</span><span class='line'>    <span class="o">|</span>
+</span><span class='line'>    <span class="o">|</span><span class="n">__</span> <span class="n">sar_assembler</span><span class="o">.</span><span class="n">rb</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>And the final <code>db/seeds.rb</code> file is now nice and succinct:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="no">ChinaScraper</span><span class="o">.</span><span class="n">new</span><span class="o">.</span><span class="n">run</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
 <h3>Room for Improvement</h3>
 
 <p>This was a fun project and I really enjoyed taking the time to refactor my code and make it much more clear, concise, and easy to expand upon going forward.</p>
@@ -1639,7 +1699,7 @@
 <span class='line-number'>18</span>
 <span class='line-number'>19</span>
 </pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">ChinaScraper</span>
-</span><span class='line'>  <span class="k">def</span> <span class="nf">initialize</span>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">run</span>
 </span><span class='line'>    <span class="n">scrape_index</span>
 </span><span class='line'>    <span class="n">make_regions</span>
 </span><span class='line'>    <span class="n">scrape_all_regions</span>
@@ -1663,7 +1723,7 @@
 <p>Finally, in <code>db/seeds.rb</code> I seeded the database simply by instantiating a new <code>ChinaScraper</code> object.</p>
 
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="no">ChinaScraper</span><span class="o">.</span><span class="n">new</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="no">ChinaScraper</span><span class="o">.</span><span class="n">new</span><span class="o">.</span><span class="n">run</span>
 </span></code></pre></td></tr></table></div></figure>
 
 

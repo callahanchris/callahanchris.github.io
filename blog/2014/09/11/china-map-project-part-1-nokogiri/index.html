@@ -202,7 +202,7 @@
 <span class='line-number'>18</span>
 <span class='line-number'>19</span>
 </pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">ChinaScraper</span>
-</span><span class='line'>  <span class="k">def</span> <span class="nf">initialize</span>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">run</span>
 </span><span class='line'>    <span class="n">scrape_index</span>
 </span><span class='line'>    <span class="n">make_regions</span>
 </span><span class='line'>    <span class="n">scrape_all_regions</span>
@@ -226,7 +226,7 @@
 <p>Finally, in <code>db/seeds.rb</code> I seeded the database simply by instantiating a new <code>ChinaScraper</code> object.</p>
 
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="no">ChinaScraper</span><span class="o">.</span><span class="n">new</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="no">ChinaScraper</span><span class="o">.</span><span class="n">new</span><span class="o">.</span><span class="n">run</span>
 </span></code></pre></td></tr></table></div></figure>
 
 
