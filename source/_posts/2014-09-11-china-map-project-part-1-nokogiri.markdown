@@ -72,7 +72,7 @@ I wanted to use best practices and make the code adhere to object-oriented desig
 
 ```ruby
 class ChinaScraper
-  def initialize
+  def run
     scrape_index
     make_regions
     scrape_all_regions
@@ -95,7 +95,7 @@ end
 Finally, in `db/seeds.rb` I seeded the database simply by instantiating a new `ChinaScraper` object.
 
 ```ruby
-ChinaScraper.new
+ChinaScraper.new.run
 ```
 
 ### Parsing the Data
