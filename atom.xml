@@ -4,7 +4,7 @@
   <title><![CDATA[Chris Callahan's Blog]]></title>
   <link href="http://callahanchris.github.io/atom.xml" rel="self"/>
   <link href="http://callahanchris.github.io/"/>
-  <updated>2014-09-20T13:07:57-04:00</updated>
+  <updated>2014-09-20T13:10:35-04:00</updated>
   <id>http://callahanchris.github.io/</id>
   <author>
     <name><![CDATA[Chris Callahan]]></name>
@@ -84,30 +84,18 @@
 
 <p>Let&rsquo;s say I want to write a basic Ruby app that will keep track of some different espresso-based beverages. Here&rsquo;s the file directory structure after running <code>rspec --init</code>:</p>
 
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-</pre></td><td class='code'><pre><code class='bash'><span class='line'>espresso-maker/
-</span><span class='line'>|
-</span><span class='line'>|__ lib/
-</span><span class='line'>|   |
-</span><span class='line'>|   |__ espresso.rb
-</span><span class='line'>|
-</span><span class='line'>|__ spec/
-</span><span class='line'>|   |
-</span><span class='line'>|   |__ spec_helper.rb
-</span><span class='line'>|
-</span><span class='line'>|__ .rspec
-</span></code></pre></td></tr></table></div></figure>
-
+<pre><code>espresso-maker/
+|
+|__ lib/
+|   |
+|   |__ espresso.rb
+|
+|__ spec/
+|   |
+|   |__ spec_helper.rb
+|
+|__ .rspec
+</code></pre>
 
 <p>So far these files are pretty empty. Here&rsquo;s <code>espresso.rb</code>:</p>
 
@@ -907,50 +895,28 @@
 
 <p>The final step here was to take all of this code out of the <code>db/seeds.rb</code> file and put it into the <code>app/models</code> directory. This directory&rsquo;s file structure now looks like this:</p>
 
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="n">app</span><span class="o">/</span>
-</span><span class='line'><span class="o">|</span>
-</span><span class='line'><span class="o">|</span><span class="n">__</span> <span class="n">models</span><span class="o">/</span>
-</span><span class='line'>    <span class="o">|</span>
-</span><span class='line'>    <span class="o">|</span><span class="n">__</span> <span class="n">concerns</span><span class="o">/</span>
-</span><span class='line'>    <span class="o">|</span>   <span class="o">|</span>
-</span><span class='line'>    <span class="o">|</span>   <span class="o">|</span><span class="n">__</span> <span class="n">j_vectorable</span><span class="o">.</span><span class="n">rb</span>
-</span><span class='line'>    <span class="o">|</span>   <span class="o">|</span>
-</span><span class='line'>    <span class="o">|</span>   <span class="o">|</span><span class="n">__</span> <span class="n">region_assembler</span><span class="o">.</span><span class="n">rb</span>
-</span><span class='line'>    <span class="o">|</span>
-</span><span class='line'>    <span class="o">|</span><span class="n">__</span> <span class="n">autonomous_region_assembler</span><span class="o">.</span><span class="n">rb</span>
-</span><span class='line'>    <span class="o">|</span>
-</span><span class='line'>    <span class="o">|</span><span class="n">__</span> <span class="n">china_scraper</span><span class="o">.</span><span class="n">rb</span>
-</span><span class='line'>    <span class="o">|</span>
-</span><span class='line'>    <span class="o">|</span><span class="n">__</span> <span class="n">municipality_assembler</span><span class="o">.</span><span class="n">rb</span>
-</span><span class='line'>    <span class="o">|</span>
-</span><span class='line'>    <span class="o">|</span><span class="n">__</span> <span class="n">province_assembler</span><span class="o">.</span><span class="n">rb</span>
-</span><span class='line'>    <span class="o">|</span>
-</span><span class='line'>    <span class="o">|</span><span class="n">__</span> <span class="n">region</span><span class="o">.</span><span class="n">rb</span>
-</span><span class='line'>    <span class="o">|</span>
-</span><span class='line'>    <span class="o">|</span><span class="n">__</span> <span class="n">sar_assembler</span><span class="o">.</span><span class="n">rb</span>
-</span></code></pre></td></tr></table></div></figure>
-
+<pre><code>app/
+|
+|__ models/
+    |
+    |__ concerns/
+    |   |
+    |   |__ j_vectorable.rb
+    |   |
+    |   |__ region_assembler.rb
+    |
+    |__ autonomous_region_assembler.rb
+    |
+    |__ china_scraper.rb
+    |
+    |__ municipality_assembler.rb
+    |
+    |__ province_assembler.rb
+    |
+    |__ region.rb
+    |
+    |__ sar_assembler.rb
+</code></pre>
 
 <p>And the final <code>db/seeds.rb</code> file is now nice and succinct:</p>
 
