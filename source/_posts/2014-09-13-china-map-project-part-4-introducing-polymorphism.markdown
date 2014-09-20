@@ -266,6 +266,44 @@ end
 
 In the end, I kept the `RegionAssembler` module, as there would have been too much code duplication if I copied over all of the methods into each of the four classes. At 80 lines, the `RegionAssembler` module is not exactly small, but the majority of its methods are one-liners, and the type checking is gone.
 
+### The Final Step (For Now...)
+
+Starting from one monolithic `ChinaScraper` class, I used Replace Method with Method Object to extract out most of the logic from this class into a `RegionScraper` class. Then I went to town using Extract Method to create a bunch of small methods that followed the Single Responsibility Principle (SRP). Having done this, it was clear that my code could benefit from a Replace Type Code with Polymorphism refactoring.
+
+All told, the shape of my code morphed from its original form -- one 170 line class hinging on a 90 line method -- to a more modular form where code was sectioned off into five classes and two modules, and methods were used for one purpose only.
+
+The final step here was to take all of this code out of the `db/seeds.rb` file and put it into the `app/models` directory. This directory's file structure now looks like this:
+
+```
+app/
+|
+|__ models/
+    |
+    |__ concerns/
+    |   |
+    |   |__ j_vectorable.rb
+    |   |
+    |   |__ region_assembler.rb
+    |
+    |__ autonomous_region_assembler.rb
+    |
+    |__ china_scraper.rb
+    |
+    |__ municipality_assembler.rb
+    |
+    |__ province_assembler.rb
+    |
+    |__ region.rb
+    |
+    |__ sar_assembler.rb
+```
+
+And the final `db/seeds.rb` file is now nice and succinct:
+
+```ruby
+ChinaScraper.new.run
+```
+
 ### Room for Improvement
 
 This was a fun project and I really enjoyed taking the time to refactor my code and make it much more clear, concise, and easy to expand upon going forward.
