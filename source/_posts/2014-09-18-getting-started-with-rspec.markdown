@@ -60,19 +60,17 @@ Finished in 0.00037 seconds (files took 0.11253 seconds to load)
 
 Let's say I want to write a basic Ruby app that will keep track of some different espresso-based beverages. Here's the file directory structure after running `rspec --init`:
 
-```
-espresso-maker/
-|
-|__ lib/
-|   |
-|   |__ espresso.rb
-|
-|__ spec/
-|   |
-|   |__ spec_helper.rb
-|
-|__ .rspec
-```
+    espresso-maker/
+    |
+    |__ lib/
+    |   |
+    |   |__ espresso.rb
+    |
+    |__ spec/
+    |   |
+    |   |__ spec_helper.rb
+    |
+    |__ .rspec
 
 So far these files are pretty empty. Here's `espresso.rb`:
 

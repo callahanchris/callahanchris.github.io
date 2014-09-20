@@ -274,29 +274,27 @@ All told, the shape of my code morphed from its original form -- one 170 line cl
 
 The final step here was to take all of this code out of the `db/seeds.rb` file and put it into the `app/models` directory. This directory's file structure now looks like this:
 
-```
-app/
-|
-|__ models/
+    app/
     |
-    |__ concerns/
-    |   |
-    |   |__ j_vectorable.rb
-    |   |
-    |   |__ region_assembler.rb
-    |
-    |__ autonomous_region_assembler.rb
-    |
-    |__ china_scraper.rb
-    |
-    |__ municipality_assembler.rb
-    |
-    |__ province_assembler.rb
-    |
-    |__ region.rb
-    |
-    |__ sar_assembler.rb
-```
+    |__ models/
+        |
+        |__ concerns/
+        |   |
+        |   |__ j_vectorable.rb
+        |   |
+        |   |__ region_assembler.rb
+        |
+        |__ autonomous_region_assembler.rb
+        |
+        |__ china_scraper.rb
+        |
+        |__ municipality_assembler.rb
+        |
+        |__ province_assembler.rb
+        |
+        |__ region.rb
+        |
+        |__ sar_assembler.rb
 
 And the final `db/seeds.rb` file is now nice and succinct:
 
