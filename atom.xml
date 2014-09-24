@@ -4,7 +4,7 @@
   <title><![CDATA[Chris Callahan's Blog]]></title>
   <link href="http://callahanchris.github.io/atom.xml" rel="self"/>
   <link href="http://callahanchris.github.io/"/>
-  <updated>2014-09-24T09:34:55-04:00</updated>
+  <updated>2014-09-24T11:06:12-04:00</updated>
   <id>http://callahanchris.github.io/</id>
   <author>
     <name><![CDATA[Chris Callahan]]></name>
@@ -130,6 +130,7 @@
 <ul>
 <li><p><a href="http://www.sublimetext.com/">Sublime Text Official Website</a></p></li>
 <li><p><a href="https://www.shortcutfoo.com/">Practice Sublime Text Shortcuts</a></p></li>
+<li><p>Bonus for Rails developers: <a href="https://github.com/eddorre/SublimeERB">SublimeERB</a>. This plugin makes one of the hardest parts of writing a Rails app (writing ERB tags) a piece of cake.</p></li>
 </ul>
 
 ]]></content>
