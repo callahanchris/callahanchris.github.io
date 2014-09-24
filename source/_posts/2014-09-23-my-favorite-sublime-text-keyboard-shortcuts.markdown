@@ -102,6 +102,18 @@ Great for quickly moving one or more lines up the page. Just highlight the lines
 
 Same as the last shortcut, but moving in the opposite direction. These two shortcuts have saved me a lot of energy that would have been wasted copying/pasting and using the trackpad to highlight text. Keyboard shortcuts rock!
 
+### 12. Command + [ = Indent Line by One Tab
+
+Having nice, legible code depends to large extent on the formatting of the code. Though Ruby is not a whitespace-sensitive language, many other programming languages are. In any event, proper indentation is critical to writing legible code, and this a good shortcut to achieving this goal.
+
+### 13. Command + ] = Unindent Line by One Tab
+
+Same as above, but going the other way. I'll often use this in combination with Control + Command + down arrow when extracting a method, and these keyboard shortcuts make the process quick and simple!
+
+### 14. Command + / = Toggle Line Commented/Uncommented
+
+This shortcut comes in handy when testing out new ways to write old code. Instead of deleting the old, working code, simply comment it out, try out the new code, and then, if the new code works, use Control + Shift + k to delete the old code.
+
 ### Resources
 
 * [Sublime Text Official Website](http://www.sublimetext.com/)
