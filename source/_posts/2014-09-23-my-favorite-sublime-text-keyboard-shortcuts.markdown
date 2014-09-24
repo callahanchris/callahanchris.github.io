@@ -100,3 +100,5 @@ This one is cool, though admittedly I do not use it as often as the above shortc
 * [Sublime Text Official Website](http://www.sublimetext.com/)
 
 * [Practice Sublime Text Shortcuts](https://www.shortcutfoo.com/)
+
+* Bonus for Rails developers: [SublimeERB](https://github.com/eddorre/SublimeERB). This plugin makes one of the hardest parts of writing a Rails app (writing ERB tags) a piece of cake.
