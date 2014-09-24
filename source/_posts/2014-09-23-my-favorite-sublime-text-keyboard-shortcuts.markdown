@@ -6,7 +6,7 @@ comments: true
 categories: 
 ---
 
-Like many software developers, [Sublime Text](http://www.sublimetext.com/) is my preferred text editor. I do almost all of my coding and blogging in Sublime, and as such there are a few convenient keyboard shortcuts I've picked up along the way. *[Note: All keyboard shortcuts are for the Mac version of Sublime Text 2, YMMV.]*
+Like many software developers, [Sublime Text](http://www.sublimetext.com/) is my preferred text editor. I do almost all of my coding and blogging in Sublime, and as such there are a few convenient keyboard shortcuts I've picked up along the way. *[Note: All keyboard shortcuts are for the OS X version of Sublime Text 2.02, YMMV.]*
 
 ### 1. Command + Enter = New Line Below
 
@@ -54,9 +54,9 @@ Let's say I'm refactoring my code and I decide to change the name of a method. I
 
 What's really cool about this is that Sublime gives you a cursor for each highlighted block of text! That means when you change the highlighted text in what you *think* should be one place, *all* of the highlighted texts change. This is the first demo on the Sublime Text website -- check it out if you haven't yet!
 
-### 6. Command + Double Click = Multiple Select of Different Words
+### 6. Command + Highlight Text = Multiple Select of Different Words
 
-This one is similar to the Command + d, but is not restricted to highlighting repetitions of the same text. As with the previous shortcut, Command + double click gets really powerful when combined with other keyboard shortcuts, like copy/paste.
+This one is similar to the Command + d, but is not restricted to highlighting repetitions of the same text. To get this to work, all you have to do is keep pressing the Command key and highlight different regions of text with the trackpad. As with the previous shortcut, this gets really powerful when combined with other keyboard shortcuts, like copy/paste.
 
 In Ruby, you might be setting several attributes of a class to values from a hash. If the keys of the hash happen to be named the same as the keys of the class's attributes, then there is no need to type these out twice! If you start out with
 
@@ -82,7 +82,21 @@ Now, we could probably do some refactoring here, but that's another blog post!
 
 ### 7. Command + Shift + p = Set Syntax Highlighting
 
-This is awesome if you are just sketching out some ideas in a file that you haven't saved yet (on second thought, you might want to save that file!s) or if you're working in a bin or other file that doesn't have an extension.
+This shortcut actually opens up the Command Palette -- a menu that includes a number of things like package controls and preference settings. Enter "ss" when the search bar pops up to jump down to the various "Set Syntax" options. The search functionality in Sublime Text is great at matching fuzzy queries, so if you just type "ssr" then hit Enter, the text in your file will have Ruby's syntax highlighting.
 
-This command actually opens up a menu that includes a number of things like package controls and preference settings, so enter "ss" when the search bar pops up to jump down to the various "Set Syntax" options. The search functionality in Sublime Text is great at matching fuzzy queries, so if you just type "ssr" then hit Enter, the text in your file will have Ruby's syntax highlighting.
+This is awesome if you are just sketching out some ideas in a file that you haven't saved yet (on second thought, you might want to save that file!) or if you're working in a bin or other file that doesn't have an extension.
 
+
+### 8. Command + t = Find File
+
+Navigation between files can get a bit tricky when in a big project like a Rails app, and it's easy to fall back on using the mouse to click through folders and open new files. Command + t lets you keep your hands on the keys by opening up a search bar to help you find the file you're looking for. As with the previous shortcut, Sublime Text has great fuzzy matching for search queries, so you can find the file you're looking for as easily as possible.
+
+### 9. Alt + Drag Mouse = Select Rectangle with Multiple Cursors
+
+This one is cool, though admittedly I do not use it as often as the above shortcuts. Sometimes you want to get a cursor in the same column on 10 consecutive lines, or you want to select a 3 x 8 rectangle of text. Alt + drag mouse is the right tool for the job here. For this one to work, be sure that no text on the screen is highlighted, then hold Alt down, and finally drag the mouse over the desired text.
+
+### Resources
+
+* [Sublime Text Official Website](http://www.sublimetext.com/)
+
+* [Practice Sublime Text Shortcuts](https://www.shortcutfoo.com/)
