@@ -4,7 +4,7 @@
   <title><![CDATA[Chris Callahan's Blog]]></title>
   <link href="http://callahanchris.github.io/atom.xml" rel="self"/>
   <link href="http://callahanchris.github.io/"/>
-  <updated>2014-09-24T11:58:54-04:00</updated>
+  <updated>2014-09-24T13:33:01-04:00</updated>
   <id>http://callahanchris.github.io/</id>
   <author>
     <name><![CDATA[Chris Callahan]]></name>
@@ -132,6 +132,18 @@
 <h3>11. Control + Command + Down Arrow = Move Line Down</h3>
 
 <p>Same as the last shortcut, but moving in the opposite direction. These two shortcuts have saved me a lot of energy that would have been wasted copying/pasting and using the trackpad to highlight text. Keyboard shortcuts rock!</p>
+
+<h3>12. Command + [ = Indent Line by One Tab</h3>
+
+<p>Having nice, legible code depends to large extent on the formatting of the code. Though Ruby is not a whitespace-sensitive language, many other programming languages are. In any event, proper indentation is critical to writing legible code, and this a good shortcut to achieving this goal.</p>
+
+<h3>13. Command + ] = Unindent Line by One Tab</h3>
+
+<p>Same as above, but going the other way. I&rsquo;ll often use this in combination with Control + Command + down arrow when extracting a method, and these keyboard shortcuts make the process quick and simple!</p>
+
+<h3>14. Command + / = Toggle Line Commented/Uncommented</h3>
+
+<p>This shortcut comes in handy when testing out new ways to write old code. Instead of deleting the old, working code, simply comment it out, try out the new code, and then, if the new code works, use Control + Shift + k to delete the old code.</p>
 
 <h3>Resources</h3>
 
