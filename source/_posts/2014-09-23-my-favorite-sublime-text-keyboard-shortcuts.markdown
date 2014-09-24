@@ -86,7 +86,6 @@ This shortcut actually opens up the Command Palette -- a menu that includes a nu
 
 This is awesome if you are just sketching out some ideas in a file that you haven't saved yet (on second thought, you might want to save that file!) or if you're working in a bin or other file that doesn't have an extension.
 
-
 ### 8. Command + t = Find File
 
 Navigation between files can get a bit tricky when in a big project like a Rails app, and it's easy to fall back on using the mouse to click through folders and open new files. Command + t lets you keep your hands on the keys by opening up a search bar to help you find the file you're looking for. As with the previous shortcut, Sublime Text has great fuzzy matching for search queries, so you can find the file you're looking for as easily as possible.
@@ -94,6 +93,14 @@ Navigation between files can get a bit tricky when in a big project like a Rails
 ### 9. Alt + Drag Mouse = Select Rectangle with Multiple Cursors
 
 This one is cool, though admittedly I do not use it as often as the above shortcuts. Sometimes you want to get a cursor in the same column on 10 consecutive lines, or you want to select a 3 x 8 rectangle of text. Alt + drag mouse is the right tool for the job here. For this one to work, be sure that no text on the screen is highlighted, then hold Alt down, and finally drag the mouse over the desired text.
+
+### 10. Control + Command + Up Arrow = Move Line Up
+
+Great for quickly moving one or more lines up the page. Just highlight the lines you want to move, or make sure the cursor(s) is/are on the line(s) you want to move. Super convenient.
+
+### 11. Control + Command + Down Arrow = Move Line Down
+
+Same as the last shortcut, but moving in the opposite direction. These two shortcuts have saved me a lot of energy that would have been wasted copying/pasting and using the trackpad to highlight text. Keyboard shortcuts rock!
 
 ### Resources
 
