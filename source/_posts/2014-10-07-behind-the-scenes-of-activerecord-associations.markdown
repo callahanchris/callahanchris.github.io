@@ -121,18 +121,9 @@ I had hit the motherload.
 
 ### Locating the "Metaprogramming Magic"
 
-Before finishing off the `has_many` method call, I first want to stay in the `Builder::Association` class. Back in the original `has_many` method call, 
-
-```ruby
-def has_many(name, scope = nil, options = {}, &extension)
-  reflection = Builder::HasMany.build(self, name, scope, options, &extension)
-  Reflection.add_reflection self, name, reflection
-end
-```
-
 Before I could figure out what was happening in the `Builder::Association::build` method, I had to figure out what exactly `self` was referring to on this line. I noticed that this method was being called with 5 parameters -- 4 which were directly passed on from the initial calling of `has_many`, and one additional parameter. In `build`'s method signature, this method argument is referred to as `model`, and the value passed to it inside the `has_many` method is `self`.
 
-Given that the context of the `has_many` method is inside the `ActiveRecord::Associations::ClassMethods` module, I assumed that somewhere this module is being mixed into a class. If this is the case, then the value of `self` from inside a class method would be the name of the class.
+Given that the context of the `has_many` method is inside the `ActiveRecord::Associations::ClassMethods` module, I assumed that somewhere this module is being mixed into a class. If this is the case, then the value of `self` from inside a class method would be the name of the class -- that is, whichever class called the `has_many` method to begin with (in our case `House`).
 
 I had a difficult time tracking down where, if anywhere, this module is mixed in. Then I had a stunning (and obvious) realization: *it's being mixed in to every single ActiveRecord model!* From here, it was easy to hunt down the offending code in -- where else? -- `ActiveRecord::Base` ([github](https://github.com/rails/rails/blob/master/activerecord/lib/active_record/base.rb#L304)).
 
@@ -144,6 +135,140 @@ module ActiveRecord
     # ...
   end
   # ...
+end
+```
+
+In addition to the arguments passed to `has_many`, `House` was also being passed in as the `model` parameter of the `build` method. First, the `build` method checks if the `name` parameter (`:characters`) is "dangerous", and if so it throws an error. The [comment](https://github.com/rails/rails/blob/master/activerecord/lib/active_record/attribute_methods.rb#L128) above the `dangerous_attribute_name?` method describes "dangerous" as such:
+
+> A method name is 'dangerous' if it is already (re)defined by Active Record, but not by any ancestors. (So 'puts' is not dangerous but 'save' is.)
+
+If everything is OK here, the `build` method continues by passing all the method arguments to the `create_builder` method, which checks that the `name` parameter (`:characters`) is a symbol, then instantiates a new instance of the Builder::Association class. This object is stored as `builder`, a local variable in the `build` method above.
+
+Next, the `build` instance method (different from the `build` class method) is called on the `builder` object, taking a model (`House`) as a method argument and storing the result to a local variable `reflection`.
+
+```ruby
+def build(model)
+  ActiveRecord::Reflection.create(macro, name, scope, options, model)
+end
+```
+
+The only new thing here is `macro`, which is a method [defined](https://github.com/rails/rails/blob/master/activerecord/lib/active_record/associations/builder/has_many.rb#L3) on the Builder::HasMany model.
+
+```ruby
+def macro
+  :has_many
+end
+```
+
+The `ActiveRecord::Reflections::create` method delegates based on the `macro` passed as the first argument. In our case, it instantiates an instance of the `Reflection::HasManyReflection` class, which inherits from the `Reflection::Association` class. I'm still not totally clear what reflections in general do, but [this bit of documentation](https://github.com/rails/rails/blob/master/activerecord/lib/active_record/reflection.rb#L41) was helpful:
+
+> Reflection enables interrogating of Active Record classes and objects about their associations and aggregations. This information can, for example, be used in a form builder that takes an Active Record object and creates input fields for all of the attributes depending on their type and displays the associations to other objects.
+
+Whew! I'm a bit exhausted after all that.
+
+Back to the original `build` class method. Once I knew what the `model` and `reflection` local variables were, it was relatively easy to locate the `define_accessors`, `define_callbacks`, `define_validations`, and `define_extensions` methods, as they were all in the same file as the `build` method. For the purposes of this blog post, I'll only get into the `define_accessors` method.
+
+```ruby
+# Defines the setter and getter methods for the association
+# class Post < ActiveRecord::Base
+#   has_many :comments
+# end
+#
+# Post.first.comments and Post.first.comments= methods are defined by this method...
+def self.define_accessors(model, reflection)
+  mixin = model.generated_association_methods
+  name = reflection.name
+  define_readers(mixin, name)
+  define_writers(mixin, name)
+end
+
+def self.define_readers(mixin, name)
+  mixin.class_eval <<-CODE, __FILE__, __LINE__ + 1
+    def #{name}(*args)
+      association(:#{name}).reader(*args)
+    end
+  CODE
+end
+
+def self.define_writers(mixin, name)
+  mixin.class_eval <<-CODE, __FILE__, __LINE__ + 1
+    def #{name}=(value)
+      association(:#{name}).writer(value)
+    end
+  CODE
+end
+```
+
+This was it. After much searching, I had found the "metaprogramming magic" at the core of ActiveRecord associations.
+
+### Interpreting the "Metaprogramming Magic"
+
+Again, I had to start with what I know. Two method arguments are passed to `define_accessors`: `model` and `reflection`. When the `build` method calls `define_accessors`, it uses the same names for these arguments. Back in the `build` method, `model` referred to the `House` ActiveRecord model, and `reflection` referred to the instance of the `Reflection::HasManyReflection` class.
+
+Moving on to the next line, I found another unknown method `generated_association_methods` being called on `House`, the result of which is stored in a local variable `mixin`. I tracked down [the method definition](https://github.com/rails/rails/blob/master/activerecord/lib/active_record/core.rb#L194) of `generated_association_methods` in the `ActiveRecord::Core::ClassMethods` module, alongside classics such as `find` and `find_by`.
+
+```ruby
+def generated_association_methods
+  @generated_association_methods ||= begin
+    mod = const_set(:GeneratedAssociationMethods, Module.new)
+    include mod
+    mod
+  end
+end
+```
+
+I was really stumped by this one. I was distracted by the `begin...end` block and the PascalCase symbol, and had to think for a minute before remembering that this method is just memoizing the value of `@generated_association_methods`. As it turns out, `const_set` is just an instance method on the `Module` class in [the Ruby core library](http://ruby-doc.org/core-2.1.3/Module.html#method-i-const_set). In this use case, `const_set` is defining a `GeneratedAssociationMethods` module, then mixing this module into... ActiveRecord::Core (???), and finally returning the module, thus setting it as the value of `@generated_association_methods`. The `GeneratedAssociationMethods` module is then stored as the `mixin` variable in the `define_accessors` method~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+
+
+
+
+
+
+
+
+
+The fact that the method signatures of `define_readers` and `define_writers` included `self`, I knew that these were both class methods being called on the `ActiveRecord::Associations::Builder::Association` class. This makes sense, because we expect them to output the same result in every Rails app, and not necessarily be reliant on state, as instance methods might. They both take two arguments, `mixin` and `name`. I am guessing that `mixin` refers to the class that these methods will be added to (mixed in to?) and that `name` refers to the name of the methods that will be defined.
+
+Skipping over the first line of these methods for a moment, it appears that the new method being defined in 
+
+I know that `<<-CODE` is opening a 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+def self.build(model, name, scope, options, &block)
+  if model.dangerous_attribute_method?(name)
+    raise ArgumentError, "You tried to define an association named #{name} on the model #{model.name}, but " \
+                         "this will conflict with a method #{name} already defined by Active Record. " \
+                         "Please choose a different association name."
+  end
+
+  builder = create_builder model, name, scope, options, &block
+  reflection = builder.build(model)
+  define_accessors model, reflection
+  define_callbacks model, reflection
+  define_validations model, reflection
+  builder.define_extensions model
+  reflection
 end
 ```
 
@@ -207,54 +332,6 @@ As expected, the `build` method returns a reflection ?????????
 
 
 
-
-
-
-
-
-
-I roughly knew where I should start looking for this bit of code: something to do with ActiveRecord and associations. Luckily, this soon led me to the very file I was looking for: `rails/activerecord/lib/active_record/associations/builder/association.rb` ([github](https://github.com/rails/rails/blob/master/activerecord/lib/active_record/associations/builder/association.rb#L99))! Down on line 99 of this file, which houses the `ActiveRecord::Associations::Builder::Association` class, I ran into a very helpful comment that let me know I was in the right spot:
-
-```ruby
-# Defines the setter and getter methods for the association
-# class Post < ActiveRecord::Base
-#   has_many :comments
-# end
-#
-# Post.first.comments and Post.first.comments= methods are defined by this method...
-def self.define_accessors(model, reflection)
-  mixin = model.generated_association_methods
-  name = reflection.name
-  define_readers(mixin, name)
-  define_writers(mixin, name)
-end
-
-def self.define_readers(mixin, name)
-  mixin.class_eval <<-CODE, __FILE__, __LINE__ + 1
-    def #{name}(*args)
-      association(:#{name}).reader(*args)
-    end
-  CODE
-end
-
-def self.define_writers(mixin, name)
-  mixin.class_eval <<-CODE, __FILE__, __LINE__ + 1
-    def #{name}=(value)
-      association(:#{name}).writer(value)
-    end
-  CODE
-end
-```
-
-### Interpreting the "Metaprogramming Magic" of `define_readers` and `define_writers`
-
-I was a bit pleased to find these three short methods, two of which appeared to be relatively straightforward despite their reliance on metaprogramming. But there's still a lot to unpack here. I wanted to start with `define_readers` and `define_writers` because they seemed slightly more comprehensible to me, were similar to one another (two metaprogramming methods, one stone?) and would be critical to understanding the `define_accessors` method that called these methods.
-
-Let's start with what I know. The fact that the method signatures of `define_readers` and `define_writers` included `self`, I knew that these were both class methods being called on the `ActiveRecord::Associations::Builder::Association` class. This makes sense, because we expect them to output the same result in every Rails app, and not necessarily be reliant on state, as instance methods might. They both take two arguments, `mixin` and `name`. I am guessing that `mixin` refers to the class that these methods will be added to (mixed in to?) and that `name` refers to the name of the methods that will be defined.
-
-Skipping over the first line of these methods for a moment, it appears that the new method being defined in 
-
-I know that `<<-CODE` is opening a 
 
 
 
