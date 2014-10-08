@@ -217,25 +217,121 @@ def generated_association_methods
 end
 ```
 
-I was really stumped by this one. I was distracted by the `begin...end` block and the PascalCase symbol, and had to think for a minute before remembering that this method is just memoizing the value of `@generated_association_methods`. As it turns out, `const_set` is just an instance method on the `Module` class in [the Ruby core library](http://ruby-doc.org/core-2.1.3/Module.html#method-i-const_set). In this use case, `const_set` is defining a `GeneratedAssociationMethods` module, then mixing this module into... ActiveRecord::Core (???), and finally returning the module, thus setting it as the value of `@generated_association_methods`. The `GeneratedAssociationMethods` module is then stored as the `mixin` variable in the `define_accessors` method~~~~~~~~~~~~~~~~~~~~~~~~~~
+I was really stumped by this one. I was distracted by the `begin...end` block and the PascalCase symbol, and had to think for a minute before remembering that this method is just memoizing the value of `@generated_association_methods`.
 
+As it turns out, `const_set` is just an instance method on the `Module` class in [the Ruby core library](http://ruby-doc.org/core-2.1.3/Module.html#method-i-const_set). `const_set` takes two arguments: the first is a string or symbol that will be the name of the new constant, and the second argument is an object that is the value of the new constant. The constant set is assigned to the receiver of the `const_set` message.
 
+In the `generated_association_methods` use case, `const_set` has an implicit receiver (`self`). It is originally being called on the `ActiveRecord::Core::ClassMethods` module, but, similar to above, this module is mixed in to the `House` class, so the receiver is actually `House`. Thus, this method creates a new module `House::GeneratedAssociationMethods`.
 
+On the next line of this method, the `GeneratedAssociationMethods` module is included into the `House` class. This is pretty awesome -- I had no idea that you could call `include` from inside a class method. This totally makes sense though, as the receiver is the class, so the use of `include` here is no different than the typical use of `include` in the class namespace.
 
+Finally, the `GeneratedAssociationMethods` module is returned, and thus is set as the value of the `@generated_association_methods` class instance variable. Back in the `define_accessors` method, this constant is stored as the `mixin` variable.
 
+This has been quite a winding ride! If it's not too far a stretch to remember, the `name` message being sent to the `reflection` variable (which stores an instance of `ActiveRecord::Reflection`) is the original `name` that is passed as the first argument all the way back in the initial `has_many` method. A refresher:
 
+```ruby
+class House < ActiveRecord::Base
+  has_many :characters
+end
+```
 
+The `name` then is simply `:characters`! We've come a long way just to figure this one out ;)
 
+### Metaprogramming Methods
 
+From here, it is relatively clear to see what happens next. The `define_accessors` method delegates to `define_readers` and `define_writers`. Let's look at `define_readers` again:
 
+```ruby
+def self.define_readers(mixin, name)
+  mixin.class_eval <<-CODE, __FILE__, __LINE__ + 1
+    def #{name}(*args)
+      association(:#{name}).reader(*args)
+    end
+  CODE
+end
+```
 
-The fact that the method signatures of `define_readers` and `define_writers` included `self`, I knew that these were both class methods being called on the `ActiveRecord::Associations::Builder::Association` class. This makes sense, because we expect them to output the same result in every Rails app, and not necessarily be reliant on state, as instance methods might. They both take two arguments, `mixin` and `name`. I am guessing that `mixin` refers to the class that these methods will be added to (mixed in to?) and that `name` refers to the name of the methods that will be defined.
+We know that `mixin` refers to the `House::GeneratedAssociationMethods` module, which has already been `include`d in the `House` class, and that `name` refers to the symbol `:characters`. Aside of a few things in the first line of this method, it actually looks pretty straightforward: we've got a new method definition on our hands!
 
-Skipping over the first line of these methods for a moment, it appears that the new method being defined in 
+On the first line of the method, `class_eval` is called on `House::GeneratedAssociationMethods`. `class_eval` is another instance method on the `Module` class in Ruby's core library. (It still doesn't *quite* make sense that modules have instance methods, because modules can't be instantiated, but I'll go with it for now!) It takes a string as an argument, as well as optional parameters for filename and line number. From [the documentation](http://ruby-doc.org/core-2.1.3/Module.html#method-i-class_eval):
 
-I know that `<<-CODE` is opening a 
+> `class_eval(string [, filename [, lineno]]) → obj`
 
+> Evaluates the string or block in the context of *mod*, except that when a block is given, constant/class variable lookup is not affected. This can be used to add methods to a class. `module_eval` returns the result of evaluating its argument. The optional *filename* and *lineno* parameters set the text for error messages.
 
+As suspected, `class_eval` allows us to add methods to a module or class. In this case, we are adding methods to the `House::GeneratedAssociationMethods` module, which can then be accessed by instances of the `House` class.
+
+Let's look at the parameters being passed to this method.
+
+* `string`: The string being passed to the `class_eval` method is a heredoc denoted by `<<-CODE ... CODE`. The contents are a dynamic method definition that will look like this in the example we're working with:
+
+```ruby
+def characters(*args)
+  association(:characters).reader(args)
+end
+```
+
+* `filename`: I am still not entirely sure what `__FILE__` precisely refers to, but I believe it refers to the current file. I am also not very clear about what this means in this context. My educated guess is that it refers to the `app/models/house.rb` file, but really the method is being added to the `House::GeneratedAssociationMethods` module, which was created dynamically and does not have a file at all! 
+
+* `lineno`: Again, I'm not too clear about this one. The [documentation](http://ruby-doc.org/docs/keywords/1.9/Object.html#method-i-__LINE__) is sparse here, only stating that `__LINE__` refers to "The line number, in the current source file, of the current line."
+
+Almost there! We've now got our method definitions, but what do `association` and `reader` refer to?
+
+It turns out that `association` is an [instance method](https://github.com/rails/rails/blob/master/activerecord/lib/active_record/associations.rb#L150) of the `ActiveRecord::Associations` module.
+
+```ruby
+def association(name) #:nodoc:
+  association = association_instance_get(name)
+
+  if association.nil?
+    raise AssociationNotFoundError.new(self, name) unless reflection = self.class._reflect_on_association(name)
+    association = reflection.association_class.new(self, reflection)
+    association_instance_set(name, association)
+  end
+
+  association
+end
+```
+
+The `association` method will pull the association specified by the `name` argument passed to it (in our case `:characters`)  out of the `@association_cache` instance variable if it has already been loaded into memory. As [defined](https://github.com/rails/rails/blob/master/activerecord/lib/active_record/core.rb#L533) in the `ActiveRecord::Core module, `@association_cache` is initialized to an empty Hash. Interestingly, this happens whenever you [instantiate an ActiveRecord object](https://github.com/rails/rails/blob/master/activerecord/lib/active_record/core.rb#L266) using the `House.new` syntax!
+
+If the association is not in the `@association_cache` (i.e. it hasn't been loaded into memory), then the `association` method checks whether the class where the association is defined (`House`) lists the associated class (`Character`) in its `_reflections` class method????? (which is [initialized to an empty hash](https://github.com/rails/rails/blob/master/activerecord/lib/active_record/reflection.rb#L11)). The only way to [add a reflection](https://github.com/rails/rails/blob/master/activerecord/lib/active_record/reflection.rb#L33) to this hash is through the `add_reflection` module method. Remember where this is called?
+
+```ruby
+def has_many(name, scope = nil, options = {}, &extension)
+  reflection = Builder::HasMany.build(self, name, scope, options, &extension)
+  Reflection.add_reflection self, name, reflection
+end
+```
+
+If the reflection exists, then a new object is instantiated based on the type of reflection -- in the case of `has_many`, it is an instance of the `Associations::HasManyAssociation` class. We then call `association_instance__set`, passing `:characters` and `Associations::HasManyAssociation` as its parameters. This association is then [added to the `@association_cache`](https://github.com/rails/rails/blob/master/activerecord/lib/active_record/associations.rb#L169):
+
+```ruby
+def association_instance_set(name, association)
+  @association_cache[name] = association
+end
+```
+
+The association is returned from the `association` method, and then is passed the `reader` message, which is [defined](https://github.com/rails/rails/blob/master/activerecord/lib/active_record/associations/collection_association.rb#L29) in the `Associations::CollectionAssociations` class, the superclass of `Associations::HasManyAssociation`.
+
+```ruby
+# Implements the reader method, e.g. foo.items for Foo.has_many :items
+def reader(force_reload = false)
+  if force_reload
+    klass.uncached { reload }
+  elsif stale_target?
+    reload
+  end
+
+  @proxy ||= CollectionProxy.create(klass, self)
+end
+```
+
+This is a meaty class, by the way, including all kinds of common methods (even `forty_two`!).
+
+I was led to the [`Associations::CollectionProxy` class](https://github.com/rails/rails/blob/master/activerecord/lib/active_record/associations/collection_proxy.rb), and finally its superclass, the [`ActiveRecord::Relation` class](https://github.com/rails/rails/blob/master/activerecord/lib/active_record/relation.rb). This is another beast for another day.
+
+### Conclusion
 
 
 
@@ -352,6 +448,7 @@ As expected, the `build` method returns a reflection ?????????
 ### Resources
 
 * [Read the Rails source code on Github.](https://github.com/rails/rails) It's terrifying and awesome.
+* [Ruby Core Documentation for Class: Module](http://ruby-doc.org/core-2.1.3/Module.html)
 * [*The Rails 4 Way*](https://leanpub.com/tr4w)
 * [Ruby Tapas: Barewords](http://devblog.avdi.org/2012/10/01/barewords/)
 
