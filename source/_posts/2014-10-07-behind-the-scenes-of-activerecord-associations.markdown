@@ -304,7 +304,7 @@ def has_many(name, scope = nil, options = {}, &extension)
 end
 ```
 
-If the reflection exists, then a new object is instantiated based on the type of reflection -- in the case of `has_many`, it is an instance of the `Associations::HasManyAssociation` class. We then call `association_instance__set`, passing `:characters` and `Associations::HasManyAssociation` as its parameters. This association is then [added to the `@association_cache`](https://github.com/rails/rails/blob/master/activerecord/lib/active_record/associations.rb#L169):
+If the reflection exists, then a new object is instantiated based on the type of reflection -- in the case of `has_many`, it is an instance of the `Associations::HasManyAssociation` class. We then call `association_instance_set`, passing `:characters` and `Associations::HasManyAssociation` as its parameters. This association is then [added to the `@association_cache`](https://github.com/rails/rails/blob/master/activerecord/lib/active_record/associations.rb#L169):
 
 ```ruby
 def association_instance_set(name, association)
@@ -327,123 +327,11 @@ def reader(force_reload = false)
 end
 ```
 
-This is a meaty class, by the way, including all kinds of common methods (even `forty_two`!).
-
-I was led to the [`Associations::CollectionProxy` class](https://github.com/rails/rails/blob/master/activerecord/lib/active_record/associations/collection_proxy.rb), and finally its superclass, the [`ActiveRecord::Relation` class](https://github.com/rails/rails/blob/master/activerecord/lib/active_record/relation.rb). This is another beast for another day.
+This was the end of the road -- our methods had been defined.
 
 ### Conclusion
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-def self.build(model, name, scope, options, &block)
-  if model.dangerous_attribute_method?(name)
-    raise ArgumentError, "You tried to define an association named #{name} on the model #{model.name}, but " \
-                         "this will conflict with a method #{name} already defined by Active Record. " \
-                         "Please choose a different association name."
-  end
-
-  builder = create_builder model, name, scope, options, &block
-  reflection = builder.build(model)
-  define_accessors model, reflection
-  define_callbacks model, reflection
-  define_validations model, reflection
-  builder.define_extensions model
-  reflection
-end
-```
-
-
-
-
-
-
-
-As expected, the `build` method returns a reflection ?????????
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+This post was a good exercise for me to get more comfortable delving into the Rails source code, to begin to wrap my head around some of the legendary "Rails magic", and to learn a bit more about metaprogramming in the wild. This is just the tip of the iceberg, but I no longer feel the Rails source code is "untouchable". In fact, it's all just a bunch of Ruby! 
 
 ### Resources
 
@@ -451,13 +339,3 @@ As expected, the `build` method returns a reflection ?????????
 * [Ruby Core Documentation for Class: Module](http://ruby-doc.org/core-2.1.3/Module.html)
 * [*The Rails 4 Way*](https://leanpub.com/tr4w)
 * [Ruby Tapas: Barewords](http://devblog.avdi.org/2012/10/01/barewords/)
-
-
-
-
-
-
-
-
-
-
