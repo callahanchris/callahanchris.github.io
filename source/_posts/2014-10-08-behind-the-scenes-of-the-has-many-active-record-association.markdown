@@ -1,9 +1,10 @@
 ---
 layout: post
-title: "Behind the Scenes of ActiveRecord Associations"
-date: 2014-10-07 12:17:01 -0400
+title: "Behind the Scenes of the 'Has Many' Active Record Association"
+date: 2014-10-08 16:17:09 -0400
 comments: true
 categories: 
+published: false
 ---
 
 In *The Rails 4 Way*, Obie Fernandez describes what happens when you "wire up" associations (like `has_many` and `belongs_to`) between ActiveRecord models:
@@ -336,6 +337,7 @@ This post was a good exercise for me to get more comfortable delving into the Ra
 ### Resources
 
 * [Read the Rails source code on Github.](https://github.com/rails/rails) It's terrifying and awesome.
+* [Ruby on Rails API Documentation for `ActiveRecord::Associations::ClassMethods`](http://api.rubyonrails.org/classes/ActiveRecord/Associations/ClassMethods.html)
 * [Ruby Core Documentation for Class: Module](http://ruby-doc.org/core-2.1.3/Module.html)
 * [*The Rails 4 Way*](https://leanpub.com/tr4w)
 * [Ruby Tapas: Barewords](http://devblog.avdi.org/2012/10/01/barewords/)
