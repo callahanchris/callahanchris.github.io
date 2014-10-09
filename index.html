@@ -159,13 +159,13 @@
 <ul>
 <li><p>The <code>House</code> class inherits from <code>ActiveRecord::Base</code>. This gives the <code>House</code> class and instances of this class access to a number of methods defined in the numerous modules included in the <code>ActiveRecord::Base</code> class. We can now say that the <code>House</code> class is an &ldquo;Active Record model&rdquo;, as opposed to a &ldquo;plain old Ruby object&rdquo;.</p></li>
 <li><p>In Rails, an Active Record model is automatically mapped to a table in the database (in this case <code>houses</code>), and attributes (i.e. methods) are created in the model that correspond to each column in this database table. Similarly, each instance of an Active Record model &ldquo;wraps&rdquo; one row in this table. This is the key to Rails&rsquo;s adaptation of the Active Record pattern &mdash; database logic is effectively encapsulated into methods on the model layer.</p></li>
-<li><p><code>has_many</code> is a &ldquo;bareword&rdquo;. In Ruby, barewords can only be local variables, method parameters, keywords (like <code>class</code>, <code>def</code>, and <code>end</code>), and method calls. In this context, it&rsquo;s neither a local variable nor a method parameter, and it&rsquo;s certainly not a keyword. Therefore it must be a method.</p></li>
+<li><p><code>has_many</code> is a &ldquo;bareword&rdquo;. In Ruby, barewords can only be local variables, method arguments, keywords (like <code>class</code>, <code>def</code>, and <code>end</code>), and method calls. In this context, it&rsquo;s neither a local variable nor a method argument, and it&rsquo;s certainly not a keyword. Therefore it must be a method.</p></li>
 <li><p>If <code>has_many</code> is a method, then in this context its receiver must be the <code>House</code> class. That makes <code>has_many</code> a class method. It could also be written as <code>self.has_many</code>, but the receiver is implicit here so we don&rsquo;t need to write <code>self</code>.</p></li>
 <li><p>It then follows that <code>:characters</code> is a method argument passed to the <code>has_many</code> method. Ruby allows you to leave off the parentheses surrounding method arguments, though it is generally good practice to keep the parentheses in when defining a method with arguments.</p></li>
 </ul>
 
 
-<p>Knowing that <code>has_many</code> is a class method defined somewhere in Active Record helped a lot to narrow things down. From here, it was very easy to track the method definition down by doing a global search for <code>def has_many</code> on the codebase using Command + Shift + f in Sublime Text! Only one result appeared &mdash; a <a href="https://github.com/rails/rails/blob/master/activerecord/lib/active_record/associations.rb#L1245">two-line method</a> in the <code>ActiveRecord::Associations::ClassMethods</code> module:</p>
+<p>Knowing that <code>has_many</code> is a class method defined somewhere in Active Record helped to narrow things down. From here, it was very easy to track the method definition down by doing a global search for <code>def has_many</code> on the codebase using <code>Command + Shift + f</code> in Sublime Text! Only one result appeared &mdash; a <a href="https://github.com/rails/rails/blob/master/activerecord/lib/active_record/associations.rb#L1245">two-line method</a> in the <code>ActiveRecord::Associations::ClassMethods</code> module:</p>
 
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -303,7 +303,7 @@
 
 <p>The value returned is this instance of the <code>ActiveRecord::Reflection::HasManyReflection</code> class, and the original method <code>ActiveRecord::Associations::Builder::HasMany::build</code> class method stores this object to a local variable <code>reflection</code>.</p>
 
-<p>Once I knew what the <code>model</code> and <code>reflection</code> local variables were, it was relatively easy to locate the <code>define_accessors</code>, <code>define_callbacks</code>, <code>define_validations</code>, and <code>define_extensions</code> methods, as they were all in <a href="https://github.com/rails/rails/blob/master/activerecord/lib/active_record/associations/builder/association.rb#L99">the same file as the <code>build</code> method</a>, and comes with a helpful comment! (For the purposes of this blog post, I&rsquo;ll only get into the <code>define_accessors</code> method.)</p>
+<p>Once I knew what the <code>model</code> and <code>reflection</code> local variables were, it was relatively easy to locate the <code>define_accessors</code>, <code>define_callbacks</code>, <code>define_validations</code>, and <code>define_extensions</code> methods, as they were all in <a href="https://github.com/rails/rails/blob/master/activerecord/lib/active_record/associations/builder/association.rb#L99">the same file as the <code>build</code> method</a>. In this blog post, I&rsquo;ll only get into the <code>define_accessors</code> method.</p>
 
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -391,9 +391,9 @@
 
 <p>I was really stumped by this one. For one thing, I was distracted by the <code>begin...end</code> block and the PascalCase symbol. I had to take a step back and remember this is just Ruby code! Soon, I realized that this method memoizes the value of a class instance variable <code>@generated_association_methods</code>.</p>
 
-<p>As it turns out, <code>const_set</code> is an instance method on the <code>Module</code> class in <a href="http://ruby-doc.org/core-2.1.3/Module.html#method-i-const_set">the Ruby core library</a>. <code>const_set</code> takes two arguments: the first is a string or symbol that will be the name of the new constant you&rsquo;re creating, and the second argument is an object that will be the value of this constant. The constant is then namespaced under the receiver of the <code>const_set</code> message.</p>
+<p>As it turns out, <code>const_set</code> is an instance method on the <code>Module</code> class in <a href="http://ruby-doc.org/core-2.1.3/Module.html#method-i-const_set">the Ruby core library</a>. <code>const_set</code> takes two arguments: the first is a string or symbol that will be the name of the new constant you&rsquo;re creating, and the second argument is an object that will be set to the value of this constant. The constant is then namespaced under the receiver of the <code>const_set</code> message.</p>
 
-<p>In this case, <code>const_set</code> has an implicit receiver (<code>self</code>). It&rsquo;s tempting to think that <code>self</code> is the <code>ActiveRecord::Core::ClassMethods</code> module, but as above, this module is actually mixed in to the <code>House</code> class when we have it inherit from <code>ActiveRecord::Base</code>. The receiver here is actually <code>House</code>. Thus, this method creates a new module in the <code>House</code> namespace: <code>House::GeneratedAssociationMethods</code>. (Note that <code>House::GeneratedAssociationMethods</code> is the return value here, but if we were assigning pretty much anything but a new class or module as <code>GeneratedAssociationMethods</code>&rsquo;s value here, the return value would be that object.)</p>
+<p>In this case, <code>const_set</code> has an implicit receiver (<code>self</code>). It&rsquo;s tempting to think that <code>self</code> is the <code>ActiveRecord::Core::ClassMethods</code> module, but as above, this module is actually mixed in to the <code>House</code> class when we have it inherit from <code>ActiveRecord::Base</code>. The receiver here is actually <code>House</code>. Thus, this method creates a new module in the <code>House</code> namespace: <code>House::GeneratedAssociationMethods</code>. (Note that <code>House::GeneratedAssociationMethods</code> is the return value here, but if we were assigning pretty much anything but a new class or module as <code>GeneratedAssociationMethods</code>&rsquo;s value here, the return value would be that value.)</p>
 
 <p>On the next line of this method, the <code>House::GeneratedAssociationMethods</code> module is included into the <code>House</code> class. This is pretty awesome &mdash; I had no idea that you could call <code>include</code> from inside a class method. It totally makes sense though, as the receiver is the class itself, so the use of <code>include</code> here is no different than the typical use of <code>include</code> in the class namespace.</p>
 
@@ -410,11 +410,11 @@
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>The <code>name</code> then is simply <code>:characters</code>!</p>
+<p>The <code>name</code> is simply <code>:characters</code>!</p>
 
-<p>Next, <code>define_accessors</code> delegates to <code>define_readers</code> and <code>define_writers</code>, passing <code>House::GeneratedAssociationMethods</code> and <code>:characters</code> as the <code>mixin</code> and <code>name</code> arguments to both of these methods. (For simplicity, I will just focus on the <code>define_readers</code> method.)</p>
+<p><code>define_accessors</code> delegates to <code>define_readers</code> and <code>define_writers</code>, passing <code>House::GeneratedAssociationMethods</code> and <code>:characters</code> as the <code>mixin</code> and <code>name</code> arguments to both of these methods. For simplicity, I will just focus on the <code>define_readers</code> method.</p>
 
-<h3>Metaprogramming Methods</h3>
+<h3>A Metaprogrammed Method</h3>
 
 <p>From here, it is relatively clear to see what happens next. Let&rsquo;s look at <code>define_readers</code> again:</p>
 
@@ -513,9 +513,9 @@
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>In the case of our domain model, the second line of the <code>has_many</code> method will add the key &ldquo;characters&rdquo; pointing to the value of our <code>reflection</code> from above &mdash; the instance of the <code>ActiveRecord::Reflection::HasManyReflection</code> class &mdash; to the <code>_reflections</code> hash.</p>
+<p>In the case of our domain model, the second line of the <code>has_many</code> method will add the key <code>"characters"</code> pointing to the value of our <code>reflection</code> from above &mdash; the instance of the <code>ActiveRecord::Reflection::HasManyReflection</code> class &mdash; to the <code>_reflections</code> hash.</p>
 
-<p>Let&rsquo;s make an instance of the <code>House</code> model</p>
+<p>Let&rsquo;s make an instance of the <code>House</code> class.</p>
 
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -526,7 +526,7 @@
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>If we call <code>stark.characters</code>, Rails first checks whether <code>"characters"</code> is a key in <code>House</code>&rsquo;s <code>_reflections</code> hash. If so, a new object is instantiated based on the type of this reflection &mdash; in the case of <code>has_many</code>, it&rsquo;s an instance of the <code>ActiveRecord::Associations::HasManyAssociation</code> class. The <code>association</code> method then calls <code>association_instance_set</code>, passing <code>:characters</code> and this instance of <code>ActiveRecord::Associations::HasManyAssociation</code> as its parameters. This association is then <a href="https://github.com/rails/rails/blob/master/activerecord/lib/active_record/associations.rb#L169">added to the <code>@association_cache</code> instance variable</a>:</p>
+<p>If we call <code>stark.characters</code>, Rails first checks whether <code>"characters"</code> is a key in <code>House</code>&rsquo;s <code>_reflections</code> hash. If so, a new object is instantiated based on the type of this reflection &mdash; in the case of <code>has_many</code>, it&rsquo;s an instance of the <code>ActiveRecord::Associations::HasManyAssociation</code> class. The <code>association</code> method then calls <code>association_instance_set</code>, passing <code>:characters</code> and this instance of <code>ActiveRecord::Associations::HasManyAssociation</code> as its parameters. This key value pair is then <a href="https://github.com/rails/rails/blob/master/activerecord/lib/active_record/associations.rb#L169">added to the <code>@association_cache</code> instance variable</a>:</p>
 
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -537,7 +537,7 @@
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>The association is returned from the <code>association</code> method, and then is passed the <code>reader</code> message, which is <a href="https://github.com/rails/rails/blob/master/activerecord/lib/active_record/associations/collection_association.rb#L29">defined</a> in the <code>ActiveRecord::Associations::CollectionAssociations</code> class, the superclass of <code>ActiveRecord::Associations::HasManyAssociation</code>.</p>
+<p>The <code>association</code> local variable is returned from the <code>association</code> method above, and then is sent the <code>reader</code> message, which is <a href="https://github.com/rails/rails/blob/master/activerecord/lib/active_record/associations/collection_association.rb#L29">defined</a> in the <code>ActiveRecord::Associations::CollectionAssociations</code> class, the superclass of <code>ActiveRecord::Associations::HasManyAssociation</code>.</p>
 
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -564,7 +564,7 @@
 
 <h3>A Return Value at the End of the Tunnel</h3>
 
-<p>I had reached the end of my journey. Here on the last line of the <code>reader</code> method was <code>@proxy</code>, the final value that would be returned by the newly minted <code>characters</code> method when called on an instance of the <code>House</code> class. This <code>@proxy</code> instance variable is also the one alluded to by Obie Fernandez when he says &ldquo;proxy collection objects are created that let you manipulate the relationship easily.&rdquo;</p>
+<p>Here on the last line of the <code>reader</code> method was <code>@proxy</code>, the final value that is returned by the newly minted <code>characters</code> method. This <code>@proxy</code> instance variable is also the one alluded to by Obie Fernandez when he says &ldquo;proxy collection objects are created that let you manipulate the relationship easily.&rdquo;</p>
 
 <p>Here is where it gets interesting: the <code>ActiveRecord::Associations::CollectionProxy</code> class <a href="https://github.com/rails/rails/blob/master/activerecord/lib/active_record/associations/collection_proxy.rb#L30">inherits from</a> <code>ActiveRecord::Relation</code>, which is the main class in Rails that deals with <a href="https://github.com/rails/rails/blob/master/activerecord/lib/active_record/relation.rb">database operations</a>. From here, we have to go all the way up the inheritance chain to the <code>ActiveRecord::Delegation::ClassMethods</code> module to find <a href="https://github.com/rails/rails/blob/master/activerecord/lib/active_record/relation/delegation.rb#L105">the <code>create</code> method used here</a>.</p>
 
