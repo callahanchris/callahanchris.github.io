@@ -13,8 +13,6 @@ In *The Rails 4 Way*, Obie Fernandez describes what happens when you "wire up" a
 
 > -- The Rails 4 Way, page 181
 
-[gob](http://i.ytimg.com/vi/xMRA0r92iac/maxresdefault.jpg)
-
 What exactly is this "metaprogramming magic" that goes on behind the scenes? In this blog post, I hope to uncover exactly what happens when `has_many` is used in an Active Record model.
 
 ### Diving into the Source Code
@@ -95,7 +93,6 @@ end
 ```
 
 (Though this might get complicated when dealing with the Iron Islands...)
-[damphair](http://images5.fanpop.com/image/photos/31100000/got-game-of-thrones-31136977-500-500.png)
 
 * `options`: Defaults to an empty hash. Here you can further customize the nature of the association. Some common options to pass here are `through: :join_table`, `dependent: :destroy`, `polymorphic: true`, and `foreign_key: :uuid`.
 
