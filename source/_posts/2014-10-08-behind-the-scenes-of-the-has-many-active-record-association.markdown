@@ -15,6 +15,8 @@ In *The Rails 4 Way*, Obie Fernandez describes what happens when you "wire up" a
 
 What exactly is this "metaprogramming magic" that goes on behind the scenes? In this blog post, I hope to uncover exactly what happens when `has_many` is used in an Active Record model.
 
+**TL;DR:** When a class inherits from `ActiveRecord::Base`, it gets access to a large amount of class and instance methods, including the `has_many` class method. When `has_many` is called on a class, a  `GeneratedAssociationMethods` module is created on the fly and mixed into the class. A number of instance methods are then defined on this module (these vary depending on the type of association). These methods allow the original class to access and manipulate objects from the associated class passed as an symbol argument to the `has_many` method. Pretty magical if you ask me.
+
 ### Diving into the Source Code
 
 The Rails source code has always been intimidating for me. There's a ton of "metaprogramming magic" going on under the hood that appears incomprehensible or esoteric to a beginner. Though it's all written in Ruby, which I feel reasonably comfortable with, I'm a total noob when it comes to metaprogramming, so my previous attempts to read the Rails source code have not gone very far.
