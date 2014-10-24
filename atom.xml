@@ -4,7 +4,7 @@
   <title><![CDATA[Chris Callahan's Blog]]></title>
   <link href="http://callahanchris.github.io/atom.xml" rel="self"/>
   <link href="http://callahanchris.github.io/"/>
-  <updated>2014-10-10T14:42:21-04:00</updated>
+  <updated>2014-10-24T18:56:27-04:00</updated>
   <id>http://callahanchris.github.io/</id>
   <author>
     <name><![CDATA[Chris Callahan]]></name>
@@ -25,6 +25,8 @@
 <p>&mdash; The Rails 4 Way, page 181</p></blockquote>
 
 <p>What exactly is this &ldquo;metaprogramming magic&rdquo; that goes on behind the scenes? In this blog post, I hope to uncover exactly what happens when <code>has_many</code> is used in an Active Record model.</p>
+
+<p><strong>TL;DR:</strong> When a class inherits from <code>ActiveRecord::Base</code>, it gets access to a large amount of class and instance methods, including the <code>has_many</code> class method. When <code>has_many</code> is called on a class, a  <code>GeneratedAssociationMethods</code> module is created on the fly and mixed into the class. A number of instance methods are then defined on this module (these vary depending on the type of association). These methods allow the original class to access and manipulate objects from the associated class passed as an symbol argument to the <code>has_many</code> method. Pretty magical if you ask me.</p>
 
 <h3>Diving into the Source Code</h3>
 
