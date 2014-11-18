@@ -49,12 +49,21 @@ Each of the above pieces gets their own folder in the file directory structure. 
     |   └── styles.css
     ├── js
     |   ├── actions
+    |   |   └── DeLoreanActionCreators.js
     |   ├── components
+    |   |   ├── DeLorean.js
+    |   |   ├── FluxCapacitor.js
+    |   |   └── Speedometer.js
     |   ├── constants
+    |   |   └── AppConstants.js
     |   ├── dispatcher
+    |   |   └── AppDispatcher.js
     |   ├── stores
+    |   |   └── DeLoreanStore.js
     |   ├── utils
-    |   └── app.js
+    |   |   └── 
+    |   ├── app.js
+    |   └── bundle.js (this will be compiled automatically)
     ├── index.html
     └── package.json
 
@@ -62,12 +71,34 @@ I'll use NPM for a package manager here. It is also [easy](http://facebook.githu
 
 Here's the `package.json` file:
 ```json
+{
 
+}
 ```
 
-and the `index.html` file with all we need to bootstrap this app:
+the `index.html` file:
 ```html
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>88 mph With Flux and React</title>
+  </head>
+  <body>
+    <section id="app"></section>
+    <script src="js/app.js"></script>
+  </body>
+</html>
+```
 
+and the `app.js` file to bootstrap this app:
+```javascript
+var React = require('react');
+var DeLorean = require('./components/Delorean');
+
+var App = React.render(
+  <DeLorean />,
+  document.getElementById('app')
+);
 ```
 
 I don't mean to give CSS short shrift here, but it falls a bit outside the scope of this blog post. Generally, you want to keep the CSS in a Flux/React app modular as well, with one strategy being using individual CSS files for each React component.
@@ -76,14 +107,15 @@ I don't mean to give CSS short shrift here, but it falls a bit outside the scope
 
 Although the actions are at the top of the foodchain, it helps to conceptualize the flow of a Flux app starting from the View layer.
 
-Say that there's a component in the app that contains a `<button>` element. Unable to resist the temptation, a user clicks the button. This triggers the `onClick` event handler we have embedded in this button, which calls a `handleClick` or `_onClick` method defined on the component.
+At the top level of the View layer we have the "View-Controller". For our purposes, this will be the DeLorean component that will wrap the entire application. The View-Controller is responsible for registering event listeners with the Stores, retrieving state from the Stores when the Stores emit an event, rerending the application with this new state using `this.setState()`, and passing the state down to nested components through props. 
 
 ```javascript
 // js/components/DeLorean.js
 
 var React = require('react');
-var DeLoreanActionCreators = require('../actions/ButtonActionCreators');
 var DeLoreanStore = require('../stores/DeLoreanStore');
+var ImageSection = require('./ImageSection');
+var Accelerator = require('./Accelerator');
 var Speedometer = require('./Speedometer');
 
 var DeLorean = React.createClass({
@@ -99,16 +131,11 @@ var DeLorean = React.createClass({
     DeLoreanStore.removeChangeListener(this._onChange);
   }
 
-  handleClick: function() {
-    DeLoreanActionCreators.accelerate();
-  },
-
   render: function() {
     return (
       <div>
-        <img src="">
-        <p>"If my calculations are correct, when this baby hits 88 miles per hour... you're gonna see some serious shit."</p>
-        <button onClick={this.handleClick}>Speed Up!</button>
+        <ImageSection />
+        <Accelerator />
         <Speedometer speed={this.state.speed} />
       </div>
     );
@@ -117,7 +144,87 @@ var DeLorean = React.createClass({
   _onChange: function() {
     this.setState({speed: DeLoreanStore.getSpeed()})
   }
+});
+```
 
+Say that the Accelerator component contains a `<button>` element. Unable to resist the temptation, a user clicks the button. This triggers the `onClick` event handler we have embedded in this button, which calls the `handleClick` method defined on the Accelerator component.
+
+```javascript
+// js/components/Accelerator.js
+
+var React = require('react');
+var DeLoreanActionCreators = require('../actions/ButtonActionCreators');
+
+var Accelerator = React.createClass({
+  handleClick: function() {
+    DeLoreanActionCreators.accelerate();
+  },
+
+  render: function() {
+    return (
+      <div>
+        <button onClick={this.handleClick}>Activate the Flux Capacitor</button>
+      </div>
+    );
+  }
+});
+```
+
+This method sends a message to an Action Creator. Action Creators supply an API of accepted methods that can be invoked by components, and are also the place where information can break out of the Flux loop and communicate with the backend, external APIs, a database, etc. Action Creators typically pass on the state they receive from the components to the Dispatcher along with a set action type. Typicially the name of the invoked method on the Action Creator mirrors the name of the action type.
+
+```javascript
+// js/actions/DeLoreanActionCreators.js
+
+
+```
+
+Action types are listed in the constants folder, and they serve as the one definitive source of what actions are legal in the Flux application. Don't overthink this, the sole purpose of the constants folder is for looking up constants. If the app gets large enough, you can get more modular in how you classify the constants, but at the end of the day all you want to know is what exactly are the officially sanctioned actions in this app.
+
+```javascript
+// js/constants/AppConstants.js
+```
+
+The dispatcher is the traffic cop, and it has two main functions: packaging up the data it receives from the actions into a payload and forwarding this payload to all stores, and keeping track of the callbacks registered by stores. The dispatcher has a [really simple builtin API](http://facebook.github.io/flux/docs/dispatcher.html) consisting of just five methods.
+
+Inside of the dispatcher file itself, only the `dispatch()` method will be called. The other methods will be sent from stores, which are responsible for registering their callbacks (and potential callback dependencies) with the dispatcher.
+
+```javascript
+// js/dispatcher/AppDispatcher.js
+```
+
+Stores have been described as fat models and caretakers of data. In a front end app, they are responsible for the logic that we typically associate with a model on the back end. Stores inherit from the prototype of node's `EventEmitter`, and are responsible for consuming the data passed down from the dispatcher and emitting an event.
+
+As I mentioned above, stores also are required to register their callbacks with the dispatcher. The callback takes a payload as its argument, and then uses a `switch` statement to determine what actions to take based on the action type listed in the payload. (This action type is the same constant originally defined by the action creator way back when.)
+
+```javascript
+// js/stores/DeLoreanStore.js
+```
+
+Stores are the one place in a Flux application where state is officially defined. In a simple case, this may just be a running tally of how many times a button was clicked. Based on the action type, the store's public methods will utilize private methods to update its privately held data. Finally, it emits a 'change' event, and it's work is done.
+
+**** Delete??????? *****
+Now we're back in React's View layer -- but not so fast. At the top of the view layer there is a Controller-View, which listens for 'change' events emitted in the system. When it hears one of these events, it queries the store that emitted the event for its data via the store's API.
+
+When the Controller-View receives the new data, it has effectively changed its state, so it calls either `setState()` or `forceUpdate()` on itself. This triggers the Controller-View's `render()` method, which in turn triggers the `render()` methods of all components in the app, and it's turtles all the way down.
+**** DELETE
+
+Now we're back in React's View layer -- but not so fast: the state of our application has changed! When the DeLorean component receives the new state from the DeLoreanStore, it calls its `setState()` method. This automatically triggers its `render()` method, which in turn triggers the `render()` methods of all of the components in the app, and it's turtles all the way down.
+
+
+```javascript
+// js/components/ImageSection.js
+
+var React = require('react');
+
+var ImageSection = React.createClass({
+  render: function() {
+    return (
+      <div>
+        <img src="">
+        <p>"If my calculations are correct, when this baby hits 88 miles per hour... you're gonna see some serious shit."</p>
+      </div>
+    );
+  }
 });
 ```
 
@@ -151,26 +258,7 @@ var Speedometer = React.createClass({
 });
 ```
 
-
-This method sends along the newly acquired state ("the button was TOTALLY just clicked") to an action creator. Action creators supply an API of accepted methods that can be invoked by components, and are also the place where information can break out of the Flux loop and communicate with the database and/or external APIs. Action creators typically pass on the state they receive from the components to the Dispatcher along with a set action type. Typicially the name of the invoked method on the action creator mirrors the name of the action type.
-
-Action types are listed in the constants folder, and they serve as the one definitive source of what actions are legal in the Flux application. Don't overthink this, the sole purpose of the constants folder is for looking up constants. If the app gets large enough, you can get more modular in how you classify the constants, but at the end of the day all you want to know is what exactly are the officially sanctioned actions in this app.
-
-The dispatcher is the traffic cop, and it has two main functions: packaging up the data it receives from the actions into a payload and forwarding this payload to all stores, and keeping track of the callbacks registered by stores. The dispatcher has a [really simple builtin API](http://facebook.github.io/flux/docs/dispatcher.html) consisting of just five methods.
-
-Inside of the dispatcher file itself, only the `dispatch()` method will be called. The other methods will be sent from stores, which are responsible for registering their callbacks (and potential callback dependencies) with the dispatcher.
-
-Stores have been described as fat models and caretakers of data. In a front end app, they are responsible for the logic that we typically associate with a model on the back end. Stores inherit from the prototype of node's `EventEmitter`, and are responsible for consuming the data passed down from the dispatcher and emitting an event.
-
-As I mentioned above, stores also are required to register their callbacks with the dispatcher. The callback takes a payload as its argument, and then uses a `switch` statement to determine what actions to take based on the action type listed in the payload. (This action type is the same constant originally defined by the action creator way back when.)
-
-Stores are the one place in a Flux application where state is officially defined. In a simple case, this may just be a running tally of how many times a button was clicked. Based on the action type, the store's public methods will utilize private methods to update its privately held data. Finally, it emits a 'change' event, and it's work is done.
-
-Now we're back in React's View layer -- but not so fast. At the top of the view layer there is a Controller-View, which listens for 'change' events emitted in the system. When it hears one of these events, it queries the store that emitted the event for its data via the store's API.
-
-When the Controller-View receives the new data, it has effectively changed its state, so it calls either `setState()` or `forceUpdate()` on itself. This triggers the Controller-View's `render()` method, which in turn triggers the `render()` methods of all components in the app, and it's turtles all the way down.
-
-All components in the app now have access to the current version of `this.state`, and await further instructions.
+All components in the app now have access to the data in its current state, and await further instructions.
 
 ### Closing Thoughts
 
