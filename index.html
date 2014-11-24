@@ -9,7 +9,7 @@
   <meta name="author" content="Chris Callahan">
 
   
-  <meta name="description" content="In The Rails 4 Way, Obie Fernandez describes what happens when you &ldquo;wire up&rdquo; associations (like has_many and belongs_to) between Active &hellip;">
+  <meta name="description" content="React.js has gained a lot of attention since it was open sourced by Facebook last year, and with its recent version 0.12 release, it appears that a &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -73,6 +73,607 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/11/17/88-mph-with-flux-and-react/">88 Mph With Flux and React</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-11-17T21:10:29-05:00" pubdate data-updated="true">Nov 17<span>th</span>, 2014</time>
+        
+           | <a href="/blog/2014/11/17/88-mph-with-flux-and-react/#disqus_thread"
+             data-disqus-identifier="http://callahanchris.github.io/blog/2014/11/17/88-mph-with-flux-and-react/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>React.js has gained a lot of attention since it was open sourced by Facebook last year, and with its recent version 0.12 release, it appears that a version 1.0 may soon be on the horizon. React is a lightweight front end toolkit for handling the view layer of web applications that emphasizes a unidirectional data flow to simplify logic about state and data binding. Under the hood, React utilizes a virtual DOM, diffing this with the <a href="http://www.w3.org/DOM/">plain old DOM</a> (PODOM) and rerendering the page with the minimal effort necessary to reflect the updated state of the application. This is an interesting abstraction that makes it easier to reason about state in an application and relieves the need for developers to directly manipulate the DOM.</p>
+
+<p>This year, Facebook introduced Flux, the application architecture they use for React apps. Flux is more of a pattern for separating concerns and organizing files in large React applications than it is a full-blown front end framework like Angular or Ember. Flux provides a roadmap for ensuring the unidirectional flow of data in apps and allows for more modular processing of state changes, event handling, and interfacing with external services.</p>
+
+<p>I think React in particular is relatively easy and intuitive to understand. It provides a sparse API that makes it quick to set up a few components, attach some event listeners to the DOM, and get an app up and running. <a href="http://jsx.github.io/">JSX</a>, a language that serves up a sugary mix of HTML and interpolated JavaScript (it compiles to JavaScript), is a bit odd at first. It&rsquo;s quite easy to get used to though, and remarkably it totally relieves you from the need to do string concatenation, which is a big plus.</p>
+
+<p>Flux, on the other hand, takes a bit more time to fully grok. The conceit is simple: all data flows in one direction. But as I had previously primarily developed apps using the MVC architecture, Flux was a bit of a tough nut to crack.</p>
+
+<p>In this blog post, I hope to make it clear how to get started using Flux in a React application.</p>
+
+<h3>Conceptual Model</h3>
+
+<p>Before I get into building the example app, it&rsquo;s important to take a moment to think about the big picture of Flux. Luckily, there is one phenomenal chart that shows how all of the pieces work together:</p>
+
+<p><img src="http://facebook.github.io/react/img/blog/flux-diagram.png" alt="diagram" /></p>
+
+<p>The key parts of a Flux application are:</p>
+
+<ul>
+<li>Actions</li>
+<li>Dispatcher</li>
+<li>Stores</li>
+<li>Controller-View</li>
+<li>Views</li>
+</ul>
+
+
+<p>Lesser roles are played by:</p>
+
+<ul>
+<li>Constants</li>
+<li>Utils</li>
+<li><a href="https://github.com/rackt/react-router">Router</a> ***CHECK</li>
+</ul>
+
+
+<p>Keep in mind, this is all on the front end. React and Flux were explicitly intended to be back end agnostic. Plug in your favorite database and back end framework at will, should the need arise.</p>
+
+<h3>Architecture</h3>
+
+<p>Let&rsquo;s say we want to build a small app that keeps track of the speed of Doc Brown&rsquo;s DeLorean from <em>Back to the Future</em>, and lets users know if the flux capacitor has been activated yet &mdash; the deciding factor of whether or not time travel is possible at their current speed. Feel free to follow along with the project repo on <a href="https://github.com/callahanchris/bttf">github</a>.</p>
+
+<p>Each of the key parts mentioned above gets their own folder in the file directory structure. A barebones Flux and React app (i.e. exclusively HTML, CSS, and JS files) should look something like this:</p>
+
+<pre><code>.
+├── css
+|   └── styles.css
+├── js
+|   ├── actions
+|   |   └── DeLoreanActionCreators.js
+|   ├── components
+|   |   ├── Accelerator.js
+|   |   ├── DeLorean.js
+|   |   ├── ImageSection.js
+|   |   └── Speedometer.js
+|   ├── constants
+|   |   └── AppConstants.js
+|   ├── dispatcher
+|   |   └── AppDispatcher.js
+|   ├── stores
+|   |   └── DeLoreanStore.js
+|   ├── utils
+|   |   └── WebAPIUtils.js      ?????????????????????
+|   ├── app.js
+|   └── bundle.js (this will be compiled automatically)
+├── .gitignore
+├── index.html
+└── package.json
+</code></pre>
+
+<p>I&rsquo;ll use NPM for a package manager here. It is also <a href="http://facebook.github.io/react/downloads.html">easy</a> to drop in a link to Facebook&rsquo;s CDN or download React. Be aware that this does not include Flux, and with larger applications it makes sense to use a package manager where we can pull in several dependencies.</p>
+
+<p>Here&rsquo;s the <code>package.json</code> file:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+</pre></td><td class='code'><pre><code class='json'><span class='line'><span class="p">{</span>
+</span><span class='line'>  <span class="nt">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;bttf&quot;</span><span class="p">,</span>
+</span><span class='line'>  <span class="nt">&quot;version&quot;</span><span class="p">:</span> <span class="s2">&quot;0.0.1&quot;</span><span class="p">,</span>
+</span><span class='line'>  <span class="nt">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Back to the Future-themed Flux + React app&quot;</span><span class="p">,</span>
+</span><span class='line'>  <span class="nt">&quot;repository&quot;</span><span class="p">:</span> <span class="s2">&quot;https://github.com/callahanchris/bttf&quot;</span><span class="p">,</span>
+</span><span class='line'>  <span class="nt">&quot;main&quot;</span><span class="p">:</span> <span class="s2">&quot;js/app.js&quot;</span><span class="p">,</span>
+</span><span class='line'>  <span class="nt">&quot;dependencies&quot;</span><span class="p">:</span> <span class="p">{</span>
+</span><span class='line'>    <span class="nt">&quot;flux&quot;</span><span class="p">:</span> <span class="s2">&quot;^2.0.1&quot;</span><span class="p">,</span>
+</span><span class='line'>    <span class="nt">&quot;object-assign&quot;</span><span class="p">:</span> <span class="s2">&quot;^1.0.0&quot;</span><span class="p">,</span>
+</span><span class='line'>    <span class="nt">&quot;react&quot;</span><span class="p">:</span> <span class="s2">&quot;^0.12.1&quot;</span>
+</span><span class='line'>  <span class="p">},</span>
+</span><span class='line'>  <span class="nt">&quot;devDependencies&quot;</span><span class="p">:</span> <span class="p">{</span>
+</span><span class='line'>    <span class="nt">&quot;browserify&quot;</span><span class="p">:</span> <span class="s2">&quot;^6.3.2&quot;</span><span class="p">,</span>
+</span><span class='line'>    <span class="nt">&quot;reactify&quot;</span><span class="p">:</span> <span class="s2">&quot;^0.17.0&quot;</span><span class="p">,</span>
+</span><span class='line'>    <span class="nt">&quot;watchify&quot;</span><span class="p">:</span> <span class="s2">&quot;^2.1.1&quot;</span>
+</span><span class='line'>  <span class="p">},</span>
+</span><span class='line'>  <span class="nt">&quot;scripts&quot;</span><span class="p">:</span> <span class="p">{</span>
+</span><span class='line'>    <span class="nt">&quot;watch&quot;</span><span class="p">:</span> <span class="s2">&quot;watchify -o js/bundle.js -v -d .&quot;</span><span class="p">,</span>
+</span><span class='line'>    <span class="nt">&quot;build&quot;</span><span class="p">:</span> <span class="s2">&quot;browserify js/app.js -o js/bundle.js&quot;</span>
+</span><span class='line'>  <span class="p">},</span>
+</span><span class='line'>  <span class="nt">&quot;author&quot;</span><span class="p">:</span> <span class="s2">&quot;Chris Callahan&quot;</span><span class="p">,</span>
+</span><span class='line'>  <span class="nt">&quot;browserify&quot;</span><span class="p">:</span> <span class="p">{</span>
+</span><span class='line'>    <span class="nt">&quot;transform&quot;</span><span class="p">:</span> <span class="p">[</span>
+</span><span class='line'>      <span class="s2">&quot;reactify&quot;</span>
+</span><span class='line'>    <span class="p">]</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>the <code>index.html</code> file:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+</pre></td><td class='code'><pre><code class='html'><span class='line'><span class="cp">&lt;!DOCTYPE html&gt;</span>
+</span><span class='line'><span class="nt">&lt;html&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;head&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;meta</span> <span class="na">charset=</span><span class="s">&quot;utf-8&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;title&gt;</span>88 mph With Flux and React<span class="nt">&lt;/title&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;link</span> <span class="na">rel=</span><span class="s">&quot;stylesheet&quot;</span> <span class="na">href=</span><span class="s">&quot;css/styles.css&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;/head&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;body&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;section</span> <span class="na">id=</span><span class="s">&quot;bttf&quot;</span><span class="nt">&gt;&lt;/section&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;script </span><span class="na">src=</span><span class="s">&quot;js/bundle.js&quot;</span><span class="nt">&gt;&lt;/script&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;/body&gt;</span>
+</span><span class='line'><span class="nt">&lt;/html&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>and the <code>js/app.js</code> file to bootstrap this app:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kd">var</span> <span class="nx">React</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;react&#39;</span><span class="p">);</span>
+</span><span class='line'><span class="kd">var</span> <span class="nx">DeLorean</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;./components/Delorean&#39;</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'><span class="kd">var</span> <span class="nx">App</span> <span class="o">=</span> <span class="nx">React</span><span class="p">.</span><span class="nx">render</span><span class="p">(</span>
+</span><span class='line'>  <span class="o">&lt;</span><span class="nx">DeLorean</span> <span class="o">/&gt;</span><span class="p">,</span>
+</span><span class='line'>  <span class="nb">document</span><span class="p">.</span><span class="nx">getElementById</span><span class="p">(</span><span class="s1">&#39;bttf&#39;</span><span class="p">)</span>
+</span><span class='line'><span class="p">);</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>For now we&rsquo;ll use just one CSS file, <code>css/styles.css</code>. However, if the app get big enough we might want to make the CSS more modular. One way we could do this is by using individual CSS files for each React component, (e.g. <code>css/Accelerator.css</code>, <code>css/DeLorean.css</code>, etc.).</p>
+
+<h3>Writing the App&hellip; The Flux Way</h3>
+
+<p>Although the actions are at the top of the foodchain, it helps to conceptualize the flow of a Flux app starting from the View layer.</p>
+
+<p>At the top level of the View layer we have the &ldquo;View-Controller&rdquo;. For our purposes, this will be the DeLorean component that will wrap the entire application. The View-Controller is responsible for registering event listeners with the Stores, retrieving state from the Stores when the Stores emit an event, rerending the application with this new state using <code>this.setState()</code>, and passing the state down to nested components through props.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="c1">// js/components/DeLorean.js</span>
+</span><span class='line'>
+</span><span class='line'><span class="kd">var</span> <span class="nx">React</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;react&#39;</span><span class="p">);</span>
+</span><span class='line'><span class="kd">var</span> <span class="nx">Accelerator</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;./Accelerator&#39;</span><span class="p">);</span>
+</span><span class='line'><span class="kd">var</span> <span class="nx">ImageSection</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;./ImageSection&#39;</span><span class="p">);</span>
+</span><span class='line'><span class="kd">var</span> <span class="nx">Speedometer</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;./Speedometer&#39;</span><span class="p">);</span>
+</span><span class='line'><span class="kd">var</span> <span class="nx">DeLoreanStore</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;../stores/DeLoreanStore&#39;</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'><span class="kd">var</span> <span class="nx">DeLorean</span> <span class="o">=</span> <span class="nx">React</span><span class="p">.</span><span class="nx">createClass</span><span class="p">({</span>
+</span><span class='line'>  <span class="nx">getInitialState</span><span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">return</span> <span class="p">{</span><span class="nx">speed</span><span class="o">:</span> <span class="mi">0</span><span class="p">};</span>
+</span><span class='line'>  <span class="p">},</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="nx">componentDidMount</span><span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>    <span class="nx">DeLoreanStore</span><span class="p">.</span><span class="nx">addChangeListener</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">_onChange</span><span class="p">);</span>
+</span><span class='line'>  <span class="p">},</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="nx">componentWillUnmount</span><span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>    <span class="nx">DeLoreanStore</span><span class="p">.</span><span class="nx">removeChangeListener</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">_onChange</span><span class="p">);</span>
+</span><span class='line'>  <span class="p">},</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="nx">fluxCapacitorActivated</span><span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">return</span> <span class="k">this</span><span class="p">.</span><span class="nx">state</span><span class="p">.</span><span class="nx">speed</span> <span class="o">&gt;=</span> <span class="mi">88</span><span class="p">;</span>
+</span><span class='line'>  <span class="p">},</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="nx">render</span><span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">return</span> <span class="p">(</span>
+</span><span class='line'>      <span class="o">&lt;</span><span class="nx">div</span> <span class="nx">className</span><span class="o">=</span><span class="s2">&quot;delorean&quot;</span><span class="o">&gt;</span>
+</span><span class='line'>        <span class="o">&lt;</span><span class="nx">ImageSection</span> <span class="o">/&gt;</span>
+</span><span class='line'>        <span class="p">{</span><span class="k">this</span><span class="p">.</span><span class="nx">fluxCapacitorActivated</span><span class="p">()</span> <span class="o">?</span> <span class="s1">&#39;&#39;</span> <span class="o">:</span> <span class="o">&lt;</span><span class="nx">Accelerator</span> <span class="o">/&gt;</span><span class="p">}</span>
+</span><span class='line'>        <span class="o">&lt;</span><span class="nx">Speedometer</span> <span class="nx">speed</span><span class="o">=</span><span class="p">{</span><span class="k">this</span><span class="p">.</span><span class="nx">state</span><span class="p">.</span><span class="nx">speed</span><span class="p">}</span> <span class="o">/&gt;</span>
+</span><span class='line'>      <span class="o">&lt;</span><span class="err">/div&gt;</span>
+</span><span class='line'>    <span class="p">);</span>
+</span><span class='line'>  <span class="p">},</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="nx">_onChange</span><span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">this</span><span class="p">.</span><span class="nx">setState</span><span class="p">({</span><span class="nx">speed</span><span class="o">:</span> <span class="nx">DeLoreanStore</span><span class="p">.</span><span class="nx">getSpeed</span><span class="p">()})</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="p">});</span>
+</span><span class='line'>
+</span><span class='line'><span class="nx">module</span><span class="p">.</span><span class="nx">exports</span> <span class="o">=</span> <span class="nx">DeLorean</span><span class="p">;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Say that the Accelerator component contains a <code>&lt;button&gt;</code> element. Unable to resist the temptation, a user clicks the button. This triggers the <code>onClick</code> event handler we have embedded in this button, which calls the <code>handleClick</code> method defined on the Accelerator component.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="c1">// js/components/Accelerator.js</span>
+</span><span class='line'>
+</span><span class='line'><span class="kd">var</span> <span class="nx">React</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;react&#39;</span><span class="p">);</span>
+</span><span class='line'><span class="kd">var</span> <span class="nx">DeLoreanActionCreators</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;../actions/DeLoreanActionCreators&#39;</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'><span class="kd">var</span> <span class="nx">Accelerator</span> <span class="o">=</span> <span class="nx">React</span><span class="p">.</span><span class="nx">createClass</span><span class="p">({</span>
+</span><span class='line'>  <span class="nx">handleClick</span><span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>    <span class="nx">DeLoreanActionCreators</span><span class="p">.</span><span class="nx">accelerate</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span> <span class="c1">// hard-coded to show how data flows through Flux</span>
+</span><span class='line'>  <span class="p">},</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="nx">render</span><span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">return</span> <span class="p">(</span>
+</span><span class='line'>      <span class="o">&lt;</span><span class="nx">div</span> <span class="nx">className</span><span class="o">=</span><span class="s1">&#39;accelerator&#39;</span><span class="o">&gt;</span>
+</span><span class='line'>        <span class="o">&lt;</span><span class="nx">button</span> <span class="nx">onClick</span><span class="o">=</span><span class="p">{</span><span class="k">this</span><span class="p">.</span><span class="nx">handleClick</span><span class="p">}</span><span class="o">&gt;</span><span class="nx">Activate</span> <span class="nx">the</span> <span class="nx">Flux</span> <span class="nx">Capacitor</span><span class="o">&lt;</span><span class="err">/button&gt;</span>
+</span><span class='line'>      <span class="o">&lt;</span><span class="err">/div&gt;</span>
+</span><span class='line'>    <span class="p">);</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="p">});</span>
+</span><span class='line'>
+</span><span class='line'><span class="nx">module</span><span class="p">.</span><span class="nx">exports</span> <span class="o">=</span> <span class="nx">Accelerator</span><span class="p">;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This method sends a message to an Action Creator. Action Creators supply an API of accepted methods that can be invoked by components, and are also the place where information can break out of the Flux loop and communicate via <a href="?????????link">XHR</a> with the back end, external APIs, a database, etc. In the case of this app, it would be a bit contrived to ping an API or a back end, so I will keep the DeLoreanActionCreators file super simple and handle the logic in the DeLoreanStore.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="c1">// js/actions/DeLoreanActionCreators.js</span>
+</span><span class='line'>
+</span><span class='line'><span class="kd">var</span> <span class="nx">AppDispatcher</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;../dispatcher/AppDispatcher&#39;</span><span class="p">);</span>
+</span><span class='line'><span class="kd">var</span> <span class="nx">ActionTypes</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;../constants/AppConstants&#39;</span><span class="p">).</span><span class="nx">ActionTypes</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="nx">module</span><span class="p">.</span><span class="nx">exports</span> <span class="o">=</span> <span class="p">{</span>
+</span><span class='line'>  <span class="nx">accelerate</span><span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>    <span class="nx">AppDispatcher</span><span class="p">.</span><span class="nx">handleViewAction</span><span class="p">({</span>
+</span><span class='line'>      <span class="nx">type</span><span class="o">:</span> <span class="nx">ActionTypes</span><span class="p">.</span><span class="nx">ACCELERATE</span>
+</span><span class='line'>    <span class="p">});</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="p">};</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Action Creators can pass on any updated state they receive from the components to the Dispatcher along with a set action type. Typicially the name of the invoked method on the Action Creator mirrors the name of the action type. Action types are listed in the constants folder.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="c1">// js/constants/AppConstants.js</span>
+</span><span class='line'>
+</span><span class='line'><span class="nx">module</span><span class="p">.</span><span class="nx">exports</span> <span class="o">=</span> <span class="p">{</span>
+</span><span class='line'>  <span class="nx">ActionTypes</span><span class="o">:</span> <span class="p">{</span>
+</span><span class='line'>    <span class="nx">ACCELERATE</span><span class="o">:</span> <span class="kc">null</span>
+</span><span class='line'>  <span class="p">},</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="nx">PayloadSources</span><span class="o">:</span> <span class="p">{</span>
+</span><span class='line'>    <span class="nx">SERVER_ACTION</span><span class="o">:</span> <span class="kc">null</span><span class="p">,</span>
+</span><span class='line'>    <span class="nx">VIEW_ACTION</span><span class="o">:</span> <span class="kc">null</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="p">};</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This set of SCREAMING_CAMEL_CASE constants serves as the one definitive source of what actions are legal in the Flux application. Don&rsquo;t overthink this &mdash; the sole purpose of the constants folder is for looking up constants. If the app gets large enough, you can get more modular in how you classify the constants, but at the end of the day all you want to know is what exactly are the officially sanctioned actions in this app.</p>
+
+<p>Next, the AppDispatcher receives the <code>handleViewAction()</code> message along with the data above, which is referred to as the method argument <code>action</code> below. The AppDispatcher is a singleton in the Flux app and has two main functions: forwarding the data it receives from the actions to all stores, and keeping track of the callbacks registered by stores.</p>
+
+<p>The AppDispatcher typically responds to messages sent from the Action Creators by calling the <code>dispatch()</code> method on itself.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="c1">// js/dispatcher/AppDispatcher.js</span>
+</span><span class='line'>
+</span><span class='line'><span class="kd">var</span> <span class="nx">Dispatcher</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;flux&#39;</span><span class="p">).</span><span class="nx">Dispatcher</span><span class="p">;</span>
+</span><span class='line'><span class="kd">var</span> <span class="nx">PayloadSources</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;../constants/AppConstants&#39;</span><span class="p">).</span><span class="nx">PayloadSources</span><span class="p">;</span>
+</span><span class='line'><span class="kd">var</span> <span class="nx">assign</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;object-assign&#39;</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'><span class="kd">var</span> <span class="nx">AppDispatcher</span> <span class="o">=</span> <span class="nx">assign</span><span class="p">(</span><span class="k">new</span> <span class="nx">Dispatcher</span><span class="p">(),</span> <span class="p">{</span>
+</span><span class='line'>  <span class="nx">handleViewAction</span><span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">action</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    <span class="kd">var</span> <span class="nx">payload</span> <span class="o">=</span> <span class="p">{</span>
+</span><span class='line'>      <span class="nx">source</span><span class="o">:</span> <span class="nx">PayloadSources</span><span class="p">.</span><span class="nx">VIEW_ACTION</span><span class="p">,</span>
+</span><span class='line'>      <span class="nx">action</span><span class="o">:</span> <span class="nx">action</span>
+</span><span class='line'>    <span class="p">};</span>
+</span><span class='line'>    <span class="k">this</span><span class="p">.</span><span class="nx">dispatch</span><span class="p">(</span><span class="nx">payload</span><span class="p">);</span>
+</span><span class='line'>  <span class="p">},</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="nx">handleServerAction</span><span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">action</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    <span class="kd">var</span> <span class="nx">payload</span> <span class="o">=</span> <span class="p">{</span>
+</span><span class='line'>      <span class="nx">source</span><span class="o">:</span> <span class="nx">PayloadSources</span><span class="p">.</span><span class="nx">SERVER_ACTION</span><span class="p">,</span>
+</span><span class='line'>      <span class="nx">action</span><span class="o">:</span> <span class="nx">action</span>
+</span><span class='line'>    <span class="p">};</span>
+</span><span class='line'>    <span class="k">this</span><span class="p">.</span><span class="nx">dispatch</span><span class="p">(</span><span class="nx">payload</span><span class="p">);</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="p">});</span>
+</span><span class='line'>
+</span><span class='line'><span class="nx">module</span><span class="p">.</span><span class="nx">exports</span> <span class="o">=</span> <span class="nx">AppDispatcher</span><span class="p">;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Dead simple. I think the choice of wording here was good, as it&rsquo;s just like an emergency dispatcher that broadcasts messages to EMTs in the field and keeps track of who&rsquo;s on duty.</p>
+
+<p>Creating Dispatchers used to require a lot of boilerplate code, but a canonical Dispatcher has recently been packaged up as part of the Flux NPM module. Check out the Dispatcher&rsquo;s <a href="http://facebook.github.io/flux/docs/dispatcher.html">seriously simple builtin API</a> in the offical documentation to see what goes on under the hood here.</p>
+
+<p>In a front end app, Stores are responsible for the logic that we typically associate with a model on the back end. Stores inherit from the prototype of node&rsquo;s EventEmitter, and are responsible for consuming the data passed down from the dispatcher, changing its state internally, and emitting an event which forces the whole app to update its state.</p>
+
+<p>As I mentioned above, Stores also are required to register their callbacks with the AppDispatcher. The callback takes a payload as its argument, and then uses a <code>switch</code> statement to determine what actions to take based on the action type listed in the payload. (This action type is the same constant originally defined by the DeLoreanActionCreators way back when.)</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="c1">// js/stores/DeLoreanStore.js</span>
+</span><span class='line'>
+</span><span class='line'><span class="kd">var</span> <span class="nx">AppDispatcher</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;../dispatcher/AppDispatcher&#39;</span><span class="p">);</span>
+</span><span class='line'><span class="kd">var</span> <span class="nx">ActionTypes</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;../constants/AppConstants&#39;</span><span class="p">).</span><span class="nx">ActionTypes</span><span class="p">;</span>
+</span><span class='line'><span class="kd">var</span> <span class="nx">EventEmitter</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;events&#39;</span><span class="p">).</span><span class="nx">EventEmitter</span><span class="p">;</span>
+</span><span class='line'><span class="kd">var</span> <span class="nx">assign</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;object-assign&#39;</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'><span class="kd">var</span> <span class="nx">CHANGE_EVENT</span> <span class="o">=</span> <span class="s1">&#39;change&#39;</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="kd">var</span> <span class="nx">_speed</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="kd">var</span> <span class="nx">DeLoreanStore</span> <span class="o">=</span> <span class="nx">assign</span><span class="p">({},</span> <span class="nx">EventEmitter</span><span class="p">.</span><span class="nx">prototype</span><span class="p">,</span> <span class="p">{</span>
+</span><span class='line'>  <span class="nx">emitChange</span><span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">this</span><span class="p">.</span><span class="nx">emit</span><span class="p">(</span><span class="nx">CHANGE_EVENT</span><span class="p">);</span>
+</span><span class='line'>  <span class="p">},</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="nx">addChangeListener</span><span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">callback</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">this</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="nx">CHANGE_EVENT</span><span class="p">,</span> <span class="nx">callback</span><span class="p">);</span>
+</span><span class='line'>  <span class="p">},</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="nx">removeChangeListener</span><span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">callback</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">this</span><span class="p">.</span><span class="nx">removeListener</span><span class="p">(</span><span class="nx">CHANGE_EVENT</span><span class="p">,</span> <span class="nx">callback</span><span class="p">);</span>
+</span><span class='line'>  <span class="p">},</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="nx">getSpeed</span><span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">return</span> <span class="nx">_speed</span><span class="p">;</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="p">});</span>
+</span><span class='line'>
+</span><span class='line'><span class="nx">DeLoreanStore</span><span class="p">.</span><span class="nx">dispatchToken</span> <span class="o">=</span> <span class="nx">AppDispatcher</span><span class="p">.</span><span class="nx">register</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">payload</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>  <span class="kd">var</span> <span class="nx">action</span> <span class="o">=</span> <span class="nx">payload</span><span class="p">.</span><span class="nx">action</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">switch</span><span class="p">(</span><span class="nx">action</span><span class="p">.</span><span class="nx">type</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>  <span class="k">case</span> <span class="nx">ActionTypes</span><span class="p">.</span><span class="nx">ACCELERATE</span><span class="o">:</span>
+</span><span class='line'>    <span class="nx">_accelerate</span><span class="p">();</span>
+</span><span class='line'>    <span class="nx">DeLoreanStore</span><span class="p">.</span><span class="nx">emitChange</span><span class="p">();</span>
+</span><span class='line'>    <span class="k">break</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">default</span><span class="o">:</span>
+</span><span class='line'>    <span class="c1">// noop</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="p">});</span>
+</span><span class='line'>
+</span><span class='line'><span class="kd">function</span> <span class="nx">_accelerate</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>  <span class="nx">_speed</span> <span class="o">+=</span> <span class="mi">1</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="nx">module</span><span class="p">.</span><span class="nx">exports</span> <span class="o">=</span> <span class="nx">DeLoreanStore</span><span class="p">;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Stores are the one place in a Flux application where state is officially defined. In a simple case, this may just be a running tally of how many times a button was clicked. Based on the action type, the Store&rsquo;s public methods will utilize private methods to update its privately held data. Finally, it emits a &lsquo;change&rsquo; event, and it&rsquo;s work is done.</p>
+
+<p>Now we&rsquo;re back in React&rsquo;s View layer, but not so fast &mdash; the state of our application has changed! When the DeLorean component (our Controller-View) receives the new state from the DeLoreanStore, it calls its <code>setState()</code> method. This automatically triggers its <code>render()</code> method, which in turn triggers the <code>render()</code> methods of all of its nested components, and it&rsquo;s turtles all the way down.</p>
+
+<p>All components in the app now have access to the data in its current state, and await further instructions.</p>
+
+<h3>Closing Thoughts</h3>
+
+<p>It took me a couple weeks, but I finally feel like I&rsquo;m understanding Flux, and I really like it! It provides a different way of reasoning about state and data flow in JavaScript applications. React is super straightforward, and as it approaches version 1.0, it is doing what it can to make its API <a href="https://www.youtube.com/watch?v=4anAwXYqLG8">even MORE simple</a> as well as compliant with new ES6 (and even ES7!) features. I&rsquo;m looking forward to delving into different libraries like RxJS and Immutable.js that take the ideas of functional reactive programming to the next level.</p>
+
+<p>Please check out the full code of my sample app on <a href="https://github.com/callahanchris/bttf">github</a>!</p>
+
+<h3>Resources</h3>
+
+<ul>
+<li><a href="http://facebook.github.io/flux/docs/overview.html">Flux Overview</a> &mdash; From the official documentation.</li>
+<li><a href="https://www.youtube.com/watch?v=nYkdrAPrdcw">Jing Chen&rsquo;s Original Flux Presentation</a> &mdash; There&rsquo;s some good info about React in here as well, but the Flux part is from 10 to 24 minutes in.</li>
+<li><a href="https://www.youtube.com/watch?v=i__969noyAM">React and Flux: Building Applications with a Unidirectional Data Flow</a> &mdash; Good talk by Bill Fisher and Jing Chen where they go through an example chat application in Flux and React.</li>
+<li><a href="https://github.com/facebook/flux/tree/master/examples/flux-chat/">Flux Chat Example App on Github</a></li>
+<li><a href="http://facebook.github.io/react/blog/2014/07/30/flux-actions-and-the-dispatcher.html">Flux: Actions and the Dispatcher</a> &mdash; Helpful post by Bill Fisher going into a bit more detail about the Dispatcher, Actions, and Action Creators.</li>
+</ul>
+
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -3031,342 +3632,6 @@
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2014/07/10/lessons-from-refactoring-tic-tac-toe/">Lessons From Refactoring Tic Tac Toe</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2014-07-10T18:02:50-04:00" pubdate data-updated="true">Jul 10<span>th</span>, 2014</time>
-        
-           | <a href="/blog/2014/07/10/lessons-from-refactoring-tic-tac-toe/#disqus_thread"
-             data-disqus-identifier="http://callahanchris.github.io/blog/2014/07/10/lessons-from-refactoring-tic-tac-toe/">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p><em><a href="https://github.com/callahanchris/tic-tac-toe">Check out my tic tac toe code on github!</a></em></p>
-
-<p>As part of my application to the Flatiron School in January of this year, I had to write a tic tac toe computer program. The assignment was purposely left vague; it was up to me to decide what programming language to use, how complex it was, whether it was one-player or two-player, etc.</p>
-
-<p>After four or five days of unchecked obsession (fueled in part by my fiancee&rsquo;s invaluable bug-spotting abilities), I emerged with 438 lines of Ruby code and a working one-player version of tic tac toe that could be played on the command line. It was ugly, but it worked.</p>
-
-<p>Six months later, as I near the halfway point in the web development course at the Flatiron School, I decided to apply my new programming knowledge by refactoring the code of my old tic tac toe game.</p>
-
-<p>In the end, I threw out about 95% of my original code. It was painful to do this, but through the pain, I learned some valuable lessons.</p>
-
-<h3>Make Smaller Methods</h3>
-
-<p>Small methods are the bedrock of semantic, abstract, and reusable code. Until reading <a href="http://www.poodr.com/">POODR</a> and listening to <a href="https://twitter.com/aviflombaum">Avi Flombaum&rsquo;s</a> lectures, I had no clue about the value of the single responsibility principle. When applied to methods, the single responsibility principle means making methods that accomplish only one purpose. A good litmus test is to ask: &ldquo;What does this method do?&rdquo; If there are any &ldquo;and&#8221;s or &#8220;or&#8221;s in the response, the method might be shouldering multiple responsibilities.</p>
-
-<p>Aside of making your code more readable and consise, breaking methods down to smaller and smaller units has an additional (and unexpected) benefit: the emergence of seredipitous recombinations. After breaking down methods into atomic units, you often find that you are able to reuse these methods in contexts outside of that in which you originally designed the method.</p>
-
-<p>It was awesome being able to apply these ideas to my tic tac toe game. I feel much more confident using smaller methods now.</p>
-
-<p>Here is an example from my original tic tac toe game of the <code>empty_spaces</code> method that determines how many empty spaces are left on the board. [<em>Warning: I really did not know how to code when I wrote this program. Just be thankful I&rsquo;m not pasting in the 160(!) line method I had in the original program.</em>]</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">def</span> <span class="nf">empty_spaces</span>
-</span><span class='line'>  <span class="c1"># Check to see how many empty spaces are left on the board</span>
-</span><span class='line'>  <span class="vi">@empty_spaces</span> <span class="o">=</span> <span class="mi">0</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="c1"># Convert the @tttboard variable array a standard array for quick check</span>
-</span><span class='line'>  <span class="n">ttt</span> <span class="o">=</span> <span class="o">[</span><span class="vi">@tttboard</span><span class="o">[</span><span class="mi">0</span><span class="o">][</span><span class="mi">0</span><span class="o">]</span><span class="p">,</span><span class="vi">@tttboard</span><span class="o">[</span><span class="mi">0</span><span class="o">][</span><span class="mi">1</span><span class="o">]</span><span class="p">,</span><span class="vi">@tttboard</span><span class="o">[</span><span class="mi">0</span><span class="o">][</span><span class="mi">2</span><span class="o">]</span><span class="p">,</span><span class="vi">@tttboard</span><span class="o">[</span><span class="mi">1</span><span class="o">][</span><span class="mi">0</span><span class="o">]</span><span class="p">,</span><span class="vi">@tttboard</span><span class="o">[</span><span class="mi">1</span><span class="o">][</span><span class="mi">1</span><span class="o">]</span><span class="p">,</span><span class="vi">@tttboard</span><span class="o">[</span><span class="mi">1</span><span class="o">][</span><span class="mi">2</span><span class="o">]</span><span class="p">,</span><span class="vi">@tttboard</span><span class="o">[</span><span class="mi">2</span><span class="o">][</span><span class="mi">0</span><span class="o">]</span><span class="p">,</span><span class="vi">@tttboard</span><span class="o">[</span><span class="mi">2</span><span class="o">][</span><span class="mi">1</span><span class="o">]</span><span class="p">,</span><span class="vi">@tttboard</span><span class="o">[</span><span class="mi">2</span><span class="o">][</span><span class="mi">2</span><span class="o">]]</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="n">ttt</span><span class="o">.</span><span class="n">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">x</span><span class="o">|</span>
-</span><span class='line'>    <span class="k">if</span> <span class="n">x</span> <span class="o">==</span> <span class="s1">&#39; &#39;</span>
-</span><span class='line'>      <span class="vi">@empty_spaces</span> <span class="o">+=</span> <span class="mi">1</span>
-</span><span class='line'>    <span class="k">end</span>
-</span><span class='line'>  <span class="k">end</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="vi">@empty_spaces</span>
-</span><span class='line'><span class="k">end</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>and here is the refactored version:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">def</span> <span class="nf">empty_spaces</span>
-</span><span class='line'>  <span class="n">board</span><span class="o">.</span><span class="n">flatten</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">)</span>
-</span><span class='line'><span class="k">end</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>One line methods are awesome! The new implementation of <code>empty_spaces</code> is significantly more readable and easier to understand than the original one. It utilizes the reader method provided by <code>attr_reader :board</code> rather than directly accessing the data <code>@board</code> instance variable, making the code more open to easy changes going forward.</p>
-
-<p>After DRYing up my methods, I had to take on a larger design issue: classes.</p>
-
-<h3>Make Smaller Classes</h3>
-
-<blockquote><p>&ldquo;Applications that are easy to change consist of classes that are easy to reuse. Reusable classes are pluggable units of well-defined behavior that have few entanglements. An application that is easy to change is like a box of building blocks; you can select just the pieces you need and assemble them in unanticipated ways.&rdquo;</p></blockquote>
-
-<p><em>&mdash; Practical Object-Oriented Design in Ruby, page 21</em></p>
-
-<p>I didn&rsquo;t understand the purpose of classes back in January when I first wrote my tic tac toe implementation. This partially explains why I originally only included one class (<code>TicTacToe</code>) that stood at a monstrous 405 lines &mdash; a veritable God object towering over my codebase.</p>
-
-<p>I am still far from mastering the principles of object-oriented design, but I have come a long way over the last few months, thanks largely to <em>POODR</em> and <em>The Well-Grounded Rubyist</em>. One of the most important things I&rsquo;ve learned along the way is to not be afraid of classes. Watching tech talks by Sandi Metz, Ben Orenstein, and others showed me that the single responsibility principle also applies to classes.</p>
-
-<p>My new tic tac toe codebase has 9 classes, all of which sit inside of the <code>TTT</code> module. The stubbed out class hierarchy in my program now vaguely looks like this:</p>
-
-<pre><code>module TTT            #=&gt; namespace and home to the constant BOARD
-|
---class Game          #=&gt; initializes new Human and Computer objects
-|
---class CLIRunner     #=&gt; responsible for running the game via CLI
-|
---class CheckWinner   #=&gt; checks if the game has been won
-|
---class Human         #=&gt; defines the ground rules for human moves
-|
---class Computer      #=&gt; delegates the computer's AI logic to subclasses
-  |
-  --class Opener      #=&gt; makes opening moves for the computer
-  |
-  --class Winner      #=&gt; makes winning moves for the computer
-  | |
-  | --class Blocker   #=&gt; piggybacks off of the Winner class's logic to
-  |                   #=&gt; block potential wins by the human player
-  |
-  --class RandomMover #=&gt; moves randomly if the above strategies fail
-</code></pre>
-
-<p>It is abundantly clear now what each class does. Here is the computer&rsquo;s original logic for blocking a human from winning, which was imbedded inside of the 160 line <code>computer</code> method:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="c1"># The computer blocks the human player if it does not have a winning move</span>
-</span><span class='line'><span class="c1"># Computer blocks against human&#39;s diagonal wins</span>
-</span><span class='line'><span class="k">elsif</span> <span class="vi">@tttboard</span><span class="o">[</span><span class="mi">1</span><span class="o">][</span><span class="mi">1</span><span class="o">]</span> <span class="o">==</span> <span class="s2">&quot;</span><span class="si">#{</span><span class="vi">@player</span><span class="si">}</span><span class="s2">&quot;</span> <span class="o">&amp;&amp;</span> <span class="vi">@tttboard</span><span class="o">[</span><span class="mi">2</span><span class="o">][</span><span class="mi">2</span><span class="o">]</span> <span class="o">==</span> <span class="s2">&quot;</span><span class="si">#{</span><span class="vi">@player</span><span class="si">}</span><span class="s2">&quot;</span> <span class="o">&amp;&amp;</span> <span class="vi">@tttboard</span><span class="o">[</span><span class="mi">0</span><span class="o">][</span><span class="mi">0</span><span class="o">]</span> <span class="o">==</span> <span class="s1">&#39; &#39;</span>
-</span><span class='line'>  <span class="vi">@tttboard</span><span class="o">[</span><span class="mi">0</span><span class="o">][</span><span class="mi">0</span><span class="o">]</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">#{</span><span class="vi">@opponent</span><span class="si">}</span><span class="s2">&quot;</span>
-</span><span class='line'><span class="k">elsif</span> <span class="vi">@tttboard</span><span class="o">[</span><span class="mi">0</span><span class="o">][</span><span class="mi">0</span><span class="o">]</span> <span class="o">==</span> <span class="s2">&quot;</span><span class="si">#{</span><span class="vi">@player</span><span class="si">}</span><span class="s2">&quot;</span> <span class="o">&amp;&amp;</span> <span class="vi">@tttboard</span><span class="o">[</span><span class="mi">2</span><span class="o">][</span><span class="mi">2</span><span class="o">]</span> <span class="o">==</span> <span class="s2">&quot;</span><span class="si">#{</span><span class="vi">@player</span><span class="si">}</span><span class="s2">&quot;</span> <span class="o">&amp;&amp;</span> <span class="vi">@tttboard</span><span class="o">[</span><span class="mi">1</span><span class="o">][</span><span class="mi">1</span><span class="o">]</span> <span class="o">==</span> <span class="s1">&#39; &#39;</span>
-</span><span class='line'>  <span class="vi">@tttboard</span><span class="o">[</span><span class="mi">1</span><span class="o">][</span><span class="mi">1</span><span class="o">]</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">#{</span><span class="vi">@opponent</span><span class="si">}</span><span class="s2">&quot;</span>
-</span><span class='line'><span class="k">elsif</span> <span class="vi">@tttboard</span><span class="o">[</span><span class="mi">0</span><span class="o">][</span><span class="mi">0</span><span class="o">]</span> <span class="o">==</span> <span class="s2">&quot;</span><span class="si">#{</span><span class="vi">@player</span><span class="si">}</span><span class="s2">&quot;</span> <span class="o">&amp;&amp;</span> <span class="vi">@tttboard</span><span class="o">[</span><span class="mi">1</span><span class="o">][</span><span class="mi">1</span><span class="o">]</span> <span class="o">==</span> <span class="s2">&quot;</span><span class="si">#{</span><span class="vi">@player</span><span class="si">}</span><span class="s2">&quot;</span> <span class="o">&amp;&amp;</span> <span class="vi">@tttboard</span><span class="o">[</span><span class="mi">2</span><span class="o">][</span><span class="mi">2</span><span class="o">]</span> <span class="o">==</span> <span class="s1">&#39; &#39;</span>
-</span><span class='line'>  <span class="vi">@tttboard</span><span class="o">[</span><span class="mi">2</span><span class="o">][</span><span class="mi">2</span><span class="o">]</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">#{</span><span class="vi">@opponent</span><span class="si">}</span><span class="s2">&quot;</span>
-</span><span class='line'><span class="k">elsif</span> <span class="vi">@tttboard</span><span class="o">[</span><span class="mi">1</span><span class="o">][</span><span class="mi">1</span><span class="o">]</span> <span class="o">==</span> <span class="s2">&quot;</span><span class="si">#{</span><span class="vi">@player</span><span class="si">}</span><span class="s2">&quot;</span> <span class="o">&amp;&amp;</span> <span class="vi">@tttboard</span><span class="o">[</span><span class="mi">2</span><span class="o">][</span><span class="mi">0</span><span class="o">]</span> <span class="o">==</span> <span class="s2">&quot;</span><span class="si">#{</span><span class="vi">@player</span><span class="si">}</span><span class="s2">&quot;</span> <span class="o">&amp;&amp;</span> <span class="vi">@tttboard</span><span class="o">[</span><span class="mi">0</span><span class="o">][</span><span class="mi">2</span><span class="o">]</span> <span class="o">==</span> <span class="s1">&#39; &#39;</span>
-</span><span class='line'>  <span class="vi">@tttboard</span><span class="o">[</span><span class="mi">0</span><span class="o">][</span><span class="mi">2</span><span class="o">]</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">#{</span><span class="vi">@opponent</span><span class="si">}</span><span class="s2">&quot;</span>
-</span><span class='line'><span class="k">elsif</span> <span class="vi">@tttboard</span><span class="o">[</span><span class="mi">0</span><span class="o">][</span><span class="mi">2</span><span class="o">]</span> <span class="o">==</span> <span class="s2">&quot;</span><span class="si">#{</span><span class="vi">@player</span><span class="si">}</span><span class="s2">&quot;</span> <span class="o">&amp;&amp;</span> <span class="vi">@tttboard</span><span class="o">[</span><span class="mi">2</span><span class="o">][</span><span class="mi">0</span><span class="o">]</span> <span class="o">==</span> <span class="s2">&quot;</span><span class="si">#{</span><span class="vi">@player</span><span class="si">}</span><span class="s2">&quot;</span> <span class="o">&amp;&amp;</span> <span class="vi">@tttboard</span><span class="o">[</span><span class="mi">1</span><span class="o">][</span><span class="mi">1</span><span class="o">]</span> <span class="o">==</span> <span class="s1">&#39; &#39;</span>
-</span><span class='line'>  <span class="vi">@tttboard</span><span class="o">[</span><span class="mi">1</span><span class="o">][</span><span class="mi">1</span><span class="o">]</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">#{</span><span class="vi">@opponent</span><span class="si">}</span><span class="s2">&quot;</span>
-</span><span class='line'><span class="k">elsif</span> <span class="vi">@tttboard</span><span class="o">[</span><span class="mi">0</span><span class="o">][</span><span class="mi">2</span><span class="o">]</span> <span class="o">==</span> <span class="s2">&quot;</span><span class="si">#{</span><span class="vi">@player</span><span class="si">}</span><span class="s2">&quot;</span> <span class="o">&amp;&amp;</span> <span class="vi">@tttboard</span><span class="o">[</span><span class="mi">1</span><span class="o">][</span><span class="mi">1</span><span class="o">]</span> <span class="o">==</span> <span class="s2">&quot;</span><span class="si">#{</span><span class="vi">@player</span><span class="si">}</span><span class="s2">&quot;</span> <span class="o">&amp;&amp;</span> <span class="vi">@tttboard</span><span class="o">[</span><span class="mi">2</span><span class="o">][</span><span class="mi">0</span><span class="o">]</span> <span class="o">==</span> <span class="s1">&#39; &#39;</span>
-</span><span class='line'>  <span class="vi">@tttboard</span><span class="o">[</span><span class="mi">2</span><span class="o">][</span><span class="mi">0</span><span class="o">]</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">#{</span><span class="vi">@opponent</span><span class="si">}</span><span class="s2">&quot;</span>
-</span><span class='line'>
-</span><span class='line'><span class="c1"># Computer blocks against human&#39;s horizontal wins</span>
-</span><span class='line'><span class="k">elsif</span> <span class="vi">@tttboard</span><span class="o">[</span><span class="mi">0</span><span class="o">][</span><span class="mi">1</span><span class="o">]</span> <span class="o">==</span> <span class="s2">&quot;</span><span class="si">#{</span><span class="vi">@player</span><span class="si">}</span><span class="s2">&quot;</span> <span class="o">&amp;&amp;</span> <span class="vi">@tttboard</span><span class="o">[</span><span class="mi">0</span><span class="o">][</span><span class="mi">2</span><span class="o">]</span> <span class="o">==</span> <span class="s2">&quot;</span><span class="si">#{</span><span class="vi">@player</span><span class="si">}</span><span class="s2">&quot;</span> <span class="o">&amp;&amp;</span> <span class="vi">@tttboard</span><span class="o">[</span><span class="mi">0</span><span class="o">][</span><span class="mi">0</span><span class="o">]</span> <span class="o">==</span> <span class="s1">&#39; &#39;</span>
-</span><span class='line'>  <span class="vi">@tttboard</span><span class="o">[</span><span class="mi">0</span><span class="o">][</span><span class="mi">0</span><span class="o">]</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">#{</span><span class="vi">@opponent</span><span class="si">}</span><span class="s2">&quot;</span>
-</span><span class='line'><span class="c1"># ...10 more lines of code...</span>
-</span><span class='line'>
-</span><span class='line'><span class="c1"># Computer blocks against human&#39;s vertical wins</span>
-</span><span class='line'><span class="k">elsif</span> <span class="vi">@tttboard</span><span class="o">[</span><span class="mi">1</span><span class="o">][</span><span class="mi">0</span><span class="o">]</span> <span class="o">==</span> <span class="s2">&quot;</span><span class="si">#{</span><span class="vi">@player</span><span class="si">}</span><span class="s2">&quot;</span> <span class="o">&amp;&amp;</span> <span class="vi">@tttboard</span><span class="o">[</span><span class="mi">2</span><span class="o">][</span><span class="mi">0</span><span class="o">]</span> <span class="o">==</span> <span class="s2">&quot;</span><span class="si">#{</span><span class="vi">@player</span><span class="si">}</span><span class="s2">&quot;</span> <span class="o">&amp;&amp;</span> <span class="vi">@tttboard</span><span class="o">[</span><span class="mi">0</span><span class="o">][</span><span class="mi">0</span><span class="o">]</span> <span class="o">==</span> <span class="s1">&#39; &#39;</span>
-</span><span class='line'>  <span class="vi">@tttboard</span><span class="o">[</span><span class="mi">0</span><span class="o">][</span><span class="mi">0</span><span class="o">]</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">#{</span><span class="vi">@opponent</span><span class="si">}</span><span class="s2">&quot;</span>
-</span><span class='line'><span class="c1"># ...10 more lines of code...</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>and the new implementation of the <code>Blocker</code> class:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">Blocker</span> <span class="o">&lt;</span> <span class="ss">TTT</span><span class="p">:</span><span class="ss">:Computer</span><span class="o">::</span><span class="no">Winner</span>
-</span><span class='line'>  <span class="k">def</span> <span class="nf">potential_wins</span>
-</span><span class='line'>    <span class="o">[</span><span class="n">opponent</span><span class="p">,</span> <span class="n">opponent</span><span class="p">,</span> <span class="s1">&#39; &#39;</span><span class="o">].</span><span class="n">permutation</span><span class="o">.</span><span class="n">to_a</span><span class="o">.</span><span class="n">uniq</span>
-</span><span class='line'>  <span class="k">end</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="k">def</span> <span class="nf">can_block?</span>
-</span><span class='line'>    <span class="n">can_win?</span>
-</span><span class='line'>  <span class="k">end</span>
-</span><span class='line'><span class="k">end</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>While the original version hard coded the lookup process on the board and manually altered the data of each square in the <code>@tttboard</code> array, the <code>Blocker</code> class by contrast seems almost empty. <code>Blocker</code> inherits from the <code>Winner</code> class, which implements the logic of finding <code>potential_wins</code> and filling in the <code>piece</code> (&ldquo;X&rdquo; or &ldquo;O&rdquo;) of the computer in the empty space. The <code>Winner</code> class has methods like the following:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">def</span> <span class="nf">can_win_horiz?</span>
-</span><span class='line'>  <span class="n">potential_wins</span><span class="o">.</span><span class="n">any?</span> <span class="k">do</span> <span class="o">|</span><span class="n">pot_win</span><span class="o">|</span>
-</span><span class='line'>    <span class="n">board</span><span class="o">.</span><span class="n">include?</span><span class="p">(</span><span class="n">pot_win</span><span class="p">)</span>
-</span><span class='line'>  <span class="k">end</span>
-</span><span class='line'><span class="k">end</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>which determines if there are any potential wins for the computer horizontally. Another method <code>horiz_win</code> in the <code>Winner</code> class then uses the <code>update_board</code> method inherited from the <code>Computer</code> class to fill in the tic tac toe board with the computer&rsquo;s move.</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">def</span> <span class="nf">update_board</span><span class="p">(</span><span class="n">row</span><span class="p">,</span> <span class="n">col</span><span class="p">)</span>
-</span><span class='line'>  <span class="ss">TTT</span><span class="p">:</span><span class="ss">:BOARD</span><span class="o">[</span><span class="n">row</span><span class="o">][</span><span class="n">col</span><span class="o">]</span> <span class="o">=</span> <span class="n">piece</span> <span class="k">if</span> <span class="ss">TTT</span><span class="p">:</span><span class="ss">:BOARD</span><span class="o">[</span><span class="n">row</span><span class="o">][</span><span class="n">col</span><span class="o">]</span> <span class="o">==</span> <span class="s1">&#39; &#39;</span>
-</span><span class='line'><span class="k">end</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>The <code>Blocker</code> class has access to all of the methods of the <code>Winner</code> class. <code>Blocker</code> is essentially solving the same puzzle as <code>Winner</code>, but instead of solving for <em>computer</em> wins, it is solving for <em>human</em> wins. Therefore, all I really needed to change was the <code>potential_wins</code> method, plugging in <code>opponent</code> (indicating the human&rsquo;s &ldquo;X&rdquo; or &ldquo;O&rdquo; piece). This overwrote <code>Winner</code>&rsquo;s implementation of this method:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">def</span> <span class="nf">potential_wins</span>
-</span><span class='line'>  <span class="o">[</span><span class="n">piece</span><span class="p">,</span> <span class="n">piece</span><span class="p">,</span> <span class="s1">&#39; &#39;</span><span class="o">].</span><span class="n">permutation</span><span class="o">.</span><span class="n">to_a</span><span class="o">.</span><span class="n">uniq</span>
-</span><span class='line'><span class="k">end</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<h3>Make Reusable Code</h3>
-
-<p>This is the overarching lesson I learned in the process of refactoring my tic tac toe code. Writing the original tic tac toe implementation was painful &mdash; not only because I didn&rsquo;t really understand how to code at the time, but also because the code I wrote was extremely resistant to change. My new implementation of tic tac toe, on the other hand, relies more on abstractions and is significantly more open to the possibility of change in the future.</p>
-
-<p>Take, for example, the <code>Computer</code> class&rsquo;s <code>move</code> algorithm:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">def</span> <span class="nf">move</span>
-</span><span class='line'>  <span class="k">if</span> <span class="n">empty_spaces</span> <span class="o">&gt;</span> <span class="mi">7</span>
-</span><span class='line'>    <span class="n">opener</span><span class="o">.</span><span class="n">move</span>
-</span><span class='line'>  <span class="k">elsif</span> <span class="n">winner</span><span class="o">.</span><span class="n">can_win?</span>
-</span><span class='line'>    <span class="n">winner</span><span class="o">.</span><span class="n">move</span>
-</span><span class='line'>  <span class="k">elsif</span> <span class="n">blocker</span><span class="o">.</span><span class="n">can_block?</span>
-</span><span class='line'>    <span class="n">blocker</span><span class="o">.</span><span class="n">move</span>
-</span><span class='line'>  <span class="k">else</span>
-</span><span class='line'>    <span class="n">random_mover</span><span class="o">.</span><span class="n">move</span>
-</span><span class='line'>  <span class="k">end</span>
-</span><span class='line'><span class="k">end</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>But what if I want to make the computer smarter and decide to implement a way for the computer to recognize opportunities to create a fork? In my original implementation, the cost of adding such a feature was simply too high. Not only would I be afraid of breaking my existing code, but I&rsquo;d also have to hardcode every single permutation possible &mdash; something I now know is avoidable.</p>
-
-<p>Instead, with the new code, I could make a <code>Forker</code> class that inherits from <code>Computer</code>. The most significant change I&rsquo;d have to make to <code>Computer</code> to accomplish this would be:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">def</span> <span class="nf">move</span>
-</span><span class='line'>  <span class="k">if</span> <span class="n">empty_spaces</span> <span class="o">&gt;</span> <span class="mi">7</span>
-</span><span class='line'>    <span class="n">opener</span><span class="o">.</span><span class="n">move</span>
-</span><span class='line'>  <span class="k">elsif</span> <span class="n">winner</span><span class="o">.</span><span class="n">can_win?</span>
-</span><span class='line'>    <span class="n">winner</span><span class="o">.</span><span class="n">move</span>
-</span><span class='line'>  <span class="k">elsif</span> <span class="n">blocker</span><span class="o">.</span><span class="n">can_block?</span>
-</span><span class='line'>    <span class="n">blocker</span><span class="o">.</span><span class="n">move</span>
-</span><span class='line'>  <span class="k">elsif</span> <span class="n">forker</span><span class="o">.</span><span class="n">can_fork?</span>
-</span><span class='line'>    <span class="n">forker</span><span class="o">.</span><span class="n">move</span>
-</span><span class='line'>  <span class="k">else</span>
-</span><span class='line'>    <span class="n">random_mover</span><span class="o">.</span><span class="n">move</span>
-</span><span class='line'>  <span class="k">end</span>
-</span><span class='line'><span class="k">end</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>By extension, making a <code>ForkBlocker</code> class would be equally easy to accomplish.</p>
-
-<p>There are many other ways that my tic tac toe codebase can be easily expanded upon now. I could make the game a 4x4 or 5x5 grid instead of a 3x3 grid with ease. I don&rsquo;t even want to think about how many hours and keystrokes it would take to accomplish in the original implementation.</p>
-
-<h3>Going Forward</h3>
-
-<p>Another direction I want to take this project in is bringing tic tac toe to the Internet! I have a basic grasp of the Sinatra and Ruby on Rails web application frameworks, and now that I have tic tac toe running on the command line, the next logical step is figuring out how to deploy it on the web. This could bring about some new and interesting challenges like how to integrate JavaScript and jQuery into the app. I know very little about these technologies but am excited to learn more!</p>
-
-<h3>Links/Resources</h3>
-
-<ul>
-<li><a href="https://www.youtube.com/watch?v=8bZh5LMaSmE">Sandi Metz &ndash; All the Little Things (RailsConf 2014)</a></li>
-<li><a href="http://www.poodr.com/">Practical Object-Oriented Design in Ruby (POODR)</a></li>
-<li><a href="http://www.manning.com/black3/">The Well-Grounded Rubyist</a></li>
-<li><a href="http://rubyrogues.com/087-rr-book-clubpractical-object-oriented-design-in-ruby-with-sandi-metz/">Sandi Metz on the Ruby Rogues podcast</a></li>
-<li><a href="https://www.youtube.com/watch?v=DC-pQPq0acs">Ben Orenstein &ndash; Refactoring from Good to Great (Aloha Ruby Conf 2012)</a></li>
-<li><a href="https://www.youtube.com/watch?v=9LfmrkyP81M">David Heinemeier Hansson &ndash; Writing Software (RailsConf 2014)</a></li>
-</ul>
-
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/blog/page/2/">&larr; Older</a>
@@ -3382,6 +3647,10 @@
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2014/11/17/88-mph-with-flux-and-react/">88 Mph With Flux and React</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2014/10/08/behind-the-scenes-of-the-has-many-active-record-association/">Behind the Scenes of the &#8216;Has Many&#8217; Active Record Association</a>
       </li>
     
@@ -3395,10 +3664,6 @@
     
       <li class="post">
         <a href="/blog/2014/09/13/china-map-project-part-4-introducing-polymorphism/">China Map Project - Part 4: Introducing Polymorphism</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2014/09/12/china-map-project-part-3-refactoring-using-replace-method-with-method-object/">China Map Project - Part 3: Refactoring Using Replace Method With Method Object</a>
       </li>
     
   </ul>
