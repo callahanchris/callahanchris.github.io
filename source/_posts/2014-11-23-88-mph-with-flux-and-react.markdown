@@ -1,12 +1,12 @@
 ---
 layout: post
 title: "88 mph With Flux and React"
-date: 2014-11-17 21:10:29 -0500
+date: 2014-11-23 22:41:11 -0500
 comments: true
 categories: 
 ---
 
-React.js has gained a lot of attention since it was open sourced by Facebook last year, and with its recent version 0.12 release, it appears that a version 1.0 may soon be on the horizon. React is a lightweight front end toolkit for handling the view layer of web applications that emphasizes a unidirectional data flow to simplify logic about state and data binding. Under the hood, React utilizes a virtual DOM, diffing this with the [plain old DOM](http://www.w3.org/DOM/) (PODOM) and rerendering the page with the minimal effort necessary to reflect the updated state of the application. This is an interesting abstraction that makes it easier to reason about state in an application and relieves the need for developers to directly manipulate the DOM.
+[React.js](https://github.com/facebook/react) has gained a lot of attention since it was open sourced by Facebook last year, and with its recent version 0.12 release, it appears that a version 1.0 may soon be on the horizon. React is a lightweight front end toolkit for handling the view layer of web applications that emphasizes a unidirectional data flow to simplify logic about state and data binding. Under the hood, React utilizes a virtual DOM, diffing this with the [plain old DOM](http://www.w3.org/DOM/) (PODOM) and rerendering the page with the minimal effort necessary to reflect the updated state of the application. This is an interesting abstraction that makes it easier to reason about state in an application and relieves the need for developers to directly manipulate the DOM.
 
 This year, Facebook introduced Flux, the application architecture they use for React apps. Flux is more of a pattern for separating concerns and organizing files in large React applications than it is a full-blown front end framework like Angular or Ember. Flux provides a roadmap for ensuring the unidirectional flow of data in apps and allows for more modular processing of state changes, event handling, and interfacing with external services.
 
@@ -34,7 +34,7 @@ Lesser roles are played by:
 
 * Constants
 * Utils
-* [Router](https://github.com/rackt/react-router) ***CHECK
+* [Router](https://github.com/rackt/react-router)
 
 Keep in mind, this is all on the front end. React and Flux were explicitly intended to be back end agnostic. Plug in your favorite database and back end framework at will, should the need arise.
 
@@ -61,8 +61,6 @@ Each of the key parts mentioned above gets their own folder in the file director
     |   |   └── AppDispatcher.js
     |   ├── stores
     |   |   └── DeLoreanStore.js
-    |   ├── utils
-    |   |   └── WebAPIUtils.js      ?????????????????????
     |   ├── app.js
     |   └── bundle.js (this will be compiled automatically)
     ├── .gitignore
@@ -129,7 +127,7 @@ var App = React.render(
 );
 ```
 
-For now we'll use just one CSS file, `css/styles.css`. However, if the app get big enough we might want to make the CSS more modular. One way we could do this is by using individual CSS files for each React component, (e.g. `css/Accelerator.css`, `css/DeLorean.css`, etc.).
+For now we'll use just one CSS file, `css/styles.css`. However, if the app gets big enough we might want to make the CSS more modular. One way we could do this is by using individual CSS files for each React component, (e.g. `css/Accelerator.css`, `css/DeLorean.css`, etc.).
 
 ### Writing the App... The Flux Way
 
@@ -206,7 +204,7 @@ var Accelerator = React.createClass({
 module.exports = Accelerator;
 ```
 
-This method sends a message to an Action Creator. Action Creators supply an API of accepted methods that can be invoked by components, and are also the place where information can break out of the Flux loop and communicate via [XHR](?????????link) with the back end, external APIs, a database, etc. In the case of this app, it would be a bit contrived to ping an API or a back end, so I will keep the DeLoreanActionCreators file super simple and handle the logic in the DeLoreanStore.
+This method sends a message to an Action Creator. Action Creators supply an API of accepted methods that can be invoked by components, and are also the place where information can break out of the Flux loop and communicate via [XHR](https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest) with the back end, external APIs, a database, etc. In the case of this app, it would be a bit contrived to ping an API or a back end, so I will keep the DeLoreanActionCreators file super simple and handle the logic in the DeLoreanStore.
 
 ```javascript
 // js/actions/DeLoreanActionCreators.js
