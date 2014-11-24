@@ -4,7 +4,7 @@
   <title><![CDATA[Chris Callahan's Blog]]></title>
   <link href="http://callahanchris.github.io/atom.xml" rel="self"/>
   <link href="http://callahanchris.github.io/"/>
-  <updated>2014-11-23T22:01:27-05:00</updated>
+  <updated>2014-11-23T22:42:01-05:00</updated>
   <id>http://callahanchris.github.io/</id>
   <author>
     <name><![CDATA[Chris Callahan]]></name>
@@ -15,10 +15,10 @@
   
   <entry>
     <title type="html"><![CDATA[88 Mph With Flux and React]]></title>
-    <link href="http://callahanchris.github.io/blog/2014/11/17/88-mph-with-flux-and-react/"/>
-    <updated>2014-11-17T21:10:29-05:00</updated>
-    <id>http://callahanchris.github.io/blog/2014/11/17/88-mph-with-flux-and-react</id>
-    <content type="html"><![CDATA[<p>React.js has gained a lot of attention since it was open sourced by Facebook last year, and with its recent version 0.12 release, it appears that a version 1.0 may soon be on the horizon. React is a lightweight front end toolkit for handling the view layer of web applications that emphasizes a unidirectional data flow to simplify logic about state and data binding. Under the hood, React utilizes a virtual DOM, diffing this with the <a href="http://www.w3.org/DOM/">plain old DOM</a> (PODOM) and rerendering the page with the minimal effort necessary to reflect the updated state of the application. This is an interesting abstraction that makes it easier to reason about state in an application and relieves the need for developers to directly manipulate the DOM.</p>
+    <link href="http://callahanchris.github.io/blog/2014/11/23/88-mph-with-flux-and-react/"/>
+    <updated>2014-11-23T22:41:11-05:00</updated>
+    <id>http://callahanchris.github.io/blog/2014/11/23/88-mph-with-flux-and-react</id>
+    <content type="html"><![CDATA[<p><a href="https://github.com/facebook/react">React.js</a> has gained a lot of attention since it was open sourced by Facebook last year, and with its recent version 0.12 release, it appears that a version 1.0 may soon be on the horizon. React is a lightweight front end toolkit for handling the view layer of web applications that emphasizes a unidirectional data flow to simplify logic about state and data binding. Under the hood, React utilizes a virtual DOM, diffing this with the <a href="http://www.w3.org/DOM/">plain old DOM</a> (PODOM) and rerendering the page with the minimal effort necessary to reflect the updated state of the application. This is an interesting abstraction that makes it easier to reason about state in an application and relieves the need for developers to directly manipulate the DOM.</p>
 
 <p>This year, Facebook introduced Flux, the application architecture they use for React apps. Flux is more of a pattern for separating concerns and organizing files in large React applications than it is a full-blown front end framework like Angular or Ember. Flux provides a roadmap for ensuring the unidirectional flow of data in apps and allows for more modular processing of state changes, event handling, and interfacing with external services.</p>
 
@@ -50,7 +50,7 @@
 <ul>
 <li>Constants</li>
 <li>Utils</li>
-<li><a href="https://github.com/rackt/react-router">Router</a> ***CHECK</li>
+<li><a href="https://github.com/rackt/react-router">Router</a></li>
 </ul>
 
 
@@ -79,8 +79,6 @@
 |   |   └── AppDispatcher.js
 |   ├── stores
 |   |   └── DeLoreanStore.js
-|   ├── utils
-|   |   └── WebAPIUtils.js      ?????????????????????
 |   ├── app.js
 |   └── bundle.js (this will be compiled automatically)
 ├── .gitignore
@@ -197,7 +195,7 @@
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>For now we&rsquo;ll use just one CSS file, <code>css/styles.css</code>. However, if the app get big enough we might want to make the CSS more modular. One way we could do this is by using individual CSS files for each React component, (e.g. <code>css/Accelerator.css</code>, <code>css/DeLorean.css</code>, etc.).</p>
+<p>For now we&rsquo;ll use just one CSS file, <code>css/styles.css</code>. However, if the app gets big enough we might want to make the CSS more modular. One way we could do this is by using individual CSS files for each React component, (e.g. <code>css/Accelerator.css</code>, <code>css/DeLorean.css</code>, etc.).</p>
 
 <h3>Writing the App&hellip; The Flux Way</h3>
 
@@ -335,7 +333,7 @@
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>This method sends a message to an Action Creator. Action Creators supply an API of accepted methods that can be invoked by components, and are also the place where information can break out of the Flux loop and communicate via <a href="?????????link">XHR</a> with the back end, external APIs, a database, etc. In the case of this app, it would be a bit contrived to ping an API or a back end, so I will keep the DeLoreanActionCreators file super simple and handle the logic in the DeLoreanStore.</p>
+<p>This method sends a message to an Action Creator. Action Creators supply an API of accepted methods that can be invoked by components, and are also the place where information can break out of the Flux loop and communicate via <a href="https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest">XHR</a> with the back end, external APIs, a database, etc. In the case of this app, it would be a bit contrived to ping an API or a back end, so I will keep the DeLoreanActionCreators file super simple and handle the logic in the DeLoreanStore.</p>
 
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
