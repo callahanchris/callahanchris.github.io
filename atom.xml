@@ -4,7 +4,7 @@
   <title><![CDATA[Chris Callahan's Blog]]></title>
   <link href="http://callahanchris.github.io/atom.xml" rel="self"/>
   <link href="http://callahanchris.github.io/"/>
-  <updated>2014-11-23T22:42:01-05:00</updated>
+  <updated>2014-11-30T20:44:26-05:00</updated>
   <id>http://callahanchris.github.io/</id>
   <author>
     <name><![CDATA[Chris Callahan]]></name>
@@ -347,15 +347,17 @@
 <span class='line-number'>10</span>
 <span class='line-number'>11</span>
 <span class='line-number'>12</span>
+<span class='line-number'>13</span>
 </pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="c1">// js/actions/DeLoreanActionCreators.js</span>
 </span><span class='line'>
 </span><span class='line'><span class="kd">var</span> <span class="nx">AppDispatcher</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;../dispatcher/AppDispatcher&#39;</span><span class="p">);</span>
 </span><span class='line'><span class="kd">var</span> <span class="nx">ActionTypes</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;../constants/AppConstants&#39;</span><span class="p">).</span><span class="nx">ActionTypes</span><span class="p">;</span>
 </span><span class='line'>
 </span><span class='line'><span class="nx">module</span><span class="p">.</span><span class="nx">exports</span> <span class="o">=</span> <span class="p">{</span>
-</span><span class='line'>  <span class="nx">accelerate</span><span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>  <span class="nx">accelerate</span><span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">mph</span><span class="p">)</span> <span class="p">{</span>
 </span><span class='line'>    <span class="nx">AppDispatcher</span><span class="p">.</span><span class="nx">handleViewAction</span><span class="p">({</span>
-</span><span class='line'>      <span class="nx">type</span><span class="o">:</span> <span class="nx">ActionTypes</span><span class="p">.</span><span class="nx">ACCELERATE</span>
+</span><span class='line'>      <span class="nx">type</span><span class="o">:</span> <span class="nx">ActionTypes</span><span class="p">.</span><span class="nx">ACCELERATE</span><span class="p">,</span>
+</span><span class='line'>      <span class="nx">mph</span><span class="o">:</span> <span class="nx">mph</span>
 </span><span class='line'>    <span class="p">});</span>
 </span><span class='line'>  <span class="p">}</span>
 </span><span class='line'><span class="p">};</span>
@@ -380,12 +382,12 @@
 </span><span class='line'>
 </span><span class='line'><span class="nx">module</span><span class="p">.</span><span class="nx">exports</span> <span class="o">=</span> <span class="p">{</span>
 </span><span class='line'>  <span class="nx">ActionTypes</span><span class="o">:</span> <span class="p">{</span>
-</span><span class='line'>    <span class="nx">ACCELERATE</span><span class="o">:</span> <span class="kc">null</span>
+</span><span class='line'>    <span class="nx">ACCELERATE</span><span class="o">:</span> <span class="s1">&#39;ACCELERATE&#39;</span>
 </span><span class='line'>  <span class="p">},</span>
 </span><span class='line'>
 </span><span class='line'>  <span class="nx">PayloadSources</span><span class="o">:</span> <span class="p">{</span>
-</span><span class='line'>    <span class="nx">SERVER_ACTION</span><span class="o">:</span> <span class="kc">null</span><span class="p">,</span>
-</span><span class='line'>    <span class="nx">VIEW_ACTION</span><span class="o">:</span> <span class="kc">null</span>
+</span><span class='line'>    <span class="nx">SERVER_ACTION</span><span class="o">:</span> <span class="s1">&#39;SERVER_ACTION&#39;</span><span class="p">,</span>
+</span><span class='line'>    <span class="nx">VIEW_ACTION</span><span class="o">:</span> <span class="s1">&#39;VIEW_ACTION&#39;</span>
 </span><span class='line'>  <span class="p">}</span>
 </span><span class='line'><span class="p">};</span>
 </span></code></pre></td></tr></table></div></figure>
@@ -540,7 +542,7 @@
 </span><span class='line'>
 </span><span class='line'>  <span class="k">switch</span><span class="p">(</span><span class="nx">action</span><span class="p">.</span><span class="nx">type</span><span class="p">)</span> <span class="p">{</span>
 </span><span class='line'>  <span class="k">case</span> <span class="nx">ActionTypes</span><span class="p">.</span><span class="nx">ACCELERATE</span><span class="o">:</span>
-</span><span class='line'>    <span class="nx">_accelerate</span><span class="p">();</span>
+</span><span class='line'>    <span class="nx">_accelerate</span><span class="p">(</span><span class="nx">action</span><span class="p">.</span><span class="nx">mph</span><span class="p">);</span>
 </span><span class='line'>    <span class="nx">DeLoreanStore</span><span class="p">.</span><span class="nx">emitChange</span><span class="p">();</span>
 </span><span class='line'>    <span class="k">break</span><span class="p">;</span>
 </span><span class='line'>
@@ -549,8 +551,8 @@
 </span><span class='line'>  <span class="p">}</span>
 </span><span class='line'><span class="p">});</span>
 </span><span class='line'>
-</span><span class='line'><span class="kd">function</span> <span class="nx">_accelerate</span><span class="p">()</span> <span class="p">{</span>
-</span><span class='line'>  <span class="nx">_speed</span> <span class="o">+=</span> <span class="mi">1</span><span class="p">;</span>
+</span><span class='line'><span class="kd">function</span> <span class="nx">_accelerate</span><span class="p">(</span><span class="nx">mph</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>  <span class="nx">_speed</span> <span class="o">+=</span> <span class="nx">mph</span><span class="p">;</span>
 </span><span class='line'><span class="p">}</span>
 </span><span class='line'>
 </span><span class='line'><span class="nx">module</span><span class="p">.</span><span class="nx">exports</span> <span class="o">=</span> <span class="nx">DeLoreanStore</span><span class="p">;</span>
