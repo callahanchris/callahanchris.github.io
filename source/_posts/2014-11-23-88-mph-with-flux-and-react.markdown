@@ -213,9 +213,10 @@ var AppDispatcher = require('../dispatcher/AppDispatcher');
 var ActionTypes = require('../constants/AppConstants').ActionTypes;
 
 module.exports = {
-  accelerate: function() {
+  accelerate: function(mph) {
     AppDispatcher.handleViewAction({
-      type: ActionTypes.ACCELERATE
+      type: ActionTypes.ACCELERATE,
+      mph: mph
     });
   }
 };
@@ -228,12 +229,12 @@ Action Creators can pass on any updated state they receive from the components t
 
 module.exports = {
   ActionTypes: {
-    ACCELERATE: null
+    ACCELERATE: 'ACCELERATE'
   },
 
   PayloadSources: {
-    SERVER_ACTION: null,
-    VIEW_ACTION: null
+    SERVER_ACTION: 'SERVER_ACTION',
+    VIEW_ACTION: 'VIEW_ACTION'
   }
 };
 ```
@@ -315,7 +316,7 @@ DeLoreanStore.dispatchToken = AppDispatcher.register(function(payload) {
 
   switch(action.type) {
   case ActionTypes.ACCELERATE:
-    _accelerate();
+    _accelerate(action.mph);
     DeLoreanStore.emitChange();
     break;
 
@@ -324,8 +325,8 @@ DeLoreanStore.dispatchToken = AppDispatcher.register(function(payload) {
   }
 });
 
-function _accelerate() {
-  _speed += 1;
+function _accelerate(mph) {
+  _speed += mph;
 }
 
 module.exports = DeLoreanStore;
