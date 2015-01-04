@@ -119,9 +119,9 @@
 </span><span class='line'>  <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">angLeeMovies</span><span class="p">[</span><span class="nx">i</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39; was directed by Ang Lee.&#39;</span><span class="p">);</span>
 </span><span class='line'><span class="p">}</span>
 </span><span class='line'>
-</span><span class='line'><span class="c1">// Pushing Hands was directed by Ang Lee.</span>
-</span><span class='line'><span class="c1">// The Wedding Banquet was directed by Ang Lee.</span>
-</span><span class='line'><span class="c1">// Eat Drink Man Woman was directed by Ang Lee.</span>
+</span><span class='line'><span class="c1">// &quot;Pushing Hands was directed by Ang Lee.&quot;</span>
+</span><span class='line'><span class="c1">// &quot;The Wedding Banquet was directed by Ang Lee.&quot;</span>
+</span><span class='line'><span class="c1">// &quot;Eat Drink Man Woman was directed by Ang Lee.&quot;</span>
 </span></code></pre></td></tr></table></div></figure>
 
 
@@ -187,7 +187,7 @@
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>Here the <code>movie</code> parameter is being implicitly passed to the <code>extractYear()</code> function, but the behavior is the same as above.</p>
+<p>Here <code>movie</code> is being implicitly passed as an argument to the <code>extractYear()</code> function, but the behavior is the same as above.</p>
 
 <p><em><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map">MDN Documentation - Array.prototype.map()</a></em></p>
 
@@ -272,7 +272,7 @@
 
 <p>Here the <code>previousValue</code> argument is the accumulator that we increment if Ang Lee won an Oscar for best director for the movie we&rsquo;re iterating over, and the <code>currentValue</code> argument is item being iterated over. As there is no <code>previousValue</code> when iterating over the first item, we can initialize it to 0 as an optional second parameter to the <code>reduce()</code> function.</p>
 
-<p>Though it can seem somewhat esoteric at first, <code>reduce()</code> has grown on me significantly in the past few months &ndash; partly because of using MapReduce views in CouchDB views, and partly because of learning more about the benefits of functional programming. It</p>
+<p>Though it can seem somewhat esoteric at first, <code>reduce()</code> has grown on me significantly in the past few months &ndash; partly because of using MapReduce views in CouchDB views, and partly because of learning more about the benefits of functional programming.</p>
 
 <p><em><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/reduce">MDN Documentation - Array.prototype.reduce()</a></em></p>
 
@@ -437,15 +437,15 @@
 </span><span class='line'>
 </span><span class='line'><span class="nx">angLeeMovies</span><span class="p">.</span><span class="nx">forEach</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">movie</span><span class="p">)</span> <span class="p">{</span>
 </span><span class='line'>  <span class="k">if</span> <span class="p">(</span><span class="nx">movie</span><span class="p">.</span><span class="nx">bestDirectorOscar</span> <span class="o">===</span> <span class="s1">&#39;won&#39;</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;Ang Lee won an Oscar for best director for &quot;&#39;</span> <span class="o">+</span> <span class="nx">movie</span><span class="p">.</span><span class="nx">title</span> <span class="o">+</span> <span class="s1">&#39;&quot;&#39;</span><span class="p">);</span>
+</span><span class='line'>    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;Ang Lee won an Oscar for best director for &#39;</span> <span class="o">+</span> <span class="nx">movie</span><span class="p">.</span><span class="nx">title</span><span class="p">);</span>
 </span><span class='line'>  <span class="p">}</span> <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="nx">movie</span><span class="p">.</span><span class="nx">bestDirectorOscar</span> <span class="o">===</span> <span class="s1">&#39;nominated&#39;</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;Ang Lee was nominated for an Oscar for best director for &quot;&#39;</span> <span class="o">+</span> <span class="nx">movie</span><span class="p">.</span><span class="nx">title</span> <span class="o">+</span> <span class="s1">&#39;&quot;&#39;</span><span class="p">);</span>
+</span><span class='line'>    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;Ang Lee was nominated for an Oscar for best director for &#39;</span> <span class="o">+</span> <span class="nx">movie</span><span class="p">.</span><span class="nx">title</span><span class="p">);</span>
 </span><span class='line'>  <span class="p">}</span>
 </span><span class='line'><span class="p">});</span>
 </span><span class='line'>
-</span><span class='line'><span class="c1">// Ang Lee won an Oscar for best director for &quot;Brokeback Mountain&quot;</span>
-</span><span class='line'><span class="c1">// Ang Lee was nominated for an Oscar for best director for &quot;Crouching Tiger, Hidden Dragon&quot;</span>
-</span><span class='line'><span class="c1">// Ang Lee won an Oscar for best director for &quot;Life of Pi&quot;</span>
+</span><span class='line'><span class="c1">// &quot;Ang Lee won an Oscar for best director for Brokeback Mountain&quot;</span>
+</span><span class='line'><span class="c1">// &quot;Ang Lee was nominated for an Oscar for best director for Crouching Tiger, Hidden Dragon&quot;</span>
+</span><span class='line'><span class="c1">// &quot;Ang Lee won an Oscar for best director for Life of Pi&quot;</span>
 </span><span class='line'><span class="c1">// undefined</span>
 </span></code></pre></td></tr></table></div></figure>
 
