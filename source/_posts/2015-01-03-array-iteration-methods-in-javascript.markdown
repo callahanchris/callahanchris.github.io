@@ -9,16 +9,15 @@ categories:
 When I first started learning JavaScript, I went through a number of tutorials that showed how to iterate over collections in an imperative style using a `for` loop:
 
 ```javascript
-var angLeeMovies = [
-      'Pushing Hands',
-      'The Wedding Banquet',
-      'Eat Drink Man Woman'
-    ],
-    i;
+var angLeeMovies = ['Pushing Hands', 'The Wedding Banquet', 'Eat Drink Man Woman'], i;
 
 for (i = 0; i < angLeeMovies.length; i += 1) {
   console.log(angLeeMovies[i] + ' was directed by Ang Lee.');
 }
+
+// Pushing Hands was directed by Ang Lee.
+// The Wedding Banquet was directed by Ang Lee.
+// Eat Drink Man Woman was directed by Ang Lee.
 ```
 
 Before ES5, this was the best available way to iterate over an array, but now there are a number of more expressive, idiomatic, and functional ways of iterating over JavaScript arrays.
@@ -188,7 +187,7 @@ Similar to `every()`, `some()` iterates over an array and returns `true` if any 
 ```javascript
 Array.prototype.mySome = function(callback) {
   return this.reduce(function(previousValue, currentValue) {
-    return previousValue ? true : callback(currentValue);
+    return previousValue || callback(currentValue);
   }, false); // some() returns false for empty arrays
 };
 
