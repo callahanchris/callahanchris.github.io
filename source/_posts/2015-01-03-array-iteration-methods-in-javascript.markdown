@@ -95,7 +95,7 @@ While 0 being falsy is a "classic JavaScript gotcha", the point remains that `fi
 
 #### `Array.prototype.reduce()`
 
-`reduce()` has been the hardest of all FP methods for me to fully embrace, but it can be extremely useful in certain cases. The core idea of `reduce()` is that it iterates over an array and returns exactly one object. The return value is commonly a sum or count of some property of the items in the array, but `reduce()` is quite flexible in what it can produce.
+`reduce()` has been the hardest of all FP methods for me to fully embrace, but it can be extremely useful in certain cases. The core idea of `reduce()` is that it iterates over an array and returns exactly one value. The return value is commonly a sum or count of some property of the items in the array, but `reduce()` is quite flexible in what it can produce.
 
 ```javascript
 var angLeeMovies = [
