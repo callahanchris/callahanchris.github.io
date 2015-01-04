@@ -15,9 +15,9 @@ for (i = 0; i < angLeeMovies.length; i += 1) {
   console.log(angLeeMovies[i] + ' was directed by Ang Lee.');
 }
 
-// Pushing Hands was directed by Ang Lee.
-// The Wedding Banquet was directed by Ang Lee.
-// Eat Drink Man Woman was directed by Ang Lee.
+// "Pushing Hands was directed by Ang Lee."
+// "The Wedding Banquet was directed by Ang Lee."
+// "Eat Drink Man Woman was directed by Ang Lee."
 ```
 
 Before ES5, this was the best available way to iterate over an array, but now there are a number of more expressive, idiomatic, and functional ways of iterating over JavaScript arrays.
@@ -59,7 +59,7 @@ releaseYears = angLeeMovies.map(extractYear);
 console.log(releaseYears); // [2012, 2009, 2007, 2005, 2003]
 ```
 
-Here the `movie` parameter is being implicitly passed to the `extractYear()` function, but the behavior is the same as above.
+Here `movie` is being implicitly passed as an argument to the `extractYear()` function, but the behavior is the same as above.
 
 *[MDN Documentation - Array.prototype.map()](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map)*
 
@@ -116,7 +116,7 @@ console.log(bestDirectorWins); // 2
 
 Here the `previousValue` argument is the accumulator that we increment if Ang Lee won an Oscar for best director for the movie we're iterating over, and the `currentValue` argument is item being iterated over. As there is no `previousValue` when iterating over the first item, we can initialize it to 0 as an optional second parameter to the `reduce()` function.
 
-Though it can seem somewhat esoteric at first, `reduce()` has grown on me significantly in the past few months -- partly because of using MapReduce views in CouchDB views, and partly because of learning more about the benefits of functional programming. It 
+Though it can seem somewhat esoteric at first, `reduce()` has grown on me significantly in the past few months -- partly because of using MapReduce views in CouchDB views, and partly because of learning more about the benefits of functional programming.
 
 *[MDN Documentation - Array.prototype.reduce()](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/reduce)*
 
@@ -215,15 +215,15 @@ var angLeeMovies = [
 
 angLeeMovies.forEach(function(movie) {
   if (movie.bestDirectorOscar === 'won') {
-    console.log('Ang Lee won an Oscar for best director for "' + movie.title + '"');
+    console.log('Ang Lee won an Oscar for best director for ' + movie.title);
   } else if (movie.bestDirectorOscar === 'nominated') {
-    console.log('Ang Lee was nominated for an Oscar for best director for "' + movie.title + '"');
+    console.log('Ang Lee was nominated for an Oscar for best director for ' + movie.title);
   }
 });
 
-// Ang Lee won an Oscar for best director for "Brokeback Mountain"
-// Ang Lee was nominated for an Oscar for best director for "Crouching Tiger, Hidden Dragon"
-// Ang Lee won an Oscar for best director for "Life of Pi"
+// "Ang Lee won an Oscar for best director for Brokeback Mountain"
+// "Ang Lee was nominated for an Oscar for best director for Crouching Tiger, Hidden Dragon"
+// "Ang Lee won an Oscar for best director for Life of Pi"
 // undefined
 ```
 
