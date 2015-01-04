@@ -5,11 +5,11 @@
 <!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <title>Chris Callahan's Blog</title>
+  <title>Chris Callahan&#8217;s Blog</title>
   <meta name="author" content="Chris Callahan">
 
   
-  <meta name="description" content="React.js has gained a lot of attention since it was open sourced by Facebook last year, and with its recent version 0.12 release, it appears that a &hellip;">
+  <meta name="description" content="When I first started learning JavaScript, I went through a number of tutorials that showed how to iterate over collections in an imperative style &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -42,7 +42,7 @@
 
 <body   >
   <header role="banner"><hgroup>
-  <h1><a href="/">Chris Callahan's Blog</a></h1>
+  <h1><a href="/">Chris Callahan&#8217;s Blog</a></h1>
   
     <h2>Becoming a hacker.</h2>
   
@@ -79,6 +79,412 @@
       
   <header>
     
+      <h1 class="entry-title"><a href="/blog/2015/01/03/array-iteration-methods-in-javascript/">Array Iteration Methods in JavaScript</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2015-01-03T15:55:19-05:00" pubdate data-updated="true"></time>
+        
+           | <a href="/blog/2015/01/03/array-iteration-methods-in-javascript/#disqus_thread"
+             data-disqus-identifier="http://callahanchris.github.io/blog/2015/01/03/array-iteration-methods-in-javascript/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>When I first started learning JavaScript, I went through a number of tutorials that showed how to iterate over collections in an imperative style using a <code>for</code> loop:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kd">var</span> <span class="nx">angLeeMovies</span> <span class="o">=</span> <span class="p">[</span>
+</span><span class='line'>      <span class="s1">&#39;Pushing Hands&#39;</span><span class="p">,</span>
+</span><span class='line'>      <span class="s1">&#39;The Wedding Banquet&#39;</span><span class="p">,</span>
+</span><span class='line'>      <span class="s1">&#39;Eat Drink Man Woman&#39;</span>
+</span><span class='line'>    <span class="p">],</span>
+</span><span class='line'>    <span class="nx">i</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">for</span> <span class="p">(</span><span class="nx">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">i</span> <span class="o">&lt;</span> <span class="nx">angLeeMovies</span><span class="p">.</span><span class="nx">length</span><span class="p">;</span> <span class="nx">i</span> <span class="o">+=</span> <span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>  <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">angLeeMovies</span><span class="p">[</span><span class="nx">i</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39; was directed by Ang Lee.&#39;</span><span class="p">);</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Before ES5, this was the best available way to iterate over an array, but now there are a number of more expressive, idiomatic, and functional ways of iterating over JavaScript arrays.</p>
+
+<h3>The Big Three: <code>map()</code>, <code>filter()</code> &amp; <code>reduce()</code></h3>
+
+<h4><code>Array.prototype.map()</code></h4>
+
+<p><code>map()</code> is the array method I find myself using all the time when writing JavaScript code. The conceit is simple: <code>map()</code> takes a callback function as a parameter, calls this function on each item in the array, and returns a new array of the same length as the initial array that contains the resulting values.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kd">var</span> <span class="nx">angLeeMovies</span> <span class="o">=</span> <span class="p">[</span>
+</span><span class='line'>    <span class="p">{</span><span class="nx">title</span><span class="o">:</span> <span class="s1">&#39;Life of Pi&#39;</span><span class="p">,</span> <span class="nx">year</span><span class="o">:</span> <span class="mi">2012</span><span class="p">},</span>
+</span><span class='line'>    <span class="p">{</span><span class="nx">title</span><span class="o">:</span> <span class="s1">&#39;Taking Woodstock&#39;</span><span class="p">,</span> <span class="nx">year</span><span class="o">:</span> <span class="mi">2009</span><span class="p">},</span>
+</span><span class='line'>    <span class="p">{</span><span class="nx">title</span><span class="o">:</span> <span class="s1">&#39;Lust, Caution&#39;</span><span class="p">,</span> <span class="nx">year</span><span class="o">:</span> <span class="mi">2007</span><span class="p">},</span>
+</span><span class='line'>    <span class="p">{</span><span class="nx">title</span><span class="o">:</span> <span class="s1">&#39;Brokeback Mountain&#39;</span><span class="p">,</span> <span class="nx">year</span><span class="o">:</span> <span class="mi">2005</span><span class="p">},</span>
+</span><span class='line'>    <span class="p">{</span><span class="nx">title</span><span class="o">:</span> <span class="s1">&#39;Hulk&#39;</span><span class="p">,</span> <span class="nx">year</span><span class="o">:</span> <span class="mi">2003</span><span class="p">}</span>
+</span><span class='line'>  <span class="p">],</span>
+</span><span class='line'>  <span class="nx">releaseYears</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="nx">releaseYears</span> <span class="o">=</span> <span class="nx">angLeeMovies</span><span class="p">.</span><span class="nx">map</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">movie</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>  <span class="k">return</span> <span class="nx">movie</span><span class="p">.</span><span class="nx">year</span><span class="p">;</span>
+</span><span class='line'><span class="p">});</span>
+</span><span class='line'>
+</span><span class='line'><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">releaseYears</span><span class="p">);</span> <span class="c1">// [2012, 2009, 2007, 2005, 2003]</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This can be simplified even further by extracting the function and passing it as an argument to <code>map()</code>.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kd">var</span> <span class="nx">angLeeMovies</span> <span class="o">=</span> <span class="p">[</span> <span class="p">...</span> <span class="p">],</span> <span class="nx">releaseYears</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="kd">function</span> <span class="nx">extractYear</span><span class="p">(</span><span class="nx">movie</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>  <span class="k">return</span> <span class="nx">movie</span><span class="p">.</span><span class="nx">year</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="nx">releaseYears</span> <span class="o">=</span> <span class="nx">angLeeMovies</span><span class="p">.</span><span class="nx">map</span><span class="p">(</span><span class="nx">extractYear</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">releaseYears</span><span class="p">);</span> <span class="c1">// [2012, 2009, 2007, 2005, 2003]</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Here the <code>movie</code> parameter is being implicitly passed to the <code>extractYear()</code> function, but the behavior is the same as above.</p>
+
+<p><em><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map">MDN Documentation - Array.prototype.map()</a></em></p>
+
+<h4><code>Array.prototype.filter()</code></h4>
+
+<p><code>filter()</code> is intuitively named: it calls a callback function on each item in an array, filters out items that return a falsy value, and returns a new array with the remaining items (those that the callback returns a truthy value for).</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kd">var</span> <span class="nx">truthyAndFalsy</span> <span class="o">=</span> <span class="p">[</span><span class="o">-</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="kc">undefined</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="kc">null</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="kc">NaN</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="kc">false</span><span class="p">,</span> <span class="mi">7</span><span class="p">],</span> <span class="nx">truthy</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="nx">truthy</span> <span class="o">=</span> <span class="nx">truthyAndFalsy</span><span class="p">.</span><span class="nx">filter</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">item</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>  <span class="k">return</span> <span class="nx">item</span><span class="p">;</span>
+</span><span class='line'><span class="p">});</span>
+</span><span class='line'>
+</span><span class='line'><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">truthy</span><span class="p">);</span> <span class="c1">// [1, 2, 3, 4, 5, 6, 7]</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Using the opposite test case, we can see the seven falsy values in JavaScript:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kd">var</span> <span class="nx">truthyAndFalsy</span> <span class="o">=</span> <span class="p">[</span> <span class="p">...</span> <span class="p">],</span> <span class="nx">falsy</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="nx">falsy</span> <span class="o">=</span> <span class="nx">truthyAndFalsy</span><span class="p">.</span><span class="nx">filter</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">item</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>  <span class="k">return</span> <span class="o">!</span><span class="nx">item</span><span class="p">;</span>
+</span><span class='line'><span class="p">});</span>
+</span><span class='line'>
+</span><span class='line'><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">falsy</span><span class="p">);</span> <span class="c1">// [-0, 0, undefined, null, &quot;&quot;, NaN, false]</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>While 0 being falsy is a &ldquo;classic JavaScript gotcha&rdquo;, the point remains that <code>filter()</code> is a powerful tool for collecting a subset of your data that matches certain criteria.</p>
+
+<p><em><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/filter">MDN Documentation - Array.prototype.filter()</a></em></p>
+
+<h4><code>Array.prototype.reduce()</code></h4>
+
+<p><code>reduce()</code> has been the hardest of all FP methods for me to fully embrace, but it can be extremely useful in certain cases. The core idea of <code>reduce()</code> is that it iterates over an array and returns exactly one object. The return value is commonly a sum or count of some property of the items in the array, but <code>reduce()</code> is quite flexible in what it can produce.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kd">var</span> <span class="nx">angLeeMovies</span> <span class="o">=</span> <span class="p">[</span>
+</span><span class='line'>    <span class="p">{</span><span class="nx">title</span><span class="o">:</span> <span class="s1">&#39;Brokeback Mountain&#39;</span><span class="p">,</span> <span class="nx">bestDirectorOscar</span><span class="o">:</span> <span class="s1">&#39;won&#39;</span><span class="p">},</span>
+</span><span class='line'>    <span class="p">{</span><span class="nx">title</span><span class="o">:</span> <span class="s1">&#39;Crouching Tiger, Hidden Dragon&#39;</span><span class="p">,</span> <span class="nx">bestDirectorOscar</span><span class="o">:</span> <span class="s1">&#39;nominated&#39;</span><span class="p">},</span>
+</span><span class='line'>    <span class="p">{</span><span class="nx">title</span><span class="o">:</span> <span class="s1">&#39;Hulk&#39;</span><span class="p">,</span> <span class="nx">bestDirectorOscar</span><span class="o">:</span> <span class="kc">false</span><span class="p">},</span>
+</span><span class='line'>    <span class="p">{</span><span class="nx">title</span><span class="o">:</span> <span class="s1">&#39;Life of Pi&#39;</span><span class="p">,</span> <span class="nx">bestDirectorOscar</span><span class="o">:</span> <span class="s1">&#39;won&#39;</span><span class="p">},</span>
+</span><span class='line'>    <span class="p">{</span><span class="nx">title</span><span class="o">:</span> <span class="s1">&#39;The Ice Storm&#39;</span><span class="p">,</span> <span class="nx">bestDirectorOscar</span><span class="o">:</span> <span class="kc">false</span><span class="p">}</span>
+</span><span class='line'>  <span class="p">],</span>
+</span><span class='line'>  <span class="nx">bestDirectorWins</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="nx">bestDirectorWins</span> <span class="o">=</span> <span class="nx">angLeeMovies</span><span class="p">.</span><span class="nx">reduce</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">previousValue</span><span class="p">,</span> <span class="nx">currentValue</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>  <span class="k">return</span> <span class="nx">currentValue</span><span class="p">.</span><span class="nx">bestDirectorOscar</span> <span class="o">===</span> <span class="s1">&#39;won&#39;</span> <span class="o">?</span> <span class="nx">previousValue</span> <span class="o">+</span> <span class="mi">1</span> <span class="o">:</span> <span class="nx">previousValue</span><span class="p">;</span>
+</span><span class='line'><span class="p">},</span> <span class="mi">0</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">bestDirectorWins</span><span class="p">);</span> <span class="c1">// 2</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Here the <code>previousValue</code> argument is the accumulator that we increment if Ang Lee won an Oscar for best director for the movie we&rsquo;re iterating over, and the <code>currentValue</code> argument is item being iterated over. As there is no <code>previousValue</code> when iterating over the first item, we can initialize it to 0 as an optional second parameter to the <code>reduce()</code> function.</p>
+
+<p>Though it can seem somewhat esoteric at first, <code>reduce()</code> has grown on me significantly in the past few months &ndash; partly because of using MapReduce views in CouchDB views, and partly because of learning more about the benefits of functional programming. It</p>
+
+<p><em><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/reduce">MDN Documentation - Array.prototype.reduce()</a></em></p>
+
+<h3>Friends of <code>reduce()</code></h3>
+
+<h4><code>Array.prototype.reduceRight()</code></h4>
+
+<p>Having grasped <code>reduce()</code>, it is not a far stretch to get <code>reduceRight()</code>. Whereas <code>reduce()</code> iterates over an array from left to right, <code>reduceRight()</code> iterates from right to left. This does not make a difference for the standard sum/count use cases, but it can come in handy for other purposes. For example, if we have an array of Ang Lee movies sorted in reverse chronological order, we could use <code>reduceRight()</code> to sort these movies in chronological order by decade.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kd">var</span> <span class="nx">angLeeMovies</span> <span class="o">=</span> <span class="p">[</span>
+</span><span class='line'>    <span class="p">{</span><span class="nx">title</span><span class="o">:</span> <span class="s1">&#39;Life of Pi&#39;</span><span class="p">,</span> <span class="nx">year</span><span class="o">:</span> <span class="mi">2012</span><span class="p">},</span>
+</span><span class='line'>    <span class="p">{</span><span class="nx">title</span><span class="o">:</span> <span class="s1">&#39;Brokeback Mountain&#39;</span><span class="p">,</span> <span class="nx">year</span><span class="o">:</span> <span class="mi">2005</span><span class="p">},</span>
+</span><span class='line'>    <span class="p">{</span><span class="nx">title</span><span class="o">:</span> <span class="s1">&#39;Crouching Tiger, Hidden Dragon&#39;</span><span class="p">,</span> <span class="nx">year</span><span class="o">:</span> <span class="mi">2000</span><span class="p">},</span>
+</span><span class='line'>    <span class="p">{</span><span class="nx">title</span><span class="o">:</span> <span class="s1">&#39;The Wedding Banquet&#39;</span><span class="p">,</span> <span class="nx">year</span><span class="o">:</span> <span class="mi">1993</span><span class="p">}</span>
+</span><span class='line'>  <span class="p">],</span>
+</span><span class='line'>  <span class="nx">moviesByDecade</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="kd">function</span> <span class="nx">addMovieToDecade</span><span class="p">(</span><span class="nx">filmography</span><span class="p">,</span> <span class="nx">decade</span><span class="p">,</span> <span class="nx">title</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>  <span class="nx">filmography</span><span class="p">[</span><span class="nx">decade</span><span class="p">]</span> <span class="o">?</span> <span class="nx">filmography</span><span class="p">[</span><span class="nx">decade</span><span class="p">].</span><span class="nx">push</span><span class="p">(</span><span class="nx">title</span><span class="p">)</span> <span class="o">:</span> <span class="nx">filmography</span><span class="p">[</span><span class="nx">decade</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="nx">title</span><span class="p">];</span>
+</span><span class='line'>  <span class="k">return</span> <span class="nx">filmography</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="nx">moviesByDecade</span> <span class="o">=</span> <span class="nx">angLeeMovies</span><span class="p">.</span><span class="nx">reduceRight</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">previousValue</span><span class="p">,</span> <span class="nx">currentValue</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>  <span class="k">if</span> <span class="p">(</span><span class="nx">currentValue</span><span class="p">.</span><span class="nx">year</span> <span class="o">&gt;=</span> <span class="mi">2010</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">return</span> <span class="nx">addMovieToDecade</span><span class="p">(</span><span class="nx">previousValue</span><span class="p">,</span> <span class="s2">&quot;2010s&quot;</span><span class="p">,</span> <span class="nx">currentValue</span><span class="p">.</span><span class="nx">title</span><span class="p">);</span>
+</span><span class='line'>  <span class="p">}</span> <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="nx">currentValue</span><span class="p">.</span><span class="nx">year</span> <span class="o">&gt;=</span> <span class="mi">2000</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">return</span> <span class="nx">addMovieToDecade</span><span class="p">(</span><span class="nx">previousValue</span><span class="p">,</span> <span class="s2">&quot;2000s&quot;</span><span class="p">,</span> <span class="nx">currentValue</span><span class="p">.</span><span class="nx">title</span><span class="p">);</span>
+</span><span class='line'>  <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">return</span> <span class="nx">addMovieToDecade</span><span class="p">(</span><span class="nx">previousValue</span><span class="p">,</span> <span class="s2">&quot;1990s&quot;</span><span class="p">,</span> <span class="nx">currentValue</span><span class="p">.</span><span class="nx">title</span><span class="p">);</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="p">},</span> <span class="p">{});</span>
+</span><span class='line'>
+</span><span class='line'><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">moviesByDecade</span><span class="p">);</span>
+</span><span class='line'><span class="c1">// {</span>
+</span><span class='line'><span class="c1">//   &quot;1990s&quot;: [&quot;The Wedding Banquet&quot;],</span>
+</span><span class='line'><span class="c1">//   &quot;2000s&quot;: [&quot;Crouching Tiger, Hidden Dragon&quot;, &quot;Brokeback Mountain&quot;],</span>
+</span><span class='line'><span class="c1">//   &quot;2010s&quot;: [&quot;Life of Pi&quot;]</span>
+</span><span class='line'><span class="c1">// }</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p><em><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/reduceRight">MDN Documentation - Array.prototype.reduceRight()</a></em></p>
+
+<h4><code>Array.prototype.every()</code></h4>
+
+<p><code>every()</code> checks to see if all items in an array return a truthy value for the callback function. If they all do, <code>every()</code> returns <code>true</code>; otherwise, it returns <code>false</code>. Given what we know about <code>reduce()</code>, it seems like <code>every()</code> is achieving a similar purpose: boiling an array down to a single value. It is therefore pretty straightforward to implement our own version of <code>every()</code> based on <code>reduce()</code>. (Note, this is a simplified version, as <code>every()</code> can take an optional <code>thisArg</code> argument).</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="nb">Array</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">myEvery</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">callback</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>  <span class="k">return</span> <span class="k">this</span><span class="p">.</span><span class="nx">reduce</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">previousValue</span><span class="p">,</span> <span class="nx">currentValue</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">return</span> <span class="nx">previousValue</span> <span class="o">?</span> <span class="nx">callback</span><span class="p">(</span><span class="nx">currentValue</span><span class="p">)</span> <span class="o">:</span> <span class="kc">false</span><span class="p">;</span>
+</span><span class='line'>  <span class="p">},</span> <span class="kc">true</span><span class="p">);</span> <span class="c1">// every() returns true for empty arrays</span>
+</span><span class='line'><span class="p">};</span>
+</span><span class='line'>
+</span><span class='line'><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">].</span><span class="nx">myEvery</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">num</span><span class="p">)</span> <span class="p">{</span> <span class="k">return</span> <span class="nx">num</span> <span class="o">&lt;</span> <span class="mi">10</span><span class="p">;</span> <span class="p">});</span> <span class="c1">// true</span>
+</span><span class='line'><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">].</span><span class="nx">myEvery</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">num</span><span class="p">)</span> <span class="p">{</span> <span class="k">return</span> <span class="nx">num</span> <span class="o">&lt;</span> <span class="mi">3</span><span class="p">;</span> <span class="p">});</span>  <span class="c1">// false</span>
+</span><span class='line'><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">].</span><span class="nx">myEvery</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">num</span><span class="p">)</span> <span class="p">{</span> <span class="k">return</span> <span class="nx">num</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">;</span> <span class="p">});</span>  <span class="c1">// false</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Unlike my crude implementation, <code>every()</code> is optimized to return immediately if a falsy value is returned from the callback. Personally, I haven&rsquo;t used <code>every()</code> much &ndash; I prefer to use <code>map()</code>, <code>filter()</code>, and <code>reduce()</code>.</p>
+
+<p><em><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/every">MDN Documentation - Array.prototype.every()</a></em></p>
+
+<h4><code>Array.prototype.some()</code></h4>
+
+<p>Similar to <code>every()</code>, <code>some()</code> iterates over an array and returns <code>true</code> if any items in the array return a truthy value, and <code>false</code> if none do. This can also be (again, crudely) expressed in terms of <code>reduce()</code>:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="nb">Array</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">mySome</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">callback</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>  <span class="k">return</span> <span class="k">this</span><span class="p">.</span><span class="nx">reduce</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">previousValue</span><span class="p">,</span> <span class="nx">currentValue</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">return</span> <span class="nx">previousValue</span> <span class="o">?</span> <span class="kc">true</span> <span class="o">:</span> <span class="nx">callback</span><span class="p">(</span><span class="nx">currentValue</span><span class="p">);</span>
+</span><span class='line'>  <span class="p">},</span> <span class="kc">false</span><span class="p">);</span> <span class="c1">// some() returns false for empty arrays</span>
+</span><span class='line'><span class="p">};</span>
+</span><span class='line'>
+</span><span class='line'><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">].</span><span class="nx">mySome</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">num</span><span class="p">)</span> <span class="p">{</span> <span class="k">return</span> <span class="nx">num</span> <span class="o">&lt;</span> <span class="mi">10</span><span class="p">;</span> <span class="p">});</span> <span class="c1">// true</span>
+</span><span class='line'><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">].</span><span class="nx">mySome</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">num</span><span class="p">)</span> <span class="p">{</span> <span class="k">return</span> <span class="nx">num</span> <span class="o">&lt;</span> <span class="mi">3</span><span class="p">;</span> <span class="p">});</span>  <span class="c1">// true</span>
+</span><span class='line'><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">].</span><span class="nx">mySome</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">num</span><span class="p">)</span> <span class="p">{</span> <span class="k">return</span> <span class="nx">num</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">;</span> <span class="p">});</span>  <span class="c1">// false</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p><em><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/some">MDN Documentation - Array.prototype.some()</a></em></p>
+
+<h3>A More Expressive <code>for</code> Idiom?</h3>
+
+<h4><code>Array.prototype.forEach()</code></h4>
+
+<p>To me, <code>forEach()</code> appears to be a direct successor to the <code>for (i = 0; i &lt; x.length; i += 1) {}</code> example above. It is a basic iterator that gives you access to one item in an array at a time, and returns <code>undefined</code>.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kd">var</span> <span class="nx">angLeeMovies</span> <span class="o">=</span> <span class="p">[</span>
+</span><span class='line'>    <span class="p">{</span><span class="nx">title</span><span class="o">:</span> <span class="s1">&#39;Brokeback Mountain&#39;</span><span class="p">,</span> <span class="nx">bestDirectorOscar</span><span class="o">:</span> <span class="s1">&#39;won&#39;</span><span class="p">},</span>
+</span><span class='line'>    <span class="p">{</span><span class="nx">title</span><span class="o">:</span> <span class="s1">&#39;Crouching Tiger, Hidden Dragon&#39;</span><span class="p">,</span> <span class="nx">bestDirectorOscar</span><span class="o">:</span> <span class="s1">&#39;nominated&#39;</span><span class="p">},</span>
+</span><span class='line'>    <span class="p">{</span><span class="nx">title</span><span class="o">:</span> <span class="s1">&#39;Hulk&#39;</span><span class="p">,</span> <span class="nx">bestDirectorOscar</span><span class="o">:</span> <span class="kc">false</span><span class="p">},</span>
+</span><span class='line'>    <span class="p">{</span><span class="nx">title</span><span class="o">:</span> <span class="s1">&#39;Life of Pi&#39;</span><span class="p">,</span> <span class="nx">bestDirectorOscar</span><span class="o">:</span> <span class="s1">&#39;won&#39;</span><span class="p">},</span>
+</span><span class='line'>    <span class="p">{</span><span class="nx">title</span><span class="o">:</span> <span class="s1">&#39;The Ice Storm&#39;</span><span class="p">,</span> <span class="nx">bestDirectorOscar</span><span class="o">:</span> <span class="kc">false</span><span class="p">}</span>
+</span><span class='line'>  <span class="p">];</span>
+</span><span class='line'>
+</span><span class='line'><span class="nx">angLeeMovies</span><span class="p">.</span><span class="nx">forEach</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">movie</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>  <span class="k">if</span> <span class="p">(</span><span class="nx">movie</span><span class="p">.</span><span class="nx">bestDirectorOscar</span> <span class="o">===</span> <span class="s1">&#39;won&#39;</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;Ang Lee won an Oscar for best director for &quot;&#39;</span> <span class="o">+</span> <span class="nx">movie</span><span class="p">.</span><span class="nx">title</span> <span class="o">+</span> <span class="s1">&#39;&quot;&#39;</span><span class="p">);</span>
+</span><span class='line'>  <span class="p">}</span> <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="nx">movie</span><span class="p">.</span><span class="nx">bestDirectorOscar</span> <span class="o">===</span> <span class="s1">&#39;nominated&#39;</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;Ang Lee was nominated for an Oscar for best director for &quot;&#39;</span> <span class="o">+</span> <span class="nx">movie</span><span class="p">.</span><span class="nx">title</span> <span class="o">+</span> <span class="s1">&#39;&quot;&#39;</span><span class="p">);</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="p">});</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// Ang Lee won an Oscar for best director for &quot;Brokeback Mountain&quot;</span>
+</span><span class='line'><span class="c1">// Ang Lee was nominated for an Oscar for best director for &quot;Crouching Tiger, Hidden Dragon&quot;</span>
+</span><span class='line'><span class="c1">// Ang Lee won an Oscar for best director for &quot;Life of Pi&quot;</span>
+</span><span class='line'><span class="c1">// undefined</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Unlike the previous examples, <code>forEach()</code> is used to produce <a href="http://en.wikipedia.org/wiki/Side_effect_%28computer_science%29">&ldquo;side effects&rdquo;</a>. Practically speaking, because the return value of <code>forEach()</code> is always <code>undefined</code>, it can only be used to change the state of or interact with other parts of the program. This may seem like a fine distinction to some, but the use of side effects is a hotly contested debate across many programming language communities.</p>
+
+<p>It is worth pointing out that <code>forEach()</code> is actually <a href="http://jsperf.com/foreach-vs-loop">significantly slower</a> than the <code>for (i = 0; i &lt; x.length; i += 1) {}</code> idiom. But for most purposes, <code>forEach()</code> is a much more expressive way to iterate over collections.</p>
+
+<p><em><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/forEach">MDN Documentation - Array.prototype.forEach()</a></em></p>
+
+<h3>Conclusion</h3>
+
+<p>Iterating over arrays is a common task when coding in almost any language, and JavaScript is no exception. The above <code>Array.prototype</code> iterators are all defined in the ES5 spec and are widely supported on most modern web browsers (including IE 9 and above). They are relatively straightforward to use and make coding in JavaScript more functional and expressive.</p>
+
+<h3>Resources</h3>
+
+<ul>
+<li><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/prototype">MDN Array.prototype Documentation</a></li>
+<li><a href="http://colintoh.com/blog/5-array-methods-that-you-should-use-today">Colin Toh - 5 Array Methods That You Should Be Using Now</a></li>
+<li><a href="http://www.2ality.com/2011/04/iterating-over-arrays-and-objects-in.html">2ality - Iterating over arrays and objects in JavaScript</a></li>
+</ul>
+
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
       <h1 class="entry-title"><a href="/blog/2014/11/23/88-mph-with-flux-and-react/">88 Mph With Flux and React</a></h1>
     
     
@@ -95,7 +501,7 @@
   
 
 
-<time datetime="2014-11-23T22:41:11-05:00" pubdate data-updated="true">Nov 23<span>rd</span>, 2014</time>
+<time datetime="2014-11-23T22:41:11-05:00" pubdate data-updated="true"></time>
         
            | <a href="/blog/2014/11/23/88-mph-with-flux-and-react/#disqus_thread"
              data-disqus-identifier="http://callahanchris.github.io/blog/2014/11/23/88-mph-with-flux-and-react/">Comments</a>
@@ -145,7 +551,7 @@
 
 <h3>Architecture</h3>
 
-<p>Let&rsquo;s say we want to build a small app that keeps track of the speed of Doc Brown&rsquo;s DeLorean from <em>Back to the Future</em>, and lets users know if the flux capacitor has been activated yet &mdash; the deciding factor of whether or not time travel is possible at their current speed. Feel free to follow along with the project repo on <a href="https://github.com/callahanchris/bttf">github</a>.</p>
+<p>Let&rsquo;s say we want to build a small app that keeps track of the speed of Doc Brown&rsquo;s DeLorean from <em>Back to the Future</em>, and lets users know if the flux capacitor has been activated yet &ndash; the deciding factor of whether or not time travel is possible at their current speed. Feel free to follow along with the project repo on <a href="https://github.com/callahanchris/bttf">github</a>.</p>
 
 <p>Each of the key parts mentioned above gets their own folder in the file directory structure. A barebones Flux and React app (i.e. exclusively HTML, CSS, and JS files) should look something like this:</p>
 
@@ -480,7 +886,7 @@
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>This set of SCREAMING_CAMEL_CASE constants serves as the one definitive source of what actions are legal in the Flux application. Don&rsquo;t overthink this &mdash; the sole purpose of the constants folder is for looking up constants. If the app gets large enough, you can get more modular in how you classify the constants, but at the end of the day all you want to know is what exactly are the officially sanctioned actions in this app.</p>
+<p>This set of SCREAMING_CAMEL_CASE constants serves as the one definitive source of what actions are legal in the Flux application. Don&rsquo;t overthink this &ndash; the sole purpose of the constants folder is for looking up constants. If the app gets large enough, you can get more modular in how you classify the constants, but at the end of the day all you want to know is what exactly are the officially sanctioned actions in this app.</p>
 
 <p>Next, the AppDispatcher receives the <code>handleViewAction()</code> message along with the data above, which is referred to as the method argument <code>action</code> below. The AppDispatcher is a singleton in the Flux app and has two main functions: forwarding the data it receives from the actions to all stores, and keeping track of the callbacks registered by stores.</p>
 
@@ -648,7 +1054,7 @@
 
 <p>Stores are the one place in a Flux application where state is officially defined. In a simple case, this may just be a running tally of how many times a button was clicked. Based on the action type, the Store&rsquo;s public methods will utilize private methods to update its privately held data. Finally, it emits a &lsquo;change&rsquo; event, and it&rsquo;s work is done.</p>
 
-<p>Now we&rsquo;re back in React&rsquo;s View layer, but not so fast &mdash; the state of our application has changed! When the DeLorean component (our Controller-View) receives the new state from the DeLoreanStore, it calls its <code>setState()</code> method. This automatically triggers its <code>render()</code> method, which in turn triggers the <code>render()</code> methods of all of its nested components, and it&rsquo;s turtles all the way down.</p>
+<p>Now we&rsquo;re back in React&rsquo;s View layer, but not so fast &ndash; the state of our application has changed! When the DeLorean component (our Controller-View) receives the new state from the DeLoreanStore, it calls its <code>setState()</code> method. This automatically triggers its <code>render()</code> method, which in turn triggers the <code>render()</code> methods of all of its nested components, and it&rsquo;s turtles all the way down.</p>
 
 <p>All components in the app now have access to the data in its current state, and await further instructions.</p>
 
@@ -661,11 +1067,11 @@
 <h3>Resources</h3>
 
 <ul>
-<li><a href="http://facebook.github.io/flux/docs/overview.html">Flux Overview</a> &mdash; From the official documentation.</li>
-<li><a href="https://www.youtube.com/watch?v=nYkdrAPrdcw">Jing Chen&rsquo;s Original Flux Presentation</a> &mdash; There&rsquo;s some good info about React in here as well, but the Flux part is from 10 to 24 minutes in.</li>
-<li><a href="https://www.youtube.com/watch?v=i__969noyAM">React and Flux: Building Applications with a Unidirectional Data Flow</a> &mdash; Good talk by Bill Fisher and Jing Chen where they go through an example chat application in Flux and React.</li>
+<li><a href="http://facebook.github.io/flux/docs/overview.html">Flux Overview</a> &ndash; From the official documentation.</li>
+<li><a href="https://www.youtube.com/watch?v=nYkdrAPrdcw">Jing Chen&rsquo;s Original Flux Presentation</a> &ndash; There&rsquo;s some good info about React in here as well, but the Flux part is from 10 to 24 minutes in.</li>
+<li><a href="https://www.youtube.com/watch?v=i__969noyAM">React and Flux: Building Applications with a Unidirectional Data Flow</a> &ndash; Good talk by Bill Fisher and Jing Chen where they go through an example chat application in Flux and React.</li>
 <li><a href="https://github.com/facebook/flux/tree/master/examples/flux-chat/">Flux Chat Example App on Github</a></li>
-<li><a href="http://facebook.github.io/react/blog/2014/07/30/flux-actions-and-the-dispatcher.html">Flux: Actions and the Dispatcher</a> &mdash; Helpful post by Bill Fisher going into a bit more detail about the Dispatcher, Actions, and Action Creators.</li>
+<li><a href="http://facebook.github.io/react/blog/2014/07/30/flux-actions-and-the-dispatcher.html">Flux: Actions and the Dispatcher</a> &ndash; Helpful post by Bill Fisher going into a bit more detail about the Dispatcher, Actions, and Action Creators.</li>
 </ul>
 
 </div>
@@ -696,7 +1102,7 @@
   
 
 
-<time datetime="2014-10-08T16:17:09-04:00" pubdate data-updated="true">Oct 8<span>th</span>, 2014</time>
+<time datetime="2014-10-08T16:17:09-04:00" pubdate data-updated="true"></time>
         
            | <a href="/blog/2014/10/08/behind-the-scenes-of-the-has-many-active-record-association/#disqus_thread"
              data-disqus-identifier="http://callahanchris.github.io/blog/2014/10/08/behind-the-scenes-of-the-has-many-active-record-association/">Comments</a>
@@ -710,7 +1116,7 @@
 
 <blockquote><p>When these relationship declarations are executed, Rails uses some metaprogramming magic to dynamically add code to your models. In particular, proxy collection objects are created that let you manipulate the relationship easily.</p>
 
-<p>&mdash; The Rails 4 Way, page 181</p></blockquote>
+<p>&ndash; The Rails 4 Way, page 181</p></blockquote>
 
 <p>What exactly is this &ldquo;metaprogramming magic&rdquo; that goes on behind the scenes? In this blog post, I hope to uncover exactly what happens when <code>has_many</code> is used in an Active Record model.</p>
 
@@ -763,14 +1169,14 @@
 
 <ul>
 <li><p>The <code>House</code> class inherits from <code>ActiveRecord::Base</code>. This gives the <code>House</code> class and instances of this class access to a number of methods defined in the numerous modules included in the <code>ActiveRecord::Base</code> class. We can now say that the <code>House</code> class is an &ldquo;Active Record model&rdquo;, as opposed to a &ldquo;plain old Ruby object&rdquo;.</p></li>
-<li><p>In Rails, an Active Record model is automatically mapped to a table in the database (in this case <code>houses</code>), and attributes (i.e. methods) are created in the model that correspond to each column in this database table. Similarly, each instance of an Active Record model &ldquo;wraps&rdquo; one row in this table. This is the key to Rails&rsquo;s adaptation of the Active Record pattern &mdash; database logic is effectively encapsulated into methods on the model layer.</p></li>
+<li><p>In Rails, an Active Record model is automatically mapped to a table in the database (in this case <code>houses</code>), and attributes (i.e. methods) are created in the model that correspond to each column in this database table. Similarly, each instance of an Active Record model &ldquo;wraps&rdquo; one row in this table. This is the key to Rails&rsquo;s adaptation of the Active Record pattern &ndash; database logic is effectively encapsulated into methods on the model layer.</p></li>
 <li><p><code>has_many</code> is a &ldquo;bareword&rdquo;. In Ruby, barewords can only be local variables, method arguments, keywords (like <code>class</code>, <code>def</code>, and <code>end</code>), and method calls. In this context, it&rsquo;s neither a local variable nor a method argument, and it&rsquo;s certainly not a keyword. Therefore it must be a method.</p></li>
 <li><p>If <code>has_many</code> is a method, then in this context its receiver must be the <code>House</code> class. That makes <code>has_many</code> a class method. It could also be written as <code>self.has_many</code>, but the receiver is implicit here so we don&rsquo;t need to write <code>self</code>.</p></li>
 <li><p>It then follows that <code>:characters</code> is a method argument passed to the <code>has_many</code> method. Ruby allows you to leave off the parentheses surrounding method arguments, though it is generally good practice to keep the parentheses in when defining a method with arguments.</p></li>
 </ul>
 
 
-<p>Knowing that <code>has_many</code> is a class method defined somewhere in Active Record helped to narrow things down. From here, it was very easy to track the method definition down by doing a global search for <code>def has_many</code> on the codebase using <code>Command + Shift + f</code> in Sublime Text! Only one result appeared &mdash; a <a href="https://github.com/rails/rails/blob/master/activerecord/lib/active_record/associations.rb#L1245">two-line method</a> in the <code>ActiveRecord::Associations::ClassMethods</code> module:</p>
+<p>Knowing that <code>has_many</code> is a class method defined somewhere in Active Record helped to narrow things down. From here, it was very easy to track the method definition down by doing a global search for <code>def has_many</code> on the codebase using <code>Command + Shift + f</code> in Sublime Text! Only one result appeared &ndash; a <a href="https://github.com/rails/rails/blob/master/activerecord/lib/active_record/associations.rb#L1245">two-line method</a> in the <code>ActiveRecord::Associations::ClassMethods</code> module:</p>
 
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -849,9 +1255,9 @@
 
 <p>The <code>ActiveRecord::Associations::Builder::Association::build</code> method takes 5 arguments. The latter four of these arguments are identical to those initially passed to <code>has_many</code>. The first method argument is referred to as <code>model</code> in <code>build</code>&rsquo;s method signature. Inside the <code>has_many</code> method, the value passed as this argument is <code>self</code>.</p>
 
-<p>Given that the <code>has_many</code> method is inside the <code>ActiveRecord::Associations::ClassMethods</code> module, I assumed that somewhere along the line this module is being mixed into a class. The value of <code>self</code> inside a class method is the class itself &mdash; that is, whichever class called the <code>has_many</code> method to begin with (in our case <code>House</code>).</p>
+<p>Given that the <code>has_many</code> method is inside the <code>ActiveRecord::Associations::ClassMethods</code> module, I assumed that somewhere along the line this module is being mixed into a class. The value of <code>self</code> inside a class method is the class itself &ndash; that is, whichever class called the <code>has_many</code> method to begin with (in our case <code>House</code>).</p>
 
-<p>I had a difficult time tracking down where, if anywhere, this module is mixed in to the <code>House</code> class. Then I had a stunning (and obvious) realization: this module is mixed in to <em>every single Active Record model!</em> From here, it was easy to hunt down <a href="https://github.com/rails/rails/blob/master/activerecord/lib/active_record/base.rb#L304">the offending code</a> in &mdash; where else? &mdash; <code>ActiveRecord::Base</code>.</p>
+<p>I had a difficult time tracking down where, if anywhere, this module is mixed in to the <code>House</code> class. Then I had a stunning (and obvious) realization: this module is mixed in to <em>every single Active Record model!</em> From here, it was easy to hunt down <a href="https://github.com/rails/rails/blob/master/activerecord/lib/active_record/base.rb#L304">the offending code</a> in &ndash; where else? &ndash; <code>ActiveRecord::Base</code>.</p>
 
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -1000,7 +1406,7 @@
 
 <p>In this case, <code>const_set</code> has an implicit receiver (<code>self</code>). It&rsquo;s tempting to think that <code>self</code> is the <code>ActiveRecord::Core::ClassMethods</code> module, but as above, this module is actually mixed in to the <code>House</code> class when we have it inherit from <code>ActiveRecord::Base</code>. The receiver here is actually <code>House</code>. Thus, this method creates a new module in the <code>House</code> namespace: <code>House::GeneratedAssociationMethods</code>. (Note that <code>House::GeneratedAssociationMethods</code> is the return value here, but if we were assigning pretty much anything but a new class or module as <code>GeneratedAssociationMethods</code>&rsquo;s value here, the return value would be that value.)</p>
 
-<p>On the next line of this method, the <code>House::GeneratedAssociationMethods</code> module is included into the <code>House</code> class. This is pretty awesome &mdash; I had no idea that you could call <code>include</code> from inside a class method. It totally makes sense though, as the receiver is the class itself, so the use of <code>include</code> here is no different than the typical use of <code>include</code> in the class namespace.</p>
+<p>On the next line of this method, the <code>House::GeneratedAssociationMethods</code> module is included into the <code>House</code> class. This is pretty awesome &ndash; I had no idea that you could call <code>include</code> from inside a class method. It totally makes sense though, as the receiver is the class itself, so the use of <code>include</code> here is no different than the typical use of <code>include</code> in the class namespace.</p>
 
 <p>Finally, the <code>House::GeneratedAssociationMethods</code> module is returned, and thus is set as the value of the <code>@generated_association_methods</code> class instance variable. Back in the <code>define_accessors</code> method, this constant is stored as the <code>mixin</code> variable.</p>
 
@@ -1118,7 +1524,7 @@
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>In the case of our domain model, the second line of the <code>has_many</code> method will add the key <code>"characters"</code> pointing to the value of our <code>reflection</code> from above &mdash; the instance of the <code>ActiveRecord::Reflection::HasManyReflection</code> class &mdash; to the <code>_reflections</code> hash.</p>
+<p>In the case of our domain model, the second line of the <code>has_many</code> method will add the key <code>"characters"</code> pointing to the value of our <code>reflection</code> from above &ndash; the instance of the <code>ActiveRecord::Reflection::HasManyReflection</code> class &ndash; to the <code>_reflections</code> hash.</p>
 
 <p>Let&rsquo;s make an instance of the <code>House</code> class.</p>
 
@@ -1131,7 +1537,7 @@
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>If we call <code>stark.characters</code>, Rails first checks whether <code>"characters"</code> is a key in <code>House</code>&rsquo;s <code>_reflections</code> hash. If so, a new object is instantiated based on the type of this reflection &mdash; in the case of <code>has_many</code>, it&rsquo;s an instance of the <code>ActiveRecord::Associations::HasManyAssociation</code> class. The <code>association</code> method then calls <code>association_instance_set</code>, passing <code>:characters</code> and this instance of <code>ActiveRecord::Associations::HasManyAssociation</code> as its parameters. This key value pair is then <a href="https://github.com/rails/rails/blob/master/activerecord/lib/active_record/associations.rb#L169">added to the <code>@association_cache</code> instance variable</a>:</p>
+<p>If we call <code>stark.characters</code>, Rails first checks whether <code>"characters"</code> is a key in <code>House</code>&rsquo;s <code>_reflections</code> hash. If so, a new object is instantiated based on the type of this reflection &ndash; in the case of <code>has_many</code>, it&rsquo;s an instance of the <code>ActiveRecord::Associations::HasManyAssociation</code> class. The <code>association</code> method then calls <code>association_instance_set</code>, passing <code>:characters</code> and this instance of <code>ActiveRecord::Associations::HasManyAssociation</code> as its parameters. This key value pair is then <a href="https://github.com/rails/rails/blob/master/activerecord/lib/active_record/associations.rb#L169">added to the <code>@association_cache</code> instance variable</a>:</p>
 
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -1240,7 +1646,7 @@
   
 
 
-<time datetime="2014-09-23T20:55:44-04:00" pubdate data-updated="true">Sep 23<span>rd</span>, 2014</time>
+<time datetime="2014-09-23T20:55:44-04:00" pubdate data-updated="true"></time>
         
            | <a href="/blog/2014/09/23/my-favorite-sublime-text-keyboard-shortcuts/#disqus_thread"
              data-disqus-identifier="http://callahanchris.github.io/blog/2014/09/23/my-favorite-sublime-text-keyboard-shortcuts/">Comments</a>
@@ -1254,7 +1660,7 @@
 
 <h3>1. Command + Enter = New Line Below</h3>
 
-<p>Gone are the days of pressing Enter and accidentally cutting a line in half, then having to undo, then having to figure out a way to get the cursor to get to the end of the line before hitting Enter again. This shortcut has saved me a lot of energy &mdash; instead of worrying about where the cursor is on a line when hitting Enter, I only need to make sure that the cursor is on that line. Command + Enter takes care of the rest.</p>
+<p>Gone are the days of pressing Enter and accidentally cutting a line in half, then having to undo, then having to figure out a way to get the cursor to get to the end of the line before hitting Enter again. This shortcut has saved me a lot of energy &ndash; instead of worrying about where the cursor is on a line when hitting Enter, I only need to make sure that the cursor is on that line. Command + Enter takes care of the rest.</p>
 
 <h3>2. Command + Shift + Enter = New Line Above</h3>
 
@@ -1305,7 +1711,7 @@
 
 <p>Let&rsquo;s say I&rsquo;m refactoring my code and I decide to change the name of a method. I could do a global replacement with Command + Shift + f, but if I want to do a more fine-grained change and have more control over exactly what I&rsquo;m highlighting and editing, I go with Command + d.</p>
 
-<p>What&rsquo;s really cool about this is that Sublime gives you a cursor for each highlighted block of text! That means when you change the highlighted text in what you <em>think</em> should be one place, <em>all</em> of the highlighted texts change. This is the first demo on the Sublime Text website &mdash; check it out if you haven&rsquo;t yet!</p>
+<p>What&rsquo;s really cool about this is that Sublime gives you a cursor for each highlighted block of text! That means when you change the highlighted text in what you <em>think</em> should be one place, <em>all</em> of the highlighted texts change. This is the first demo on the Sublime Text website &ndash; check it out if you haven&rsquo;t yet!</p>
 
 <h3>6. Command + Highlight Text = Multiple Select of Different Words</h3>
 
@@ -1345,7 +1751,7 @@
 
 <h3>7. Command + Shift + p = Set Syntax Highlighting</h3>
 
-<p>This shortcut actually opens up the Command Palette &mdash; a menu that includes a number of things like package controls and preference settings. Enter &ldquo;ss&rdquo; when the search bar pops up to jump down to the various &ldquo;Set Syntax&rdquo; options. The search functionality in Sublime Text is great at matching fuzzy queries, so if you just type &ldquo;ssr&rdquo; then hit Enter, the text in your file will have Ruby&rsquo;s syntax highlighting.</p>
+<p>This shortcut actually opens up the Command Palette &ndash; a menu that includes a number of things like package controls and preference settings. Enter &ldquo;ss&rdquo; when the search bar pops up to jump down to the various &ldquo;Set Syntax&rdquo; options. The search functionality in Sublime Text is great at matching fuzzy queries, so if you just type &ldquo;ssr&rdquo; then hit Enter, the text in your file will have Ruby&rsquo;s syntax highlighting.</p>
 
 <p>This is awesome if you are just sketching out some ideas in a file that you haven&rsquo;t saved yet (on second thought, you might want to save that file!) or if you&rsquo;re working in a bin or other file that doesn&rsquo;t have an extension.</p>
 
@@ -1413,7 +1819,7 @@
   
 
 
-<time datetime="2014-09-18T11:56:23-04:00" pubdate data-updated="true">Sep 18<span>th</span>, 2014</time>
+<time datetime="2014-09-18T11:56:23-04:00" pubdate data-updated="true"></time>
         
            | <a href="/blog/2014/09/18/getting-started-with-rspec/#disqus_thread"
              data-disqus-identifier="http://callahanchris.github.io/blog/2014/09/18/getting-started-with-rspec/">Comments</a>
@@ -1524,7 +1930,7 @@
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>At the top of the <code>espresso_spec.rb</code> file, I required the <code>spec_helper.rb</code> file, where I will list all of the file dependencies so that they don&rsquo;t clutter up this spec file. Then I opened a <code>describe</code> block for the <code>Espresso</code> class &ndash; all of the tests in this file should go inside this block. Note that it&rsquo;s OK to use the constant <code>Espresso</code> in this case, but generally you will pass in a string as an argument to the RSpec methods <code>describe</code>, <code>context</code>, and <code>it</code>.</p>
+<p>At the top of the <code>espresso_spec.rb</code> file, I required the <code>spec_helper.rb</code> file, where I will list all of the file dependencies so that they don&rsquo;t clutter up this spec file. Then I opened a <code>describe</code> block for the <code>Espresso</code> class - all of the tests in this file should go inside this block. Note that it&rsquo;s OK to use the constant <code>Espresso</code> in this case, but generally you will pass in a string as an argument to the RSpec methods <code>describe</code>, <code>context</code>, and <code>it</code>.</p>
 
 <p>In order for the tests to run properly, I also need to add the following line to the <code>spec/spec_helper.rb</code> file:</p>
 
@@ -1804,7 +2210,7 @@
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>Here I&rsquo;ve written two <code>context</code> blocks, one for an espresso with milk and one for an espresso without milk. In order to get the milk into the espresso, I&rsquo;ve also included an <code>add_milk</code> method &mdash; this should also be tested as part of <code>Espresso</code>&rsquo;s API. Before getting the next test to pass, I fleshed out the <code>Espresso</code> class a bit to support this new method.</p>
+<p>Here I&rsquo;ve written two <code>context</code> blocks, one for an espresso with milk and one for an espresso without milk. In order to get the milk into the espresso, I&rsquo;ve also included an <code>add_milk</code> method &ndash; this should also be tested as part of <code>Espresso</code>&rsquo;s API. Before getting the next test to pass, I fleshed out the <code>Espresso</code> class a bit to support this new method.</p>
 
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -1912,7 +2318,7 @@
 
 <h3>Next Steps</h3>
 
-<p>This is a basic introduction to writing the first few tests of a Ruby app with RSpec, and is far from a complete resource. Already we can see that there is some repetition in the tests above (<code>espresso = Espresso.new</code>) that should be abstracted out. RSpec has a number of convenient methods to help you DRY out your tests, such as <code>let</code>, <code>before</code>, <code>subject</code>, and <code>it_behaves_like</code>. There&rsquo;s also clearly some more refactoring that can be done on the code itself &mdash; but now we have a safety net to fall back on when we start refactoring.</p>
+<p>This is a basic introduction to writing the first few tests of a Ruby app with RSpec, and is far from a complete resource. Already we can see that there is some repetition in the tests above (<code>espresso = Espresso.new</code>) that should be abstracted out. RSpec has a number of convenient methods to help you DRY out your tests, such as <code>let</code>, <code>before</code>, <code>subject</code>, and <code>it_behaves_like</code>. There&rsquo;s also clearly some more refactoring that can be done on the code itself &ndash; but now we have a safety net to fall back on when we start refactoring.</p>
 
 <p>For more comprehensive info about RSpec, check out the resources below!</p>
 
@@ -1920,8 +2326,8 @@
 
 <ul>
 <li><p><a href="https://www.relishapp.com/rspec">Official RSpec Documentation</a></p></li>
-<li><p><a href="http://betterspecs.org/">Better Specs</a> &ndash; A collection of RSpec best practices</p></li>
-<li><p><a href="https://www.codeschool.com/courses/testing-with-rspec">Testing with RSpec on Code School</a> &ndash; Still uses the RSpec 2 <code>should</code> syntax, but otherwise a great intro to RSpec.</p></li>
+<li><p><a href="http://betterspecs.org/">Better Specs</a> - A collection of RSpec best practices</p></li>
+<li><p><a href="https://www.codeschool.com/courses/testing-with-rspec">Testing with RSpec on Code School</a> - Still uses the RSpec 2 <code>should</code> syntax, but otherwise a great intro to RSpec.</p></li>
 </ul>
 
 </div>
@@ -1952,7 +2358,7 @@
   
 
 
-<time datetime="2014-09-13T17:33:42-04:00" pubdate data-updated="true">Sep 13<span>th</span>, 2014</time>
+<time datetime="2014-09-13T17:33:42-04:00" pubdate data-updated="true"></time>
         
            | <a href="/blog/2014/09/13/china-map-project-part-4-introducing-polymorphism/#disqus_thread"
              data-disqus-identifier="http://callahanchris.github.io/blog/2014/09/13/china-map-project-part-4-introducing-polymorphism/">Comments</a>
@@ -1966,7 +2372,7 @@
 
 <h3>The Road to Polymorphism</h3>
 
-<p>When I started this project, I set out to make an interactive map that displayed a variety of data about the Chinese provinces. But this very premise &mdash; mapping Chinese provinces &mdash; turned out to be far more nuanced and complex than I realized at the outset.</p>
+<p>When I started this project, I set out to make an interactive map that displayed a variety of data about the Chinese provinces. But this very premise &ndash; mapping Chinese provinces &ndash; turned out to be far more nuanced and complex than I realized at the outset.</p>
 
 <p>Technically speaking, China has 22 provinces (e.g. Shaanxi, Guangdong), 5 autonomous regions (e.g. Tibet, Inner Mongolia), 4 municipalities (Beijing, Shanghai, Chongqing, and Tianjin), and 2 special administrative regions (SARs) (Hong Kong and Macau). <em>[Note: Any issues pertaining to Taiwan fall outside the scope of this project.]</em></p>
 
@@ -2001,7 +2407,7 @@
 
 <p>I prefer short, well-named methods for several reasons. First, it increases the chances that other methods can use a method when the method is finely grained. Second, it allows the higher-level methods to read more like a series of comments. Overriding also is easier when the methods are finely grained.</p>
 
-<p> &mdash; Refactoring: Ruby Edition, page 102</p></blockquote>
+<p> &ndash; Refactoring: Ruby Edition, page 102</p></blockquote>
 
 <p>Extract Method is an incredibly useful and easy refactoring to undertake. The mechanics are as follows:</p>
 
@@ -2126,7 +2532,7 @@
 </ol>
 
 
-<p> &mdash; Refactoring: Ruby Edition, page 226-227</p></blockquote>
+<p> &ndash; Refactoring: Ruby Edition, page 226-227</p></blockquote>
 
 <p>In practice my execution was also a bit similar to the Replace Conditional with Polymorphism refactoring (<em>Refactoring: Ruby Edition</em>, page 279-284).</p>
 
@@ -2326,7 +2732,7 @@
 
 <p>Starting from one monolithic <code>ChinaScraper</code> class, I used Replace Method with Method Object to extract out most of the logic from this class into a <code>RegionScraper</code> class. Then I went to town using Extract Method to create a bunch of small methods that followed the Single Responsibility Principle (SRP). Having done this, it was clear that my code could benefit from a Replace Type Code with Polymorphism refactoring.</p>
 
-<p>All told, the shape of my code morphed from its original form &mdash; one 170 line class hinging on a 90 line method &mdash; to a more modular form where code was sectioned off into five classes and two modules, and methods were used for one purpose only.</p>
+<p>All told, the shape of my code morphed from its original form &ndash; one 170 line class hinging on a 90 line method &ndash; to a more modular form where code was sectioned off into five classes and two modules, and methods were used for one purpose only.</p>
 
 <p>The final step here was to take all of this code out of the <code>db/seeds.rb</code> file and put it into the <code>app/models</code> directory. This directory&rsquo;s file structure now looks like this:</p>
 
@@ -2400,7 +2806,7 @@
   
 
 
-<time datetime="2014-09-12T15:05:42-04:00" pubdate data-updated="true">Sep 12<span>th</span>, 2014</time>
+<time datetime="2014-09-12T15:05:42-04:00" pubdate data-updated="true"></time>
         
            | <a href="/blog/2014/09/12/china-map-project-part-3-refactoring-using-replace-method-with-method-object/#disqus_thread"
              data-disqus-identifier="http://callahanchris.github.io/blog/2014/09/12/china-map-project-part-3-refactoring-using-replace-method-with-method-object/">Comments</a>
@@ -2424,7 +2830,7 @@
 
 <p>The difficulty in decomposing a method lies in local variables. If they are rampant, decomposition can be difficult. Using Replace Temp with Query helps to reduce this burden, but occasionally you may find you cannot break down a method that needs breaking. In this case you reach deep into the tool bag and get out your Method Object.</p>
 
-<p> &mdash; Refactoring: Ruby Edition, page 128</p></blockquote>
+<p> &ndash; Refactoring: Ruby Edition, page 128</p></blockquote>
 
 <p>The mechanics of this refactoring (which was &ldquo;stolen shamelessly from Kent Beck&rsquo;s <em>Smalltalk Best Practice Patterns</em>&rdquo;) are as follows:</p>
 
@@ -2439,11 +2845,11 @@
 </ol>
 
 
-<p> &mdash; Refactoring: Ruby Edition, page 129</p></blockquote>
+<p> &ndash; Refactoring: Ruby Edition, page 129</p></blockquote>
 
 <h3>Seeing the Opportunity for Refactoring</h3>
 
-<p>In my original <code>db/seeds.rb</code> file, I had one <code>ChinaScraper</code> class that handled&hellip; everything. Even though this was a simple app, that is still a red flag. Before refactoring, the <code>ChinaScraper</code> class was just shy of 170 lines of code &mdash; another big red flag. Within that class, there was one 94 line method (!!!) &mdash; <code>scrape_all_regions</code> &mdash; doing the bulk of the work. It scraped each region&rsquo;s Wikipedia page, then went through and assigned about ten different attributes to the region, then saved the region and its various attributes to the database.</p>
+<p>In my original <code>db/seeds.rb</code> file, I had one <code>ChinaScraper</code> class that handled&hellip; everything. Even though this was a simple app, that is still a red flag. Before refactoring, the <code>ChinaScraper</code> class was just shy of 170 lines of code &ndash; another big red flag. Within that class, there was one 94 line method (!!!) &ndash; <code>scrape_all_regions</code> &ndash; doing the bulk of the work. It scraped each region&rsquo;s Wikipedia page, then went through and assigned about ten different attributes to the region, then saved the region and its various attributes to the database.</p>
 
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -2482,7 +2888,7 @@
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>As you can begin to see in this snippet, the <code>scrape_all_regions</code> method contained many conditional statements that essentially checked a region&rsquo;s <code>territorial_designation</code>. This type checking was inevitable given that the HTML/CSS content of the individual region pages varied significantly based on their territorial designations &mdash; more on this in the next post.</p>
+<p>As you can begin to see in this snippet, the <code>scrape_all_regions</code> method contained many conditional statements that essentially checked a region&rsquo;s <code>territorial_designation</code>. This type checking was inevitable given that the HTML/CSS content of the individual region pages varied significantly based on their territorial designations &ndash; more on this in the next post.</p>
 
 <p>It was clear that the <code>scrape_all_regions</code> method had far too many (i.e. more than one) responsibilities and several local variables, so I reached deep into the tool bag for the Replace Method with Method Object refactoring.</p>
 
@@ -2660,7 +3066,7 @@
   
 
 
-<time datetime="2014-09-11T12:35:18-04:00" pubdate data-updated="true">Sep 11<span>th</span>, 2014</time>
+<time datetime="2014-09-11T12:35:18-04:00" pubdate data-updated="true"></time>
         
            | <a href="/blog/2014/09/11/china-map-project-part-2-bringing-the-map-to-life-with-jvectormap/#disqus_thread"
              data-disqus-identifier="http://callahanchris.github.io/blog/2014/09/11/china-map-project-part-2-bringing-the-map-to-life-with-jvectormap/">Comments</a>
@@ -2740,7 +3146,7 @@
 
 <h3><code>$.getJSON()</code> to the Rescue</h3>
 
-<p>In order to pass the data output by my API into a function like <code>showPopulationDensity()</code>, I had to retrieve the JSON on the frontend using AJAX. Because this was a relatively simple case where I was only making a GET request to one URL &mdash; <code>/regions</code>, the lone endpoint of my API &mdash; I used the <code>$.getJSON()</code> jQuery function.</p>
+<p>In order to pass the data output by my API into a function like <code>showPopulationDensity()</code>, I had to retrieve the JSON on the frontend using AJAX. Because this was a relatively simple case where I was only making a GET request to one URL &ndash; <code>/regions</code>, the lone endpoint of my API &ndash; I used the <code>$.getJSON()</code> jQuery function.</p>
 
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -2885,7 +3291,7 @@
   
 
 
-<time datetime="2014-09-11T11:43:03-04:00" pubdate data-updated="true">Sep 11<span>th</span>, 2014</time>
+<time datetime="2014-09-11T11:43:03-04:00" pubdate data-updated="true"></time>
         
            | <a href="/blog/2014/09/11/china-map-project-part-1-nokogiri/#disqus_thread"
              data-disqus-identifier="http://callahanchris.github.io/blog/2014/09/11/china-map-project-part-1-nokogiri/">Comments</a>
@@ -3124,7 +3530,7 @@
   
 
 
-<time datetime="2014-07-24T10:43:07-04:00" pubdate data-updated="true">Jul 24<span>th</span>, 2014</time>
+<time datetime="2014-07-24T10:43:07-04:00" pubdate data-updated="true"></time>
         
            | <a href="/blog/2014/07/24/how-to-write-an-immediately-invoked-anonymous-function-expression-in-javascript/#disqus_thread"
              data-disqus-identifier="http://callahanchris.github.io/blog/2014/07/24/how-to-write-an-immediately-invoked-anonymous-function-expression-in-javascript/">Comments</a>
@@ -3337,7 +3743,7 @@
 <p>I have only been learning JavaScript for two weeks or so, but I feel a lot more comfortable about using anonymous functions after researching this blog post and playing around with JavaScript some more. Going forward I hope to explore anonymous functions more in Ruby through <code>Proc</code>s, blocks, and <code>lambda</code>s.</p>
 
 <ul>
-<li><a href="http://benalman.com/news/2010/11/immediately-invoked-function-expression/">Ben Alman &ndash; The blog post that coined the term IIFE</a></li>
+<li><a href="http://benalman.com/news/2010/11/immediately-invoked-function-expression/">Ben Alman - The blog post that coined the term IIFE</a></li>
 <li><a href="https://github.com/airbnb/javascript">Airbnb JavaScript Style Guide</a></li>
 <li><a href="http://youtu.be/taaEzHI9xyY?t=33m36s">Crockford on Parens in IIFEs</a></li>
 <li><a href="http://learn.jquery.com/using-jquery-core/document-ready/">jQuery Documentation on <code>$( document ).ready()</code></a></li>
@@ -3351,290 +3757,9 @@
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2014/07/17/five-useful-ruby-array-methods/">Five Useful Ruby Array Methods</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2014-07-17T13:25:34-04:00" pubdate data-updated="true">Jul 17<span>th</span>, 2014</time>
-        
-           | <a href="/blog/2014/07/17/five-useful-ruby-array-methods/#disqus_thread"
-             data-disqus-identifier="http://callahanchris.github.io/blog/2014/07/17/five-useful-ruby-array-methods/">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Arrays are a versatile and reliable data structure. The <code>Array</code> class in Ruby comes equipped with a number of extremely useful instance methods, including <code>pop</code>, <code>push</code>, <code>shift</code>, <code>unshift</code>, <code>length</code>, <code>reverse</code>, etc. With the <code>Enumerable</code> module mixin, Ruby arrays have access to even more iterators and other fun methods.</p>
-
-<p>Here are five great instance methods built in to Ruby&rsquo;s <code>Array</code> class that I&rsquo;ve come across recently.</p>
-
-<h3><code>Array#transpose</code></h3>
-
-<p>This is probably the fanciest method on this list. It is used to &ldquo;reflect&rdquo; an array across a diagonal axis. Wikipedia has a good explanation of <a href="http://en.wikipedia.org/wiki/Transpose">matrix transposition</a>, including this handy gif:</p>
-
-<p><img src="http://upload.wikimedia.org/wikipedia/commons/e/e4/Matrix_transpose.gif" alt="transpose" /></p>
-
-<p>Here is how the <code>transpose</code> method looks in Ruby:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="n">array</span> <span class="o">=</span> <span class="o">[</span>
-</span><span class='line'>          <span class="o">[</span> <span class="s2">&quot;a&quot;</span><span class="p">,</span>  <span class="s2">&quot;b&quot;</span><span class="p">,</span>  <span class="s2">&quot;c&quot;</span><span class="p">,</span>  <span class="s2">&quot;d&quot;</span><span class="p">,</span>   <span class="s2">&quot;e&quot;</span>  <span class="o">]</span><span class="p">,</span>
-</span><span class='line'>          <span class="o">[</span>  <span class="mi">1</span><span class="p">,</span>    <span class="mi">2</span><span class="p">,</span>    <span class="mi">3</span><span class="p">,</span>    <span class="mi">4</span><span class="p">,</span>     <span class="mi">5</span>   <span class="o">]</span><span class="p">,</span>
-</span><span class='line'>          <span class="o">[</span><span class="s2">&quot;cat&quot;</span><span class="p">,</span><span class="s2">&quot;dog&quot;</span><span class="p">,</span><span class="s2">&quot;cow&quot;</span><span class="p">,</span><span class="s2">&quot;pig&quot;</span><span class="p">,</span><span class="s2">&quot;horse&quot;</span><span class="o">]</span>
-</span><span class='line'>        <span class="o">]</span>
-</span><span class='line'>
-</span><span class='line'><span class="n">array</span><span class="o">.</span><span class="n">transpose</span>
-</span><span class='line'><span class="c1">#    =&gt; [</span>
-</span><span class='line'><span class="c1">#         [&quot;a&quot;, 1,  &quot;cat&quot; ],</span>
-</span><span class='line'><span class="c1">#         [&quot;b&quot;, 2,  &quot;dog&quot; ],</span>
-</span><span class='line'><span class="c1">#         [&quot;c&quot;, 3,  &quot;cow&quot; ],</span>
-</span><span class='line'><span class="c1">#         [&quot;d&quot;, 4,  &quot;pig&quot; ], </span>
-</span><span class='line'><span class="c1">#         [&quot;e&quot;, 5, &quot;horse&quot;]</span>
-</span><span class='line'><span class="c1">#       ]</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Note that <code>transpose</code> can only be used when you have an array of arrays where all of the nested arrays are the same length.</p>
-
-<p>I got some use out of the <code>transpose</code> method when trying to rotate an array of arrays (a tic tac toe board) 90 degrees to the right. I first called <code>transpose</code> on the array and then chained on <code>map(&amp;:reverse)</code> to individually reverse each of the nested arrays.</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="n">board</span> <span class="o">=</span> <span class="o">[</span>
-</span><span class='line'>          <span class="o">[</span><span class="s2">&quot;O&quot;</span><span class="p">,</span> <span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="s2">&quot;X&quot;</span><span class="o">]</span><span class="p">,</span>
-</span><span class='line'>          <span class="o">[</span><span class="s2">&quot;X&quot;</span><span class="p">,</span> <span class="s2">&quot;X&quot;</span><span class="p">,</span> <span class="s2">&quot;O&quot;</span><span class="o">]</span><span class="p">,</span>
-</span><span class='line'>          <span class="o">[</span><span class="s2">&quot;O&quot;</span><span class="p">,</span> <span class="s2">&quot;X&quot;</span><span class="p">,</span> <span class="s2">&quot; &quot;</span><span class="o">]</span>
-</span><span class='line'>        <span class="o">]</span>
-</span><span class='line'>
-</span><span class='line'><span class="n">rotated_board</span> <span class="o">=</span> <span class="n">board</span><span class="o">.</span><span class="n">transpose</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="o">&amp;</span><span class="ss">:reverse</span><span class="p">)</span>
-</span><span class='line'><span class="c1">#    =&gt; [</span>
-</span><span class='line'><span class="c1">#         [&quot;O&quot;, &quot;X&quot;, &quot;O&quot;],</span>
-</span><span class='line'><span class="c1">#         [&quot;X&quot;, &quot;X&quot;, &quot; &quot;],</span>
-</span><span class='line'><span class="c1">#         [&quot; &quot;, &quot;O&quot;, &quot;X&quot;]</span>
-</span><span class='line'><span class="c1">#       ]</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>With access to both a <code>board</code> and a <code>rotated_board</code>, I was able to easily reuse methods in my tic tac toe game.</p>
-
-<h3><code>Array#fill</code></h3>
-
-<p><code>fill</code> does just what it says: it fills every element in an array with the argument passed to it.</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="sx">%w{ a b c }</span><span class="o">.</span><span class="n">fill</span><span class="p">(</span><span class="s2">&quot;Hello world!&quot;</span><span class="p">)</span>
-</span><span class='line'><span class="c1"># =&gt; [&quot;Hello world!&quot;, &quot;Hello world!&quot;, &quot;Hello world!&quot;]</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>You can also pass a starting index and a length as arguments to <code>fill</code>:</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="sx">%w{ an array full of words and things }</span><span class="o">.</span><span class="n">fill</span><span class="p">(</span><span class="s2">&quot;surprises&quot;</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
-</span><span class='line'><span class="c1"># =&gt; [&quot;an&quot;, &quot;array&quot;, &quot;full&quot;, &quot;of&quot;, &quot;surprises&quot;, &quot;surprises&quot;, &quot;surprises&quot;]</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>You can even pass a block to <code>fill</code>, which yields the array&rsquo;s index as the block argument. Ruby is awesome!</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="sx">%w{ hello world my name is chris }</span><span class="o">.</span><span class="n">fill</span> <span class="p">{</span><span class="o">|</span><span class="n">i</span><span class="o">|</span> <span class="n">i</span> <span class="o">*</span> <span class="n">i</span> <span class="p">}</span>
-</span><span class='line'><span class="c1"># =&gt; [0, 1, 4, 9, 16, 25]</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Warning: <code>fill</code> is a destructive method. Once an array is <code>fill</code>ed, the old data is permanently gone.</p>
-
-<h3><code>Array#permutation</code></h3>
-
-<p>This method returns all permutations of the array it is sent to. If no block is used, then by default Ruby returns an <code>Enumerator</code> object, so it is useful to chain the <code>to_a</code> method on the end in order to return an array.</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="o">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="o">].</span><span class="n">permutation</span>
-</span><span class='line'><span class="c1"># =&gt; #&lt;Enumerator: [1, 2, 3]:permutation&gt;</span>
-</span><span class='line'>
-</span><span class='line'><span class="o">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="o">].</span><span class="n">permutation</span><span class="o">.</span><span class="n">to_a</span>
-</span><span class='line'><span class="c1"># =&gt; [[1, 2, 3], [1, 3, 2], [2, 1, 3], [2, 3, 1], [3, 1, 2], [3, 2, 1]]</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>This method sounds a bit esoteric, but I have used it in practice when trying to find all possible anagrams of a string.</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="n">all_permutations</span> <span class="o">=</span> <span class="s2">&quot;listen&quot;</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">permutation</span><span class="o">.</span><span class="n">map</span> <span class="p">{</span><span class="o">|</span><span class="n">letters</span><span class="o">|</span> <span class="n">letters</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span> <span class="p">}</span>
-</span><span class='line'><span class="c1"># =&gt; [&quot;listen&quot;,</span>
-</span><span class='line'><span class="c1">#     &quot;listne&quot;,</span>
-</span><span class='line'><span class="c1">#     &quot;lisetn&quot;,</span>
-</span><span class='line'><span class="c1">#     ... 716 more permutations! ...</span>
-</span><span class='line'><span class="c1">#     &quot;netsil&quot;]</span>
-</span><span class='line'>
-</span><span class='line'><span class="n">all_permutations</span><span class="o">.</span><span class="n">include?</span><span class="p">(</span><span class="s2">&quot;silent&quot;</span><span class="p">)</span>
-</span><span class='line'><span class="c1"># =&gt; true</span>
-</span><span class='line'>
-</span><span class='line'><span class="n">all_permutations</span><span class="o">.</span><span class="n">include?</span><span class="p">(</span><span class="s2">&quot;lentils&quot;</span><span class="p">)</span>
-</span><span class='line'><span class="c1"># =&gt; false</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<h3><code>Array#sample</code></h3>
-
-<p><code>sample</code> is a convenient way to randomly select one or more elements from an array. If you do not pass an argument to <code>sample</code>, it will return one object from the array. If you pass a number as an argument to <code>sample</code>, it will return an array including the number of elements specified.</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="sx">%w{ cat dog pig pigeon dolphin walrus }</span><span class="o">.</span><span class="n">sample</span>
-</span><span class='line'><span class="c1"># =&gt; &quot;pigeon&quot;</span>
-</span><span class='line'>
-</span><span class='line'><span class="sx">%w{ cat dog pig pigeon dolphin walrus }</span><span class="o">.</span><span class="n">sample</span>
-</span><span class='line'><span class="c1"># =&gt; &quot;dolphin&quot;</span>
-</span><span class='line'>
-</span><span class='line'><span class="sx">%w{ cat dog pig pigeon dolphin walrus }</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
-</span><span class='line'><span class="c1"># =&gt; [&quot;cat&quot;, &quot;pigeon&quot;]</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<h3><code>Array#flatten</code></h3>
-
-<p>This is probably the method I use the most on this list. When doing nested iteration in Ruby, you often end up with an array of arrays. If you want to compare each element in the larger array, you will be confounded by the fact that Ruby tries to compare the nested arrays with each other, rather than the values within these arrays.</p>
-
-<p>To get around this problem, the <code>flatten</code> method turns a nested array into an array one level deep.</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="o">[[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="o">]</span><span class="p">,</span> <span class="o">[</span><span class="mi">3</span><span class="p">,</span> <span class="o">[</span><span class="mi">4</span><span class="o">]]</span><span class="p">,</span> <span class="o">[[[</span><span class="mi">5</span><span class="o">]]]].</span><span class="n">flatten</span>
-</span><span class='line'><span class="c1"># =&gt; [1, 2, 3, 4, 5]</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>This method is not destructive (though it does have a destructive counterpart in <code>flatten!</code>), so it is mainly useful if you want to perform a specific operation on a flattened array. For example, if you wind up with a nested array after performing multiple <code>collects</code> and then want to perform an operation on the array, <code>flatten</code> can come in handy.</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="n">dogs</span> <span class="o">=</span> <span class="o">[[</span><span class="c1">#&lt;Dog:0x00000101d52a30 @name=&quot;Fido&quot;&gt;,</span>
-</span><span class='line'>         <span class="c1">#&lt;Dog:0x00000101d01f90 @name=&quot;Fredo&quot;&gt;,</span>
-</span><span class='line'>         <span class="c1">#&lt;Dog:0x00000101ae2098 @name=&quot;Freida&quot;&gt;,</span>
-</span><span class='line'>         <span class="c1">#&lt;Dog:0x00000106187548 @name=&quot;Francis&quot;&gt;,</span>
-</span><span class='line'>         <span class="c1">#&lt;Dog:0x0000010615d630 @name=&quot;Bailey&quot;&gt;]]</span>
-</span><span class='line'>
-</span><span class='line'><span class="n">dogs</span><span class="o">.</span><span class="n">sort_by</span><span class="p">(</span><span class="o">&amp;</span><span class="ss">:name</span><span class="p">)</span>
-</span><span class='line'><span class="c1"># =&gt; NoMethodError: undefined method `name&#39; for #&lt;Array:0x00000101ee5b18&gt;</span>
-</span><span class='line'>
-</span><span class='line'><span class="n">dogs</span><span class="o">.</span><span class="n">flatten</span><span class="o">.</span><span class="n">sort_by</span><span class="p">(</span><span class="o">&amp;</span><span class="ss">:name</span><span class="p">)</span>
-</span><span class='line'><span class="c1"># =&gt; [#&lt;Dog:0x0000010615d630 @name=&quot;Bailey&quot;&gt;,</span>
-</span><span class='line'><span class="c1">#     #&lt;Dog:0x00000101d52a30 @name=&quot;Fido&quot;&gt;,</span>
-</span><span class='line'><span class="c1">#     #&lt;Dog:0x00000106187548 @name=&quot;Francis&quot;&gt;,</span>
-</span><span class='line'><span class="c1">#     #&lt;Dog:0x00000101d01f90 @name=&quot;Fredo&quot;&gt;,</span>
-</span><span class='line'><span class="c1">#     #&lt;Dog:0x00000101ae2098 @name=&quot;Freida&quot;&gt;]</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p><code>flatten</code> also takes an argument to specify how many levels to flatten the nested array by.</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="o">[[[</span><span class="mi">1</span><span class="o">]</span><span class="p">,</span> <span class="mi">2</span><span class="o">]].</span><span class="n">flatten</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
-</span><span class='line'><span class="c1">#=&gt; [[1], 2]</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>I&rsquo;m not sure how useful passing in an argument is, as I have only used <code>flatten</code> without an argument in practice.</p>
-
-<h3>Closing Thoughts</h3>
-
-<p>Arrays are an interesting Ruby class with a surprising amount of useful builtin methods. Read the Ruby documentation for more info and more unique methods to play around with.</p>
-
-<ul>
-<li><a href="http://www.ruby-doc.org/core-2.1.2/Array.html">Ruby Doc &ndash; Array</a></li>
-</ul>
-
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
-      <a class="prev" href="/blog/page/2/">&larr; Older</a>
+      <a class="prev" href="2">&larr; Older</a>
     
     <a href="/blog/archives">Blog Archives</a>
     
@@ -3645,6 +3770,10 @@
     <section>
   <h1>Recent Posts</h1>
   <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2015/01/03/array-iteration-methods-in-javascript/">Array Iteration Methods in JavaScript</a>
+      </li>
     
       <li class="post">
         <a href="/blog/2014/11/23/88-mph-with-flux-and-react/">88 Mph With Flux and React</a>
@@ -3662,10 +3791,6 @@
         <a href="/blog/2014/09/18/getting-started-with-rspec/">Getting Started With RSpec</a>
       </li>
     
-      <li class="post">
-        <a href="/blog/2014/09/13/china-map-project-part-4-introducing-polymorphism/">China Map Project - Part 4: Introducing Polymorphism</a>
-      </li>
-    
   </ul>
 </section>
 
@@ -3679,7 +3804,7 @@
     </div>
   </div>
   <footer role="contentinfo"><p>
-  Copyright &copy; 2014 - Chris Callahan -
+  Copyright &copy; 2015 - Chris Callahan -
   <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
 </p>
 

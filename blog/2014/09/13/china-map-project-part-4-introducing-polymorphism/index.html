@@ -5,7 +5,7 @@
 <!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <title>China Map Project - Part 4: Introducing Polymorphism - Chris Callahan's Blog</title>
+  <title>China Map Project - Part 4: Introducing Polymorphism - Chris Callahan&#8217;s Blog</title>
   <meta name="author" content="Chris Callahan">
 
   
@@ -42,7 +42,7 @@
 
 <body   >
   <header role="banner"><hgroup>
-  <h1><a href="/">Chris Callahan's Blog</a></h1>
+  <h1><a href="/">Chris Callahan&#8217;s Blog</a></h1>
   
     <h2>Becoming a hacker.</h2>
   
@@ -92,7 +92,7 @@
   
 
 
-<time datetime="2014-09-13T17:33:42-04:00" pubdate data-updated="true">Sep 13<span>th</span>, 2014</time>
+<time datetime="2014-09-13T17:33:42-04:00" pubdate data-updated="true"></time>
         
            | <a href="#disqus_thread"
              data-disqus-identifier="http://callahanchris.github.io">Comments</a>
@@ -106,7 +106,7 @@
 
 <h3>The Road to Polymorphism</h3>
 
-<p>When I started this project, I set out to make an interactive map that displayed a variety of data about the Chinese provinces. But this very premise &mdash; mapping Chinese provinces &mdash; turned out to be far more nuanced and complex than I realized at the outset.</p>
+<p>When I started this project, I set out to make an interactive map that displayed a variety of data about the Chinese provinces. But this very premise &ndash; mapping Chinese provinces &ndash; turned out to be far more nuanced and complex than I realized at the outset.</p>
 
 <p>Technically speaking, China has 22 provinces (e.g. Shaanxi, Guangdong), 5 autonomous regions (e.g. Tibet, Inner Mongolia), 4 municipalities (Beijing, Shanghai, Chongqing, and Tianjin), and 2 special administrative regions (SARs) (Hong Kong and Macau). <em>[Note: Any issues pertaining to Taiwan fall outside the scope of this project.]</em></p>
 
@@ -141,7 +141,7 @@
 
 <p>I prefer short, well-named methods for several reasons. First, it increases the chances that other methods can use a method when the method is finely grained. Second, it allows the higher-level methods to read more like a series of comments. Overriding also is easier when the methods are finely grained.</p>
 
-<p> &mdash; Refactoring: Ruby Edition, page 102</p></blockquote>
+<p> &ndash; Refactoring: Ruby Edition, page 102</p></blockquote>
 
 <p>Extract Method is an incredibly useful and easy refactoring to undertake. The mechanics are as follows:</p>
 
@@ -266,7 +266,7 @@
 </ol>
 
 
-<p> &mdash; Refactoring: Ruby Edition, page 226-227</p></blockquote>
+<p> &ndash; Refactoring: Ruby Edition, page 226-227</p></blockquote>
 
 <p>In practice my execution was also a bit similar to the Replace Conditional with Polymorphism refactoring (<em>Refactoring: Ruby Edition</em>, page 279-284).</p>
 
@@ -466,7 +466,7 @@
 
 <p>Starting from one monolithic <code>ChinaScraper</code> class, I used Replace Method with Method Object to extract out most of the logic from this class into a <code>RegionScraper</code> class. Then I went to town using Extract Method to create a bunch of small methods that followed the Single Responsibility Principle (SRP). Having done this, it was clear that my code could benefit from a Replace Type Code with Polymorphism refactoring.</p>
 
-<p>All told, the shape of my code morphed from its original form &mdash; one 170 line class hinging on a 90 line method &mdash; to a more modular form where code was sectioned off into five classes and two modules, and methods were used for one purpose only.</p>
+<p>All told, the shape of my code morphed from its original form &ndash; one 170 line class hinging on a 90 line method &ndash; to a more modular form where code was sectioned off into five classes and two modules, and methods were used for one purpose only.</p>
 
 <p>The final step here was to take all of this code out of the <code>db/seeds.rb</code> file and put it into the <code>app/models</code> directory. This directory&rsquo;s file structure now looks like this:</p>
 
@@ -534,7 +534,7 @@
   
 
 
-<time datetime="2014-09-13T17:33:42-04:00" pubdate data-updated="true">Sep 13<span>th</span>, 2014</time>
+<time datetime="2014-09-13T17:33:42-04:00" pubdate data-updated="true"></time>
       
 
 
@@ -575,11 +575,15 @@
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2015/01/03/array-iteration-methods-in-javascript/">Array Iteration Methods in JavaScript</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2014/11/23/88-mph-with-flux-and-react/">88 Mph With Flux and React</a>
       </li>
     
       <li class="post">
-        <a href="/blog/2014/10/08/behind-the-scenes-of-the-has-many-active-record-association/">Behind the Scenes of the 'Has Many' Active Record Association</a>
+        <a href="/blog/2014/10/08/behind-the-scenes-of-the-has-many-active-record-association/">Behind the Scenes of the &#8216;Has Many&#8217; Active Record Association</a>
       </li>
     
       <li class="post">
@@ -588,10 +592,6 @@
     
       <li class="post">
         <a href="/blog/2014/09/18/getting-started-with-rspec/">Getting Started With RSpec</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2014/09/13/china-map-project-part-4-introducing-polymorphism/">China Map Project - Part 4: Introducing Polymorphism</a>
       </li>
     
   </ul>
@@ -608,7 +608,7 @@
     </div>
   </div>
   <footer role="contentinfo"><p>
-  Copyright &copy; 2014 - Chris Callahan -
+  Copyright &copy; 2015 - Chris Callahan -
   <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
 </p>
 

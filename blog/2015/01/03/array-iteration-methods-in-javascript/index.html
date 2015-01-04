@@ -1,0 +1,611 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Array Iteration Methods in JavaScript - Chris Callahan&#8217;s Blog</title>
+  <meta name="author" content="Chris Callahan">
+
+  
+  <meta name="description" content="When I first started learning JavaScript, I went through a number of tutorials that showed how to iterate over collections in an imperative style &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://callahanchris.github.io/blog/2015/01/03/array-iteration-methods-in-javascript">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="Chris Callahan's Blog" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="//fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="//fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+<!-- Analytics.js from segment.io -->
+<script type="text/javascript">
+  window.analytics=window.analytics||[],window.analytics.methods=["identify","group","track","page","pageview","alias","ready","on","once","off","trackLink","trackForm","trackClick","trackSubmit"],window.analytics.factory=function(t){return function(){var a=Array.prototype.slice.call(arguments);return a.unshift(t),window.analytics.push(a),window.analytics}};for(var i=0;i<window.analytics.methods.length;i++){var key=window.analytics.methods[i];window.analytics[key]=window.analytics.factory(key)}window.analytics.load=function(t){if(!document.getElementById("analytics-js")){var a=document.createElement("script");a.type="text/javascript",a.id="analytics-js",a.async=!0,a.src=("https:"===document.location.protocol?"https://":"http://")+"cdn.segment.io/analytics.js/v1/"+t+"/analytics.min.js";var n=document.getElementsByTagName("script")[0];n.parentNode.insertBefore(a,n)}},window.analytics.SNIPPET_VERSION="2.0.9",
+  window.analytics.load("NZeHSy7Zgy");
+  window.analytics.page();
+</script>
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">Chris Callahan&#8217;s Blog</a></h1>
+  
+    <h2>Becoming a hacker.</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="https://www.google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:callahanchris.github.io" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+  <li><a href="https://github.com/callahanchris" target="_blank">Github</a></li>
+  <li><a href="/projects">Projects</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Array Iteration Methods in JavaScript</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2015-01-03T15:55:19-05:00" pubdate data-updated="true"></time>
+        
+           | <a href="#disqus_thread"
+             data-disqus-identifier="http://callahanchris.github.io">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>When I first started learning JavaScript, I went through a number of tutorials that showed how to iterate over collections in an imperative style using a <code>for</code> loop:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kd">var</span> <span class="nx">angLeeMovies</span> <span class="o">=</span> <span class="p">[</span>
+</span><span class='line'>      <span class="s1">&#39;Pushing Hands&#39;</span><span class="p">,</span>
+</span><span class='line'>      <span class="s1">&#39;The Wedding Banquet&#39;</span><span class="p">,</span>
+</span><span class='line'>      <span class="s1">&#39;Eat Drink Man Woman&#39;</span>
+</span><span class='line'>    <span class="p">],</span>
+</span><span class='line'>    <span class="nx">i</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">for</span> <span class="p">(</span><span class="nx">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">i</span> <span class="o">&lt;</span> <span class="nx">angLeeMovies</span><span class="p">.</span><span class="nx">length</span><span class="p">;</span> <span class="nx">i</span> <span class="o">+=</span> <span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>  <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">angLeeMovies</span><span class="p">[</span><span class="nx">i</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39; was directed by Ang Lee.&#39;</span><span class="p">);</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Before ES5, this was the best available way to iterate over an array, but now there are a number of more expressive, idiomatic, and functional ways of iterating over JavaScript arrays.</p>
+
+<h3>The Big Three: <code>map()</code>, <code>filter()</code> &amp; <code>reduce()</code></h3>
+
+<h4><code>Array.prototype.map()</code></h4>
+
+<p><code>map()</code> is the array method I find myself using all the time when writing JavaScript code. The conceit is simple: <code>map()</code> takes a callback function as a parameter, calls this function on each item in the array, and returns a new array of the same length as the initial array that contains the resulting values.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kd">var</span> <span class="nx">angLeeMovies</span> <span class="o">=</span> <span class="p">[</span>
+</span><span class='line'>    <span class="p">{</span><span class="nx">title</span><span class="o">:</span> <span class="s1">&#39;Life of Pi&#39;</span><span class="p">,</span> <span class="nx">year</span><span class="o">:</span> <span class="mi">2012</span><span class="p">},</span>
+</span><span class='line'>    <span class="p">{</span><span class="nx">title</span><span class="o">:</span> <span class="s1">&#39;Taking Woodstock&#39;</span><span class="p">,</span> <span class="nx">year</span><span class="o">:</span> <span class="mi">2009</span><span class="p">},</span>
+</span><span class='line'>    <span class="p">{</span><span class="nx">title</span><span class="o">:</span> <span class="s1">&#39;Lust, Caution&#39;</span><span class="p">,</span> <span class="nx">year</span><span class="o">:</span> <span class="mi">2007</span><span class="p">},</span>
+</span><span class='line'>    <span class="p">{</span><span class="nx">title</span><span class="o">:</span> <span class="s1">&#39;Brokeback Mountain&#39;</span><span class="p">,</span> <span class="nx">year</span><span class="o">:</span> <span class="mi">2005</span><span class="p">},</span>
+</span><span class='line'>    <span class="p">{</span><span class="nx">title</span><span class="o">:</span> <span class="s1">&#39;Hulk&#39;</span><span class="p">,</span> <span class="nx">year</span><span class="o">:</span> <span class="mi">2003</span><span class="p">}</span>
+</span><span class='line'>  <span class="p">],</span>
+</span><span class='line'>  <span class="nx">releaseYears</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="nx">releaseYears</span> <span class="o">=</span> <span class="nx">angLeeMovies</span><span class="p">.</span><span class="nx">map</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">movie</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>  <span class="k">return</span> <span class="nx">movie</span><span class="p">.</span><span class="nx">year</span><span class="p">;</span>
+</span><span class='line'><span class="p">});</span>
+</span><span class='line'>
+</span><span class='line'><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">releaseYears</span><span class="p">);</span> <span class="c1">// [2012, 2009, 2007, 2005, 2003]</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This can be simplified even further by extracting the function and passing it as an argument to <code>map()</code>.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kd">var</span> <span class="nx">angLeeMovies</span> <span class="o">=</span> <span class="p">[</span> <span class="p">...</span> <span class="p">],</span> <span class="nx">releaseYears</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="kd">function</span> <span class="nx">extractYear</span><span class="p">(</span><span class="nx">movie</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>  <span class="k">return</span> <span class="nx">movie</span><span class="p">.</span><span class="nx">year</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="nx">releaseYears</span> <span class="o">=</span> <span class="nx">angLeeMovies</span><span class="p">.</span><span class="nx">map</span><span class="p">(</span><span class="nx">extractYear</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">releaseYears</span><span class="p">);</span> <span class="c1">// [2012, 2009, 2007, 2005, 2003]</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Here the <code>movie</code> parameter is being implicitly passed to the <code>extractYear()</code> function, but the behavior is the same as above.</p>
+
+<p><em><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map">MDN Documentation - Array.prototype.map()</a></em></p>
+
+<h4><code>Array.prototype.filter()</code></h4>
+
+<p><code>filter()</code> is intuitively named: it calls a callback function on each item in an array, filters out items that return a falsy value, and returns a new array with the remaining items (those that the callback returns a truthy value for).</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kd">var</span> <span class="nx">truthyAndFalsy</span> <span class="o">=</span> <span class="p">[</span><span class="o">-</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="kc">undefined</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="kc">null</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="kc">NaN</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="kc">false</span><span class="p">,</span> <span class="mi">7</span><span class="p">],</span> <span class="nx">truthy</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="nx">truthy</span> <span class="o">=</span> <span class="nx">truthyAndFalsy</span><span class="p">.</span><span class="nx">filter</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">item</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>  <span class="k">return</span> <span class="nx">item</span><span class="p">;</span>
+</span><span class='line'><span class="p">});</span>
+</span><span class='line'>
+</span><span class='line'><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">truthy</span><span class="p">);</span> <span class="c1">// [1, 2, 3, 4, 5, 6, 7]</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Using the opposite test case, we can see the seven falsy values in JavaScript:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kd">var</span> <span class="nx">truthyAndFalsy</span> <span class="o">=</span> <span class="p">[</span> <span class="p">...</span> <span class="p">],</span> <span class="nx">falsy</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="nx">falsy</span> <span class="o">=</span> <span class="nx">truthyAndFalsy</span><span class="p">.</span><span class="nx">filter</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">item</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>  <span class="k">return</span> <span class="o">!</span><span class="nx">item</span><span class="p">;</span>
+</span><span class='line'><span class="p">});</span>
+</span><span class='line'>
+</span><span class='line'><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">falsy</span><span class="p">);</span> <span class="c1">// [-0, 0, undefined, null, &quot;&quot;, NaN, false]</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>While 0 being falsy is a &ldquo;classic JavaScript gotcha&rdquo;, the point remains that <code>filter()</code> is a powerful tool for collecting a subset of your data that matches certain criteria.</p>
+
+<p><em><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/filter">MDN Documentation - Array.prototype.filter()</a></em></p>
+
+<h4><code>Array.prototype.reduce()</code></h4>
+
+<p><code>reduce()</code> has been the hardest of all FP methods for me to fully embrace, but it can be extremely useful in certain cases. The core idea of <code>reduce()</code> is that it iterates over an array and returns exactly one object. The return value is commonly a sum or count of some property of the items in the array, but <code>reduce()</code> is quite flexible in what it can produce.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kd">var</span> <span class="nx">angLeeMovies</span> <span class="o">=</span> <span class="p">[</span>
+</span><span class='line'>    <span class="p">{</span><span class="nx">title</span><span class="o">:</span> <span class="s1">&#39;Brokeback Mountain&#39;</span><span class="p">,</span> <span class="nx">bestDirectorOscar</span><span class="o">:</span> <span class="s1">&#39;won&#39;</span><span class="p">},</span>
+</span><span class='line'>    <span class="p">{</span><span class="nx">title</span><span class="o">:</span> <span class="s1">&#39;Crouching Tiger, Hidden Dragon&#39;</span><span class="p">,</span> <span class="nx">bestDirectorOscar</span><span class="o">:</span> <span class="s1">&#39;nominated&#39;</span><span class="p">},</span>
+</span><span class='line'>    <span class="p">{</span><span class="nx">title</span><span class="o">:</span> <span class="s1">&#39;Hulk&#39;</span><span class="p">,</span> <span class="nx">bestDirectorOscar</span><span class="o">:</span> <span class="kc">false</span><span class="p">},</span>
+</span><span class='line'>    <span class="p">{</span><span class="nx">title</span><span class="o">:</span> <span class="s1">&#39;Life of Pi&#39;</span><span class="p">,</span> <span class="nx">bestDirectorOscar</span><span class="o">:</span> <span class="s1">&#39;won&#39;</span><span class="p">},</span>
+</span><span class='line'>    <span class="p">{</span><span class="nx">title</span><span class="o">:</span> <span class="s1">&#39;The Ice Storm&#39;</span><span class="p">,</span> <span class="nx">bestDirectorOscar</span><span class="o">:</span> <span class="kc">false</span><span class="p">}</span>
+</span><span class='line'>  <span class="p">],</span>
+</span><span class='line'>  <span class="nx">bestDirectorWins</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="nx">bestDirectorWins</span> <span class="o">=</span> <span class="nx">angLeeMovies</span><span class="p">.</span><span class="nx">reduce</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">previousValue</span><span class="p">,</span> <span class="nx">currentValue</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>  <span class="k">return</span> <span class="nx">currentValue</span><span class="p">.</span><span class="nx">bestDirectorOscar</span> <span class="o">===</span> <span class="s1">&#39;won&#39;</span> <span class="o">?</span> <span class="nx">previousValue</span> <span class="o">+</span> <span class="mi">1</span> <span class="o">:</span> <span class="nx">previousValue</span><span class="p">;</span>
+</span><span class='line'><span class="p">},</span> <span class="mi">0</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">bestDirectorWins</span><span class="p">);</span> <span class="c1">// 2</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Here the <code>previousValue</code> argument is the accumulator that we increment if Ang Lee won an Oscar for best director for the movie we&rsquo;re iterating over, and the <code>currentValue</code> argument is item being iterated over. As there is no <code>previousValue</code> when iterating over the first item, we can initialize it to 0 as an optional second parameter to the <code>reduce()</code> function.</p>
+
+<p>Though it can seem somewhat esoteric at first, <code>reduce()</code> has grown on me significantly in the past few months &ndash; partly because of using MapReduce views in CouchDB views, and partly because of learning more about the benefits of functional programming. It</p>
+
+<p><em><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/reduce">MDN Documentation - Array.prototype.reduce()</a></em></p>
+
+<h3>Friends of <code>reduce()</code></h3>
+
+<h4><code>Array.prototype.reduceRight()</code></h4>
+
+<p>Having grasped <code>reduce()</code>, it is not a far stretch to get <code>reduceRight()</code>. Whereas <code>reduce()</code> iterates over an array from left to right, <code>reduceRight()</code> iterates from right to left. This does not make a difference for the standard sum/count use cases, but it can come in handy for other purposes. For example, if we have an array of Ang Lee movies sorted in reverse chronological order, we could use <code>reduceRight()</code> to sort these movies in chronological order by decade.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kd">var</span> <span class="nx">angLeeMovies</span> <span class="o">=</span> <span class="p">[</span>
+</span><span class='line'>    <span class="p">{</span><span class="nx">title</span><span class="o">:</span> <span class="s1">&#39;Life of Pi&#39;</span><span class="p">,</span> <span class="nx">year</span><span class="o">:</span> <span class="mi">2012</span><span class="p">},</span>
+</span><span class='line'>    <span class="p">{</span><span class="nx">title</span><span class="o">:</span> <span class="s1">&#39;Brokeback Mountain&#39;</span><span class="p">,</span> <span class="nx">year</span><span class="o">:</span> <span class="mi">2005</span><span class="p">},</span>
+</span><span class='line'>    <span class="p">{</span><span class="nx">title</span><span class="o">:</span> <span class="s1">&#39;Crouching Tiger, Hidden Dragon&#39;</span><span class="p">,</span> <span class="nx">year</span><span class="o">:</span> <span class="mi">2000</span><span class="p">},</span>
+</span><span class='line'>    <span class="p">{</span><span class="nx">title</span><span class="o">:</span> <span class="s1">&#39;The Wedding Banquet&#39;</span><span class="p">,</span> <span class="nx">year</span><span class="o">:</span> <span class="mi">1993</span><span class="p">}</span>
+</span><span class='line'>  <span class="p">],</span>
+</span><span class='line'>  <span class="nx">moviesByDecade</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="kd">function</span> <span class="nx">addMovieToDecade</span><span class="p">(</span><span class="nx">filmography</span><span class="p">,</span> <span class="nx">decade</span><span class="p">,</span> <span class="nx">title</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>  <span class="nx">filmography</span><span class="p">[</span><span class="nx">decade</span><span class="p">]</span> <span class="o">?</span> <span class="nx">filmography</span><span class="p">[</span><span class="nx">decade</span><span class="p">].</span><span class="nx">push</span><span class="p">(</span><span class="nx">title</span><span class="p">)</span> <span class="o">:</span> <span class="nx">filmography</span><span class="p">[</span><span class="nx">decade</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="nx">title</span><span class="p">];</span>
+</span><span class='line'>  <span class="k">return</span> <span class="nx">filmography</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="nx">moviesByDecade</span> <span class="o">=</span> <span class="nx">angLeeMovies</span><span class="p">.</span><span class="nx">reduceRight</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">previousValue</span><span class="p">,</span> <span class="nx">currentValue</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>  <span class="k">if</span> <span class="p">(</span><span class="nx">currentValue</span><span class="p">.</span><span class="nx">year</span> <span class="o">&gt;=</span> <span class="mi">2010</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">return</span> <span class="nx">addMovieToDecade</span><span class="p">(</span><span class="nx">previousValue</span><span class="p">,</span> <span class="s2">&quot;2010s&quot;</span><span class="p">,</span> <span class="nx">currentValue</span><span class="p">.</span><span class="nx">title</span><span class="p">);</span>
+</span><span class='line'>  <span class="p">}</span> <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="nx">currentValue</span><span class="p">.</span><span class="nx">year</span> <span class="o">&gt;=</span> <span class="mi">2000</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">return</span> <span class="nx">addMovieToDecade</span><span class="p">(</span><span class="nx">previousValue</span><span class="p">,</span> <span class="s2">&quot;2000s&quot;</span><span class="p">,</span> <span class="nx">currentValue</span><span class="p">.</span><span class="nx">title</span><span class="p">);</span>
+</span><span class='line'>  <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">return</span> <span class="nx">addMovieToDecade</span><span class="p">(</span><span class="nx">previousValue</span><span class="p">,</span> <span class="s2">&quot;1990s&quot;</span><span class="p">,</span> <span class="nx">currentValue</span><span class="p">.</span><span class="nx">title</span><span class="p">);</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="p">},</span> <span class="p">{});</span>
+</span><span class='line'>
+</span><span class='line'><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">moviesByDecade</span><span class="p">);</span>
+</span><span class='line'><span class="c1">// {</span>
+</span><span class='line'><span class="c1">//   &quot;1990s&quot;: [&quot;The Wedding Banquet&quot;],</span>
+</span><span class='line'><span class="c1">//   &quot;2000s&quot;: [&quot;Crouching Tiger, Hidden Dragon&quot;, &quot;Brokeback Mountain&quot;],</span>
+</span><span class='line'><span class="c1">//   &quot;2010s&quot;: [&quot;Life of Pi&quot;]</span>
+</span><span class='line'><span class="c1">// }</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p><em><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/reduceRight">MDN Documentation - Array.prototype.reduceRight()</a></em></p>
+
+<h4><code>Array.prototype.every()</code></h4>
+
+<p><code>every()</code> checks to see if all items in an array return a truthy value for the callback function. If they all do, <code>every()</code> returns <code>true</code>; otherwise, it returns <code>false</code>. Given what we know about <code>reduce()</code>, it seems like <code>every()</code> is achieving a similar purpose: boiling an array down to a single value. It is therefore pretty straightforward to implement our own version of <code>every()</code> based on <code>reduce()</code>. (Note, this is a simplified version, as <code>every()</code> can take an optional <code>thisArg</code> argument).</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="nb">Array</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">myEvery</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">callback</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>  <span class="k">return</span> <span class="k">this</span><span class="p">.</span><span class="nx">reduce</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">previousValue</span><span class="p">,</span> <span class="nx">currentValue</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">return</span> <span class="nx">previousValue</span> <span class="o">?</span> <span class="nx">callback</span><span class="p">(</span><span class="nx">currentValue</span><span class="p">)</span> <span class="o">:</span> <span class="kc">false</span><span class="p">;</span>
+</span><span class='line'>  <span class="p">},</span> <span class="kc">true</span><span class="p">);</span> <span class="c1">// every() returns true for empty arrays</span>
+</span><span class='line'><span class="p">};</span>
+</span><span class='line'>
+</span><span class='line'><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">].</span><span class="nx">myEvery</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">num</span><span class="p">)</span> <span class="p">{</span> <span class="k">return</span> <span class="nx">num</span> <span class="o">&lt;</span> <span class="mi">10</span><span class="p">;</span> <span class="p">});</span> <span class="c1">// true</span>
+</span><span class='line'><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">].</span><span class="nx">myEvery</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">num</span><span class="p">)</span> <span class="p">{</span> <span class="k">return</span> <span class="nx">num</span> <span class="o">&lt;</span> <span class="mi">3</span><span class="p">;</span> <span class="p">});</span>  <span class="c1">// false</span>
+</span><span class='line'><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">].</span><span class="nx">myEvery</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">num</span><span class="p">)</span> <span class="p">{</span> <span class="k">return</span> <span class="nx">num</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">;</span> <span class="p">});</span>  <span class="c1">// false</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Unlike my crude implementation, <code>every()</code> is optimized to return immediately if a falsy value is returned from the callback. Personally, I haven&rsquo;t used <code>every()</code> much &ndash; I prefer to use <code>map()</code>, <code>filter()</code>, and <code>reduce()</code>.</p>
+
+<p><em><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/every">MDN Documentation - Array.prototype.every()</a></em></p>
+
+<h4><code>Array.prototype.some()</code></h4>
+
+<p>Similar to <code>every()</code>, <code>some()</code> iterates over an array and returns <code>true</code> if any items in the array return a truthy value, and <code>false</code> if none do. This can also be (again, crudely) expressed in terms of <code>reduce()</code>:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="nb">Array</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">mySome</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">callback</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>  <span class="k">return</span> <span class="k">this</span><span class="p">.</span><span class="nx">reduce</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">previousValue</span><span class="p">,</span> <span class="nx">currentValue</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">return</span> <span class="nx">previousValue</span> <span class="o">?</span> <span class="kc">true</span> <span class="o">:</span> <span class="nx">callback</span><span class="p">(</span><span class="nx">currentValue</span><span class="p">);</span>
+</span><span class='line'>  <span class="p">},</span> <span class="kc">false</span><span class="p">);</span> <span class="c1">// some() returns false for empty arrays</span>
+</span><span class='line'><span class="p">};</span>
+</span><span class='line'>
+</span><span class='line'><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">].</span><span class="nx">mySome</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">num</span><span class="p">)</span> <span class="p">{</span> <span class="k">return</span> <span class="nx">num</span> <span class="o">&lt;</span> <span class="mi">10</span><span class="p">;</span> <span class="p">});</span> <span class="c1">// true</span>
+</span><span class='line'><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">].</span><span class="nx">mySome</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">num</span><span class="p">)</span> <span class="p">{</span> <span class="k">return</span> <span class="nx">num</span> <span class="o">&lt;</span> <span class="mi">3</span><span class="p">;</span> <span class="p">});</span>  <span class="c1">// true</span>
+</span><span class='line'><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">].</span><span class="nx">mySome</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">num</span><span class="p">)</span> <span class="p">{</span> <span class="k">return</span> <span class="nx">num</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">;</span> <span class="p">});</span>  <span class="c1">// false</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p><em><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/some">MDN Documentation - Array.prototype.some()</a></em></p>
+
+<h3>A More Expressive <code>for</code> Idiom?</h3>
+
+<h4><code>Array.prototype.forEach()</code></h4>
+
+<p>To me, <code>forEach()</code> appears to be a direct successor to the <code>for (i = 0; i &lt; x.length; i += 1) {}</code> example above. It is a basic iterator that gives you access to one item in an array at a time, and returns <code>undefined</code>.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kd">var</span> <span class="nx">angLeeMovies</span> <span class="o">=</span> <span class="p">[</span>
+</span><span class='line'>    <span class="p">{</span><span class="nx">title</span><span class="o">:</span> <span class="s1">&#39;Brokeback Mountain&#39;</span><span class="p">,</span> <span class="nx">bestDirectorOscar</span><span class="o">:</span> <span class="s1">&#39;won&#39;</span><span class="p">},</span>
+</span><span class='line'>    <span class="p">{</span><span class="nx">title</span><span class="o">:</span> <span class="s1">&#39;Crouching Tiger, Hidden Dragon&#39;</span><span class="p">,</span> <span class="nx">bestDirectorOscar</span><span class="o">:</span> <span class="s1">&#39;nominated&#39;</span><span class="p">},</span>
+</span><span class='line'>    <span class="p">{</span><span class="nx">title</span><span class="o">:</span> <span class="s1">&#39;Hulk&#39;</span><span class="p">,</span> <span class="nx">bestDirectorOscar</span><span class="o">:</span> <span class="kc">false</span><span class="p">},</span>
+</span><span class='line'>    <span class="p">{</span><span class="nx">title</span><span class="o">:</span> <span class="s1">&#39;Life of Pi&#39;</span><span class="p">,</span> <span class="nx">bestDirectorOscar</span><span class="o">:</span> <span class="s1">&#39;won&#39;</span><span class="p">},</span>
+</span><span class='line'>    <span class="p">{</span><span class="nx">title</span><span class="o">:</span> <span class="s1">&#39;The Ice Storm&#39;</span><span class="p">,</span> <span class="nx">bestDirectorOscar</span><span class="o">:</span> <span class="kc">false</span><span class="p">}</span>
+</span><span class='line'>  <span class="p">];</span>
+</span><span class='line'>
+</span><span class='line'><span class="nx">angLeeMovies</span><span class="p">.</span><span class="nx">forEach</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">movie</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>  <span class="k">if</span> <span class="p">(</span><span class="nx">movie</span><span class="p">.</span><span class="nx">bestDirectorOscar</span> <span class="o">===</span> <span class="s1">&#39;won&#39;</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;Ang Lee won an Oscar for best director for &quot;&#39;</span> <span class="o">+</span> <span class="nx">movie</span><span class="p">.</span><span class="nx">title</span> <span class="o">+</span> <span class="s1">&#39;&quot;&#39;</span><span class="p">);</span>
+</span><span class='line'>  <span class="p">}</span> <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="nx">movie</span><span class="p">.</span><span class="nx">bestDirectorOscar</span> <span class="o">===</span> <span class="s1">&#39;nominated&#39;</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;Ang Lee was nominated for an Oscar for best director for &quot;&#39;</span> <span class="o">+</span> <span class="nx">movie</span><span class="p">.</span><span class="nx">title</span> <span class="o">+</span> <span class="s1">&#39;&quot;&#39;</span><span class="p">);</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="p">});</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// Ang Lee won an Oscar for best director for &quot;Brokeback Mountain&quot;</span>
+</span><span class='line'><span class="c1">// Ang Lee was nominated for an Oscar for best director for &quot;Crouching Tiger, Hidden Dragon&quot;</span>
+</span><span class='line'><span class="c1">// Ang Lee won an Oscar for best director for &quot;Life of Pi&quot;</span>
+</span><span class='line'><span class="c1">// undefined</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Unlike the previous examples, <code>forEach()</code> is used to produce <a href="http://en.wikipedia.org/wiki/Side_effect_%28computer_science%29">&ldquo;side effects&rdquo;</a>. Practically speaking, because the return value of <code>forEach()</code> is always <code>undefined</code>, it can only be used to change the state of or interact with other parts of the program. This may seem like a fine distinction to some, but the use of side effects is a hotly contested debate across many programming language communities.</p>
+
+<p>It is worth pointing out that <code>forEach()</code> is actually <a href="http://jsperf.com/foreach-vs-loop">significantly slower</a> than the <code>for (i = 0; i &lt; x.length; i += 1) {}</code> idiom. But for most purposes, <code>forEach()</code> is a much more expressive way to iterate over collections.</p>
+
+<p><em><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/forEach">MDN Documentation - Array.prototype.forEach()</a></em></p>
+
+<h3>Conclusion</h3>
+
+<p>Iterating over arrays is a common task when coding in almost any language, and JavaScript is no exception. The above <code>Array.prototype</code> iterators are all defined in the ES5 spec and are widely supported on most modern web browsers (including IE 9 and above). They are relatively straightforward to use and make coding in JavaScript more functional and expressive.</p>
+
+<h3>Resources</h3>
+
+<ul>
+<li><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/prototype">MDN Array.prototype Documentation</a></li>
+<li><a href="http://colintoh.com/blog/5-array-methods-that-you-should-use-today">Colin Toh - 5 Array Methods That You Should Be Using Now</a></li>
+<li><a href="http://www.2ality.com/2011/04/iterating-over-arrays-and-objects-in.html">2ality - Iterating over arrays and objects in JavaScript</a></li>
+</ul>
+
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Chris Callahan</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2015-01-03T15:55:19-05:00" pubdate data-updated="true"></time>
+      
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://callahanchris.github.io/blog/2015/01/03/array-iteration-methods-in-javascript/" data-via="" data-counturl="http://callahanchris.github.io/blog/2015/01/03/array-iteration-methods-in-javascript/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2014/11/23/88-mph-with-flux-and-react/" title="Previous Post: 88 mph With Flux and React">&laquo; 88 mph With Flux and React</a>
+      
+      
+    </p>
+  </footer>
+</article>
+
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+  </section>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2015/01/03/array-iteration-methods-in-javascript/">Array Iteration Methods in JavaScript</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/11/23/88-mph-with-flux-and-react/">88 Mph With Flux and React</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/10/08/behind-the-scenes-of-the-has-many-active-record-association/">Behind the Scenes of the &#8216;Has Many&#8217; Active Record Association</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/09/23/my-favorite-sublime-text-keyboard-shortcuts/">My Favorite Sublime Text Keyboard Shortcuts</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/09/18/getting-started-with-rspec/">Getting Started With RSpec</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2015 - Chris Callahan -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+<script type="text/javascript">
+      var disqus_shortname = 'ccal';
+      
+        
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://callahanchris.github.io/blog/2015/01/03/array-iteration-methods-in-javascript/';
+        var disqus_url = 'http://callahanchris.github.io/blog/2015/01/03/array-iteration-methods-in-javascript/';
+        var disqus_script = 'embed.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

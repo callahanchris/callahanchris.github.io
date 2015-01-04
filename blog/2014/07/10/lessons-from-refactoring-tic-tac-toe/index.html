@@ -5,7 +5,7 @@
 <!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <title>Lessons From Refactoring Tic Tac Toe - Chris Callahan's Blog</title>
+  <title>Lessons From Refactoring Tic Tac Toe - Chris Callahan&#8217;s Blog</title>
   <meta name="author" content="Chris Callahan">
 
   
@@ -42,7 +42,7 @@
 
 <body   >
   <header role="banner"><hgroup>
-  <h1><a href="/">Chris Callahan's Blog</a></h1>
+  <h1><a href="/">Chris Callahan&#8217;s Blog</a></h1>
   
     <h2>Becoming a hacker.</h2>
   
@@ -92,7 +92,7 @@
   
 
 
-<time datetime="2014-07-10T18:02:50-04:00" pubdate data-updated="true">Jul 10<span>th</span>, 2014</time>
+<time datetime="2014-07-10T18:02:50-04:00" pubdate data-updated="true"></time>
         
            | <a href="#disqus_thread"
              data-disqus-identifier="http://callahanchris.github.io">Comments</a>
@@ -174,9 +174,9 @@
 
 <blockquote><p>&ldquo;Applications that are easy to change consist of classes that are easy to reuse. Reusable classes are pluggable units of well-defined behavior that have few entanglements. An application that is easy to change is like a box of building blocks; you can select just the pieces you need and assemble them in unanticipated ways.&rdquo;</p></blockquote>
 
-<p><em>&mdash; Practical Object-Oriented Design in Ruby, page 21</em></p>
+<p><em>&ndash; Practical Object-Oriented Design in Ruby, page 21</em></p>
 
-<p>I didn&rsquo;t understand the purpose of classes back in January when I first wrote my tic tac toe implementation. This partially explains why I originally only included one class (<code>TicTacToe</code>) that stood at a monstrous 405 lines &mdash; a veritable God object towering over my codebase.</p>
+<p>I didn&rsquo;t understand the purpose of classes back in January when I first wrote my tic tac toe implementation. This partially explains why I originally only included one class (<code>TicTacToe</code>) that stood at a monstrous 405 lines &ndash; a veritable God object towering over my codebase.</p>
 
 <p>I am still far from mastering the principles of object-oriented design, but I have come a long way over the last few months, thanks largely to <em>POODR</em> and <em>The Well-Grounded Rubyist</em>. One of the most important things I&rsquo;ve learned along the way is to not be afraid of classes. Watching tech talks by Sandi Metz, Ben Orenstein, and others showed me that the single responsibility principle also applies to classes.</p>
 
@@ -319,7 +319,7 @@
 
 <h3>Make Reusable Code</h3>
 
-<p>This is the overarching lesson I learned in the process of refactoring my tic tac toe code. Writing the original tic tac toe implementation was painful &mdash; not only because I didn&rsquo;t really understand how to code at the time, but also because the code I wrote was extremely resistant to change. My new implementation of tic tac toe, on the other hand, relies more on abstractions and is significantly more open to the possibility of change in the future.</p>
+<p>This is the overarching lesson I learned in the process of refactoring my tic tac toe code. Writing the original tic tac toe implementation was painful &ndash; not only because I didn&rsquo;t really understand how to code at the time, but also because the code I wrote was extremely resistant to change. My new implementation of tic tac toe, on the other hand, relies more on abstractions and is significantly more open to the possibility of change in the future.</p>
 
 <p>Take, for example, the <code>Computer</code> class&rsquo;s <code>move</code> algorithm:</p>
 
@@ -348,7 +348,7 @@
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>But what if I want to make the computer smarter and decide to implement a way for the computer to recognize opportunities to create a fork? In my original implementation, the cost of adding such a feature was simply too high. Not only would I be afraid of breaking my existing code, but I&rsquo;d also have to hardcode every single permutation possible &mdash; something I now know is avoidable.</p>
+<p>But what if I want to make the computer smarter and decide to implement a way for the computer to recognize opportunities to create a fork? In my original implementation, the cost of adding such a feature was simply too high. Not only would I be afraid of breaking my existing code, but I&rsquo;d also have to hardcode every single permutation possible &ndash; something I now know is avoidable.</p>
 
 <p>Instead, with the new code, I could make a <code>Forker</code> class that inherits from <code>Computer</code>. The most significant change I&rsquo;d have to make to <code>Computer</code> to accomplish this would be:</p>
 
@@ -392,12 +392,12 @@
 <h3>Links/Resources</h3>
 
 <ul>
-<li><a href="https://www.youtube.com/watch?v=8bZh5LMaSmE">Sandi Metz &ndash; All the Little Things (RailsConf 2014)</a></li>
+<li><a href="https://www.youtube.com/watch?v=8bZh5LMaSmE">Sandi Metz - All the Little Things (RailsConf 2014)</a></li>
 <li><a href="http://www.poodr.com/">Practical Object-Oriented Design in Ruby (POODR)</a></li>
 <li><a href="http://www.manning.com/black3/">The Well-Grounded Rubyist</a></li>
 <li><a href="http://rubyrogues.com/087-rr-book-clubpractical-object-oriented-design-in-ruby-with-sandi-metz/">Sandi Metz on the Ruby Rogues podcast</a></li>
-<li><a href="https://www.youtube.com/watch?v=DC-pQPq0acs">Ben Orenstein &ndash; Refactoring from Good to Great (Aloha Ruby Conf 2012)</a></li>
-<li><a href="https://www.youtube.com/watch?v=9LfmrkyP81M">David Heinemeier Hansson &ndash; Writing Software (RailsConf 2014)</a></li>
+<li><a href="https://www.youtube.com/watch?v=DC-pQPq0acs">Ben Orenstein - Refactoring from Good to Great (Aloha Ruby Conf 2012)</a></li>
+<li><a href="https://www.youtube.com/watch?v=9LfmrkyP81M">David Heinemeier Hansson - Writing Software (RailsConf 2014)</a></li>
 </ul>
 
 </div>
@@ -422,7 +422,7 @@
   
 
 
-<time datetime="2014-07-10T18:02:50-04:00" pubdate data-updated="true">Jul 10<span>th</span>, 2014</time>
+<time datetime="2014-07-10T18:02:50-04:00" pubdate data-updated="true"></time>
       
 
 
@@ -463,11 +463,15 @@
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2015/01/03/array-iteration-methods-in-javascript/">Array Iteration Methods in JavaScript</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2014/11/23/88-mph-with-flux-and-react/">88 Mph With Flux and React</a>
       </li>
     
       <li class="post">
-        <a href="/blog/2014/10/08/behind-the-scenes-of-the-has-many-active-record-association/">Behind the Scenes of the 'Has Many' Active Record Association</a>
+        <a href="/blog/2014/10/08/behind-the-scenes-of-the-has-many-active-record-association/">Behind the Scenes of the &#8216;Has Many&#8217; Active Record Association</a>
       </li>
     
       <li class="post">
@@ -476,10 +480,6 @@
     
       <li class="post">
         <a href="/blog/2014/09/18/getting-started-with-rspec/">Getting Started With RSpec</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2014/09/13/china-map-project-part-4-introducing-polymorphism/">China Map Project - Part 4: Introducing Polymorphism</a>
       </li>
     
   </ul>
@@ -496,7 +496,7 @@
     </div>
   </div>
   <footer role="contentinfo"><p>
-  Copyright &copy; 2014 - Chris Callahan -
+  Copyright &copy; 2015 - Chris Callahan -
   <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
 </p>
 

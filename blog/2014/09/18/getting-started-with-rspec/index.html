@@ -5,7 +5,7 @@
 <!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <title>Getting Started With RSpec - Chris Callahan's Blog</title>
+  <title>Getting Started With RSpec - Chris Callahan&#8217;s Blog</title>
   <meta name="author" content="Chris Callahan">
 
   
@@ -42,7 +42,7 @@
 
 <body   >
   <header role="banner"><hgroup>
-  <h1><a href="/">Chris Callahan's Blog</a></h1>
+  <h1><a href="/">Chris Callahan&#8217;s Blog</a></h1>
   
     <h2>Becoming a hacker.</h2>
   
@@ -92,7 +92,7 @@
   
 
 
-<time datetime="2014-09-18T11:56:23-04:00" pubdate data-updated="true">Sep 18<span>th</span>, 2014</time>
+<time datetime="2014-09-18T11:56:23-04:00" pubdate data-updated="true"></time>
         
            | <a href="#disqus_thread"
              data-disqus-identifier="http://callahanchris.github.io">Comments</a>
@@ -203,7 +203,7 @@
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>At the top of the <code>espresso_spec.rb</code> file, I required the <code>spec_helper.rb</code> file, where I will list all of the file dependencies so that they don&rsquo;t clutter up this spec file. Then I opened a <code>describe</code> block for the <code>Espresso</code> class &ndash; all of the tests in this file should go inside this block. Note that it&rsquo;s OK to use the constant <code>Espresso</code> in this case, but generally you will pass in a string as an argument to the RSpec methods <code>describe</code>, <code>context</code>, and <code>it</code>.</p>
+<p>At the top of the <code>espresso_spec.rb</code> file, I required the <code>spec_helper.rb</code> file, where I will list all of the file dependencies so that they don&rsquo;t clutter up this spec file. Then I opened a <code>describe</code> block for the <code>Espresso</code> class - all of the tests in this file should go inside this block. Note that it&rsquo;s OK to use the constant <code>Espresso</code> in this case, but generally you will pass in a string as an argument to the RSpec methods <code>describe</code>, <code>context</code>, and <code>it</code>.</p>
 
 <p>In order for the tests to run properly, I also need to add the following line to the <code>spec/spec_helper.rb</code> file:</p>
 
@@ -483,7 +483,7 @@
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>Here I&rsquo;ve written two <code>context</code> blocks, one for an espresso with milk and one for an espresso without milk. In order to get the milk into the espresso, I&rsquo;ve also included an <code>add_milk</code> method &mdash; this should also be tested as part of <code>Espresso</code>&rsquo;s API. Before getting the next test to pass, I fleshed out the <code>Espresso</code> class a bit to support this new method.</p>
+<p>Here I&rsquo;ve written two <code>context</code> blocks, one for an espresso with milk and one for an espresso without milk. In order to get the milk into the espresso, I&rsquo;ve also included an <code>add_milk</code> method &ndash; this should also be tested as part of <code>Espresso</code>&rsquo;s API. Before getting the next test to pass, I fleshed out the <code>Espresso</code> class a bit to support this new method.</p>
 
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -591,7 +591,7 @@
 
 <h3>Next Steps</h3>
 
-<p>This is a basic introduction to writing the first few tests of a Ruby app with RSpec, and is far from a complete resource. Already we can see that there is some repetition in the tests above (<code>espresso = Espresso.new</code>) that should be abstracted out. RSpec has a number of convenient methods to help you DRY out your tests, such as <code>let</code>, <code>before</code>, <code>subject</code>, and <code>it_behaves_like</code>. There&rsquo;s also clearly some more refactoring that can be done on the code itself &mdash; but now we have a safety net to fall back on when we start refactoring.</p>
+<p>This is a basic introduction to writing the first few tests of a Ruby app with RSpec, and is far from a complete resource. Already we can see that there is some repetition in the tests above (<code>espresso = Espresso.new</code>) that should be abstracted out. RSpec has a number of convenient methods to help you DRY out your tests, such as <code>let</code>, <code>before</code>, <code>subject</code>, and <code>it_behaves_like</code>. There&rsquo;s also clearly some more refactoring that can be done on the code itself &ndash; but now we have a safety net to fall back on when we start refactoring.</p>
 
 <p>For more comprehensive info about RSpec, check out the resources below!</p>
 
@@ -599,8 +599,8 @@
 
 <ul>
 <li><p><a href="https://www.relishapp.com/rspec">Official RSpec Documentation</a></p></li>
-<li><p><a href="http://betterspecs.org/">Better Specs</a> &ndash; A collection of RSpec best practices</p></li>
-<li><p><a href="https://www.codeschool.com/courses/testing-with-rspec">Testing with RSpec on Code School</a> &ndash; Still uses the RSpec 2 <code>should</code> syntax, but otherwise a great intro to RSpec.</p></li>
+<li><p><a href="http://betterspecs.org/">Better Specs</a> - A collection of RSpec best practices</p></li>
+<li><p><a href="https://www.codeschool.com/courses/testing-with-rspec">Testing with RSpec on Code School</a> - Still uses the RSpec 2 <code>should</code> syntax, but otherwise a great intro to RSpec.</p></li>
 </ul>
 
 </div>
@@ -625,7 +625,7 @@
   
 
 
-<time datetime="2014-09-18T11:56:23-04:00" pubdate data-updated="true">Sep 18<span>th</span>, 2014</time>
+<time datetime="2014-09-18T11:56:23-04:00" pubdate data-updated="true"></time>
       
 
 
@@ -666,11 +666,15 @@
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2015/01/03/array-iteration-methods-in-javascript/">Array Iteration Methods in JavaScript</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2014/11/23/88-mph-with-flux-and-react/">88 Mph With Flux and React</a>
       </li>
     
       <li class="post">
-        <a href="/blog/2014/10/08/behind-the-scenes-of-the-has-many-active-record-association/">Behind the Scenes of the 'Has Many' Active Record Association</a>
+        <a href="/blog/2014/10/08/behind-the-scenes-of-the-has-many-active-record-association/">Behind the Scenes of the &#8216;Has Many&#8217; Active Record Association</a>
       </li>
     
       <li class="post">
@@ -679,10 +683,6 @@
     
       <li class="post">
         <a href="/blog/2014/09/18/getting-started-with-rspec/">Getting Started With RSpec</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2014/09/13/china-map-project-part-4-introducing-polymorphism/">China Map Project - Part 4: Introducing Polymorphism</a>
       </li>
     
   </ul>
@@ -699,7 +699,7 @@
     </div>
   </div>
   <footer role="contentinfo"><p>
-  Copyright &copy; 2014 - Chris Callahan -
+  Copyright &copy; 2015 - Chris Callahan -
   <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
 </p>
 

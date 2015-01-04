@@ -5,7 +5,7 @@
 <!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <title>88 Mph With Flux and React - Chris Callahan's Blog</title>
+  <title>88 Mph With Flux and React - Chris Callahan&#8217;s Blog</title>
   <meta name="author" content="Chris Callahan">
 
   
@@ -42,7 +42,7 @@
 
 <body   >
   <header role="banner"><hgroup>
-  <h1><a href="/">Chris Callahan's Blog</a></h1>
+  <h1><a href="/">Chris Callahan&#8217;s Blog</a></h1>
   
     <h2>Becoming a hacker.</h2>
   
@@ -92,7 +92,7 @@
   
 
 
-<time datetime="2014-11-23T22:41:11-05:00" pubdate data-updated="true">Nov 23<span>rd</span>, 2014</time>
+<time datetime="2014-11-23T22:41:11-05:00" pubdate data-updated="true"></time>
         
            | <a href="#disqus_thread"
              data-disqus-identifier="http://callahanchris.github.io">Comments</a>
@@ -142,7 +142,7 @@
 
 <h3>Architecture</h3>
 
-<p>Let&rsquo;s say we want to build a small app that keeps track of the speed of Doc Brown&rsquo;s DeLorean from <em>Back to the Future</em>, and lets users know if the flux capacitor has been activated yet &mdash; the deciding factor of whether or not time travel is possible at their current speed. Feel free to follow along with the project repo on <a href="https://github.com/callahanchris/bttf">github</a>.</p>
+<p>Let&rsquo;s say we want to build a small app that keeps track of the speed of Doc Brown&rsquo;s DeLorean from <em>Back to the Future</em>, and lets users know if the flux capacitor has been activated yet &ndash; the deciding factor of whether or not time travel is possible at their current speed. Feel free to follow along with the project repo on <a href="https://github.com/callahanchris/bttf">github</a>.</p>
 
 <p>Each of the key parts mentioned above gets their own folder in the file directory structure. A barebones Flux and React app (i.e. exclusively HTML, CSS, and JS files) should look something like this:</p>
 
@@ -477,7 +477,7 @@
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>This set of SCREAMING_CAMEL_CASE constants serves as the one definitive source of what actions are legal in the Flux application. Don&rsquo;t overthink this &mdash; the sole purpose of the constants folder is for looking up constants. If the app gets large enough, you can get more modular in how you classify the constants, but at the end of the day all you want to know is what exactly are the officially sanctioned actions in this app.</p>
+<p>This set of SCREAMING_CAMEL_CASE constants serves as the one definitive source of what actions are legal in the Flux application. Don&rsquo;t overthink this &ndash; the sole purpose of the constants folder is for looking up constants. If the app gets large enough, you can get more modular in how you classify the constants, but at the end of the day all you want to know is what exactly are the officially sanctioned actions in this app.</p>
 
 <p>Next, the AppDispatcher receives the <code>handleViewAction()</code> message along with the data above, which is referred to as the method argument <code>action</code> below. The AppDispatcher is a singleton in the Flux app and has two main functions: forwarding the data it receives from the actions to all stores, and keeping track of the callbacks registered by stores.</p>
 
@@ -645,7 +645,7 @@
 
 <p>Stores are the one place in a Flux application where state is officially defined. In a simple case, this may just be a running tally of how many times a button was clicked. Based on the action type, the Store&rsquo;s public methods will utilize private methods to update its privately held data. Finally, it emits a &lsquo;change&rsquo; event, and it&rsquo;s work is done.</p>
 
-<p>Now we&rsquo;re back in React&rsquo;s View layer, but not so fast &mdash; the state of our application has changed! When the DeLorean component (our Controller-View) receives the new state from the DeLoreanStore, it calls its <code>setState()</code> method. This automatically triggers its <code>render()</code> method, which in turn triggers the <code>render()</code> methods of all of its nested components, and it&rsquo;s turtles all the way down.</p>
+<p>Now we&rsquo;re back in React&rsquo;s View layer, but not so fast &ndash; the state of our application has changed! When the DeLorean component (our Controller-View) receives the new state from the DeLoreanStore, it calls its <code>setState()</code> method. This automatically triggers its <code>render()</code> method, which in turn triggers the <code>render()</code> methods of all of its nested components, and it&rsquo;s turtles all the way down.</p>
 
 <p>All components in the app now have access to the data in its current state, and await further instructions.</p>
 
@@ -658,11 +658,11 @@
 <h3>Resources</h3>
 
 <ul>
-<li><a href="http://facebook.github.io/flux/docs/overview.html">Flux Overview</a> &mdash; From the official documentation.</li>
-<li><a href="https://www.youtube.com/watch?v=nYkdrAPrdcw">Jing Chen&rsquo;s Original Flux Presentation</a> &mdash; There&rsquo;s some good info about React in here as well, but the Flux part is from 10 to 24 minutes in.</li>
-<li><a href="https://www.youtube.com/watch?v=i__969noyAM">React and Flux: Building Applications with a Unidirectional Data Flow</a> &mdash; Good talk by Bill Fisher and Jing Chen where they go through an example chat application in Flux and React.</li>
+<li><a href="http://facebook.github.io/flux/docs/overview.html">Flux Overview</a> &ndash; From the official documentation.</li>
+<li><a href="https://www.youtube.com/watch?v=nYkdrAPrdcw">Jing Chen&rsquo;s Original Flux Presentation</a> &ndash; There&rsquo;s some good info about React in here as well, but the Flux part is from 10 to 24 minutes in.</li>
+<li><a href="https://www.youtube.com/watch?v=i__969noyAM">React and Flux: Building Applications with a Unidirectional Data Flow</a> &ndash; Good talk by Bill Fisher and Jing Chen where they go through an example chat application in Flux and React.</li>
 <li><a href="https://github.com/facebook/flux/tree/master/examples/flux-chat/">Flux Chat Example App on Github</a></li>
-<li><a href="http://facebook.github.io/react/blog/2014/07/30/flux-actions-and-the-dispatcher.html">Flux: Actions and the Dispatcher</a> &mdash; Helpful post by Bill Fisher going into a bit more detail about the Dispatcher, Actions, and Action Creators.</li>
+<li><a href="http://facebook.github.io/react/blog/2014/07/30/flux-actions-and-the-dispatcher.html">Flux: Actions and the Dispatcher</a> &ndash; Helpful post by Bill Fisher going into a bit more detail about the Dispatcher, Actions, and Action Creators.</li>
 </ul>
 
 </div>
@@ -687,7 +687,7 @@
   
 
 
-<time datetime="2014-11-23T22:41:11-05:00" pubdate data-updated="true">Nov 23<span>rd</span>, 2014</time>
+<time datetime="2014-11-23T22:41:11-05:00" pubdate data-updated="true"></time>
       
 
 
@@ -704,8 +704,10 @@
     
     <p class="meta">
       
-        <a class="basic-alignment left" href="/blog/2014/10/08/behind-the-scenes-of-the-has-many-active-record-association/" title="Previous Post: Behind the Scenes of the 'Has Many' Active Record Association">&laquo; Behind the Scenes of the 'Has Many' Active Record Association</a>
+        <a class="basic-alignment left" href="/blog/2014/10/08/behind-the-scenes-of-the-has-many-active-record-association/" title="Previous Post: Behind the Scenes of the 'Has Many' Active Record Association">&laquo; Behind the Scenes of the &#8216;Has Many&#8217; Active Record Association</a>
       
+      
+        <a class="basic-alignment right" href="/blog/2015/01/03/array-iteration-methods-in-javascript/" title="Next Post: Array Iteration Methods in JavaScript">Array Iteration Methods in JavaScript &raquo;</a>
       
     </p>
   </footer>
@@ -726,11 +728,15 @@
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2015/01/03/array-iteration-methods-in-javascript/">Array Iteration Methods in JavaScript</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2014/11/23/88-mph-with-flux-and-react/">88 Mph With Flux and React</a>
       </li>
     
       <li class="post">
-        <a href="/blog/2014/10/08/behind-the-scenes-of-the-has-many-active-record-association/">Behind the Scenes of the 'Has Many' Active Record Association</a>
+        <a href="/blog/2014/10/08/behind-the-scenes-of-the-has-many-active-record-association/">Behind the Scenes of the &#8216;Has Many&#8217; Active Record Association</a>
       </li>
     
       <li class="post">
@@ -739,10 +745,6 @@
     
       <li class="post">
         <a href="/blog/2014/09/18/getting-started-with-rspec/">Getting Started With RSpec</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2014/09/13/china-map-project-part-4-introducing-polymorphism/">China Map Project - Part 4: Introducing Polymorphism</a>
       </li>
     
   </ul>
@@ -759,7 +761,7 @@
     </div>
   </div>
   <footer role="contentinfo"><p>
-  Copyright &copy; 2014 - Chris Callahan -
+  Copyright &copy; 2015 - Chris Callahan -
   <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
 </p>
 

@@ -5,7 +5,7 @@
 <!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <title>Behind the Scenes of the 'Has Many' Active Record Association - Chris Callahan's Blog</title>
+  <title>Behind the Scenes of the &#8216;Has Many&#8217; Active Record Association - Chris Callahan&#8217;s Blog</title>
   <meta name="author" content="Chris Callahan">
 
   
@@ -42,7 +42,7 @@
 
 <body   >
   <header role="banner"><hgroup>
-  <h1><a href="/">Chris Callahan's Blog</a></h1>
+  <h1><a href="/">Chris Callahan&#8217;s Blog</a></h1>
   
     <h2>Becoming a hacker.</h2>
   
@@ -76,7 +76,7 @@
   
   <header>
     
-      <h1 class="entry-title">Behind the Scenes of the 'Has Many' Active Record Association</h1>
+      <h1 class="entry-title">Behind the Scenes of the &#8216;Has Many&#8217; Active Record Association</h1>
     
     
       <p class="meta">
@@ -92,7 +92,7 @@
   
 
 
-<time datetime="2014-10-08T16:17:09-04:00" pubdate data-updated="true">Oct 8<span>th</span>, 2014</time>
+<time datetime="2014-10-08T16:17:09-04:00" pubdate data-updated="true"></time>
         
            | <a href="#disqus_thread"
              data-disqus-identifier="http://callahanchris.github.io">Comments</a>
@@ -106,7 +106,7 @@
 
 <blockquote><p>When these relationship declarations are executed, Rails uses some metaprogramming magic to dynamically add code to your models. In particular, proxy collection objects are created that let you manipulate the relationship easily.</p>
 
-<p>&mdash; The Rails 4 Way, page 181</p></blockquote>
+<p>&ndash; The Rails 4 Way, page 181</p></blockquote>
 
 <p>What exactly is this &ldquo;metaprogramming magic&rdquo; that goes on behind the scenes? In this blog post, I hope to uncover exactly what happens when <code>has_many</code> is used in an Active Record model.</p>
 
@@ -159,14 +159,14 @@
 
 <ul>
 <li><p>The <code>House</code> class inherits from <code>ActiveRecord::Base</code>. This gives the <code>House</code> class and instances of this class access to a number of methods defined in the numerous modules included in the <code>ActiveRecord::Base</code> class. We can now say that the <code>House</code> class is an &ldquo;Active Record model&rdquo;, as opposed to a &ldquo;plain old Ruby object&rdquo;.</p></li>
-<li><p>In Rails, an Active Record model is automatically mapped to a table in the database (in this case <code>houses</code>), and attributes (i.e. methods) are created in the model that correspond to each column in this database table. Similarly, each instance of an Active Record model &ldquo;wraps&rdquo; one row in this table. This is the key to Rails&rsquo;s adaptation of the Active Record pattern &mdash; database logic is effectively encapsulated into methods on the model layer.</p></li>
+<li><p>In Rails, an Active Record model is automatically mapped to a table in the database (in this case <code>houses</code>), and attributes (i.e. methods) are created in the model that correspond to each column in this database table. Similarly, each instance of an Active Record model &ldquo;wraps&rdquo; one row in this table. This is the key to Rails&rsquo;s adaptation of the Active Record pattern &ndash; database logic is effectively encapsulated into methods on the model layer.</p></li>
 <li><p><code>has_many</code> is a &ldquo;bareword&rdquo;. In Ruby, barewords can only be local variables, method arguments, keywords (like <code>class</code>, <code>def</code>, and <code>end</code>), and method calls. In this context, it&rsquo;s neither a local variable nor a method argument, and it&rsquo;s certainly not a keyword. Therefore it must be a method.</p></li>
 <li><p>If <code>has_many</code> is a method, then in this context its receiver must be the <code>House</code> class. That makes <code>has_many</code> a class method. It could also be written as <code>self.has_many</code>, but the receiver is implicit here so we don&rsquo;t need to write <code>self</code>.</p></li>
 <li><p>It then follows that <code>:characters</code> is a method argument passed to the <code>has_many</code> method. Ruby allows you to leave off the parentheses surrounding method arguments, though it is generally good practice to keep the parentheses in when defining a method with arguments.</p></li>
 </ul>
 
 
-<p>Knowing that <code>has_many</code> is a class method defined somewhere in Active Record helped to narrow things down. From here, it was very easy to track the method definition down by doing a global search for <code>def has_many</code> on the codebase using <code>Command + Shift + f</code> in Sublime Text! Only one result appeared &mdash; a <a href="https://github.com/rails/rails/blob/master/activerecord/lib/active_record/associations.rb#L1245">two-line method</a> in the <code>ActiveRecord::Associations::ClassMethods</code> module:</p>
+<p>Knowing that <code>has_many</code> is a class method defined somewhere in Active Record helped to narrow things down. From here, it was very easy to track the method definition down by doing a global search for <code>def has_many</code> on the codebase using <code>Command + Shift + f</code> in Sublime Text! Only one result appeared &ndash; a <a href="https://github.com/rails/rails/blob/master/activerecord/lib/active_record/associations.rb#L1245">two-line method</a> in the <code>ActiveRecord::Associations::ClassMethods</code> module:</p>
 
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -245,9 +245,9 @@
 
 <p>The <code>ActiveRecord::Associations::Builder::Association::build</code> method takes 5 arguments. The latter four of these arguments are identical to those initially passed to <code>has_many</code>. The first method argument is referred to as <code>model</code> in <code>build</code>&rsquo;s method signature. Inside the <code>has_many</code> method, the value passed as this argument is <code>self</code>.</p>
 
-<p>Given that the <code>has_many</code> method is inside the <code>ActiveRecord::Associations::ClassMethods</code> module, I assumed that somewhere along the line this module is being mixed into a class. The value of <code>self</code> inside a class method is the class itself &mdash; that is, whichever class called the <code>has_many</code> method to begin with (in our case <code>House</code>).</p>
+<p>Given that the <code>has_many</code> method is inside the <code>ActiveRecord::Associations::ClassMethods</code> module, I assumed that somewhere along the line this module is being mixed into a class. The value of <code>self</code> inside a class method is the class itself &ndash; that is, whichever class called the <code>has_many</code> method to begin with (in our case <code>House</code>).</p>
 
-<p>I had a difficult time tracking down where, if anywhere, this module is mixed in to the <code>House</code> class. Then I had a stunning (and obvious) realization: this module is mixed in to <em>every single Active Record model!</em> From here, it was easy to hunt down <a href="https://github.com/rails/rails/blob/master/activerecord/lib/active_record/base.rb#L304">the offending code</a> in &mdash; where else? &mdash; <code>ActiveRecord::Base</code>.</p>
+<p>I had a difficult time tracking down where, if anywhere, this module is mixed in to the <code>House</code> class. Then I had a stunning (and obvious) realization: this module is mixed in to <em>every single Active Record model!</em> From here, it was easy to hunt down <a href="https://github.com/rails/rails/blob/master/activerecord/lib/active_record/base.rb#L304">the offending code</a> in &ndash; where else? &ndash; <code>ActiveRecord::Base</code>.</p>
 
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -396,7 +396,7 @@
 
 <p>In this case, <code>const_set</code> has an implicit receiver (<code>self</code>). It&rsquo;s tempting to think that <code>self</code> is the <code>ActiveRecord::Core::ClassMethods</code> module, but as above, this module is actually mixed in to the <code>House</code> class when we have it inherit from <code>ActiveRecord::Base</code>. The receiver here is actually <code>House</code>. Thus, this method creates a new module in the <code>House</code> namespace: <code>House::GeneratedAssociationMethods</code>. (Note that <code>House::GeneratedAssociationMethods</code> is the return value here, but if we were assigning pretty much anything but a new class or module as <code>GeneratedAssociationMethods</code>&rsquo;s value here, the return value would be that value.)</p>
 
-<p>On the next line of this method, the <code>House::GeneratedAssociationMethods</code> module is included into the <code>House</code> class. This is pretty awesome &mdash; I had no idea that you could call <code>include</code> from inside a class method. It totally makes sense though, as the receiver is the class itself, so the use of <code>include</code> here is no different than the typical use of <code>include</code> in the class namespace.</p>
+<p>On the next line of this method, the <code>House::GeneratedAssociationMethods</code> module is included into the <code>House</code> class. This is pretty awesome &ndash; I had no idea that you could call <code>include</code> from inside a class method. It totally makes sense though, as the receiver is the class itself, so the use of <code>include</code> here is no different than the typical use of <code>include</code> in the class namespace.</p>
 
 <p>Finally, the <code>House::GeneratedAssociationMethods</code> module is returned, and thus is set as the value of the <code>@generated_association_methods</code> class instance variable. Back in the <code>define_accessors</code> method, this constant is stored as the <code>mixin</code> variable.</p>
 
@@ -514,7 +514,7 @@
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>In the case of our domain model, the second line of the <code>has_many</code> method will add the key <code>"characters"</code> pointing to the value of our <code>reflection</code> from above &mdash; the instance of the <code>ActiveRecord::Reflection::HasManyReflection</code> class &mdash; to the <code>_reflections</code> hash.</p>
+<p>In the case of our domain model, the second line of the <code>has_many</code> method will add the key <code>"characters"</code> pointing to the value of our <code>reflection</code> from above &ndash; the instance of the <code>ActiveRecord::Reflection::HasManyReflection</code> class &ndash; to the <code>_reflections</code> hash.</p>
 
 <p>Let&rsquo;s make an instance of the <code>House</code> class.</p>
 
@@ -527,7 +527,7 @@
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>If we call <code>stark.characters</code>, Rails first checks whether <code>"characters"</code> is a key in <code>House</code>&rsquo;s <code>_reflections</code> hash. If so, a new object is instantiated based on the type of this reflection &mdash; in the case of <code>has_many</code>, it&rsquo;s an instance of the <code>ActiveRecord::Associations::HasManyAssociation</code> class. The <code>association</code> method then calls <code>association_instance_set</code>, passing <code>:characters</code> and this instance of <code>ActiveRecord::Associations::HasManyAssociation</code> as its parameters. This key value pair is then <a href="https://github.com/rails/rails/blob/master/activerecord/lib/active_record/associations.rb#L169">added to the <code>@association_cache</code> instance variable</a>:</p>
+<p>If we call <code>stark.characters</code>, Rails first checks whether <code>"characters"</code> is a key in <code>House</code>&rsquo;s <code>_reflections</code> hash. If so, a new object is instantiated based on the type of this reflection &ndash; in the case of <code>has_many</code>, it&rsquo;s an instance of the <code>ActiveRecord::Associations::HasManyAssociation</code> class. The <code>association</code> method then calls <code>association_instance_set</code>, passing <code>:characters</code> and this instance of <code>ActiveRecord::Associations::HasManyAssociation</code> as its parameters. This key value pair is then <a href="https://github.com/rails/rails/blob/master/activerecord/lib/active_record/associations.rb#L169">added to the <code>@association_cache</code> instance variable</a>:</p>
 
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -630,7 +630,7 @@
   
 
 
-<time datetime="2014-10-08T16:17:09-04:00" pubdate data-updated="true">Oct 8<span>th</span>, 2014</time>
+<time datetime="2014-10-08T16:17:09-04:00" pubdate data-updated="true"></time>
       
 
 
@@ -671,11 +671,15 @@
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2015/01/03/array-iteration-methods-in-javascript/">Array Iteration Methods in JavaScript</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2014/11/23/88-mph-with-flux-and-react/">88 Mph With Flux and React</a>
       </li>
     
       <li class="post">
-        <a href="/blog/2014/10/08/behind-the-scenes-of-the-has-many-active-record-association/">Behind the Scenes of the 'Has Many' Active Record Association</a>
+        <a href="/blog/2014/10/08/behind-the-scenes-of-the-has-many-active-record-association/">Behind the Scenes of the &#8216;Has Many&#8217; Active Record Association</a>
       </li>
     
       <li class="post">
@@ -684,10 +688,6 @@
     
       <li class="post">
         <a href="/blog/2014/09/18/getting-started-with-rspec/">Getting Started With RSpec</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2014/09/13/china-map-project-part-4-introducing-polymorphism/">China Map Project - Part 4: Introducing Polymorphism</a>
       </li>
     
   </ul>
@@ -704,7 +704,7 @@
     </div>
   </div>
   <footer role="contentinfo"><p>
-  Copyright &copy; 2014 - Chris Callahan -
+  Copyright &copy; 2015 - Chris Callahan -
   <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
 </p>
 

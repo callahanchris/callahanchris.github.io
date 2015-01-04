@@ -5,7 +5,7 @@
 <!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <title>China Map Project - Part 3: Refactoring Using Replace Method With Method Object - Chris Callahan's Blog</title>
+  <title>China Map Project - Part 3: Refactoring Using Replace Method With Method Object - Chris Callahan&#8217;s Blog</title>
   <meta name="author" content="Chris Callahan">
 
   
@@ -42,7 +42,7 @@
 
 <body   >
   <header role="banner"><hgroup>
-  <h1><a href="/">Chris Callahan's Blog</a></h1>
+  <h1><a href="/">Chris Callahan&#8217;s Blog</a></h1>
   
     <h2>Becoming a hacker.</h2>
   
@@ -92,7 +92,7 @@
   
 
 
-<time datetime="2014-09-12T15:05:42-04:00" pubdate data-updated="true">Sep 12<span>th</span>, 2014</time>
+<time datetime="2014-09-12T15:05:42-04:00" pubdate data-updated="true"></time>
         
            | <a href="#disqus_thread"
              data-disqus-identifier="http://callahanchris.github.io">Comments</a>
@@ -116,7 +116,7 @@
 
 <p>The difficulty in decomposing a method lies in local variables. If they are rampant, decomposition can be difficult. Using Replace Temp with Query helps to reduce this burden, but occasionally you may find you cannot break down a method that needs breaking. In this case you reach deep into the tool bag and get out your Method Object.</p>
 
-<p> &mdash; Refactoring: Ruby Edition, page 128</p></blockquote>
+<p> &ndash; Refactoring: Ruby Edition, page 128</p></blockquote>
 
 <p>The mechanics of this refactoring (which was &ldquo;stolen shamelessly from Kent Beck&rsquo;s <em>Smalltalk Best Practice Patterns</em>&rdquo;) are as follows:</p>
 
@@ -131,11 +131,11 @@
 </ol>
 
 
-<p> &mdash; Refactoring: Ruby Edition, page 129</p></blockquote>
+<p> &ndash; Refactoring: Ruby Edition, page 129</p></blockquote>
 
 <h3>Seeing the Opportunity for Refactoring</h3>
 
-<p>In my original <code>db/seeds.rb</code> file, I had one <code>ChinaScraper</code> class that handled&hellip; everything. Even though this was a simple app, that is still a red flag. Before refactoring, the <code>ChinaScraper</code> class was just shy of 170 lines of code &mdash; another big red flag. Within that class, there was one 94 line method (!!!) &mdash; <code>scrape_all_regions</code> &mdash; doing the bulk of the work. It scraped each region&rsquo;s Wikipedia page, then went through and assigned about ten different attributes to the region, then saved the region and its various attributes to the database.</p>
+<p>In my original <code>db/seeds.rb</code> file, I had one <code>ChinaScraper</code> class that handled&hellip; everything. Even though this was a simple app, that is still a red flag. Before refactoring, the <code>ChinaScraper</code> class was just shy of 170 lines of code &ndash; another big red flag. Within that class, there was one 94 line method (!!!) &ndash; <code>scrape_all_regions</code> &ndash; doing the bulk of the work. It scraped each region&rsquo;s Wikipedia page, then went through and assigned about ten different attributes to the region, then saved the region and its various attributes to the database.</p>
 
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -174,7 +174,7 @@
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>As you can begin to see in this snippet, the <code>scrape_all_regions</code> method contained many conditional statements that essentially checked a region&rsquo;s <code>territorial_designation</code>. This type checking was inevitable given that the HTML/CSS content of the individual region pages varied significantly based on their territorial designations &mdash; more on this in the next post.</p>
+<p>As you can begin to see in this snippet, the <code>scrape_all_regions</code> method contained many conditional statements that essentially checked a region&rsquo;s <code>territorial_designation</code>. This type checking was inevitable given that the HTML/CSS content of the individual region pages varied significantly based on their territorial designations &ndash; more on this in the next post.</p>
 
 <p>It was clear that the <code>scrape_all_regions</code> method had far too many (i.e. more than one) responsibilities and several local variables, so I reached deep into the tool bag for the Replace Method with Method Object refactoring.</p>
 
@@ -346,7 +346,7 @@
   
 
 
-<time datetime="2014-09-12T15:05:42-04:00" pubdate data-updated="true">Sep 12<span>th</span>, 2014</time>
+<time datetime="2014-09-12T15:05:42-04:00" pubdate data-updated="true"></time>
       
 
 
@@ -387,11 +387,15 @@
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2015/01/03/array-iteration-methods-in-javascript/">Array Iteration Methods in JavaScript</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2014/11/23/88-mph-with-flux-and-react/">88 Mph With Flux and React</a>
       </li>
     
       <li class="post">
-        <a href="/blog/2014/10/08/behind-the-scenes-of-the-has-many-active-record-association/">Behind the Scenes of the 'Has Many' Active Record Association</a>
+        <a href="/blog/2014/10/08/behind-the-scenes-of-the-has-many-active-record-association/">Behind the Scenes of the &#8216;Has Many&#8217; Active Record Association</a>
       </li>
     
       <li class="post">
@@ -400,10 +404,6 @@
     
       <li class="post">
         <a href="/blog/2014/09/18/getting-started-with-rspec/">Getting Started With RSpec</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2014/09/13/china-map-project-part-4-introducing-polymorphism/">China Map Project - Part 4: Introducing Polymorphism</a>
       </li>
     
   </ul>
@@ -420,7 +420,7 @@
     </div>
   </div>
   <footer role="contentinfo"><p>
-  Copyright &copy; 2014 - Chris Callahan -
+  Copyright &copy; 2015 - Chris Callahan -
   <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
 </p>
 

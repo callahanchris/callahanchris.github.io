@@ -5,11 +5,11 @@
 <!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <title>Chris Callahan's Blog</title>
+  <title>Chris Callahan&#8217;s Blog</title>
   <meta name="author" content="Chris Callahan">
 
   
-  <meta name="description" content="Check out my tic tac toe code on github! As part of my application to the Flatiron School in January of this year, I had to write a tic tac toe &hellip;">
+  <meta name="description" content="Arrays are a versatile and reliable data structure. The Array class in Ruby comes equipped with a number of extremely useful instance methods, &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -18,7 +18,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   
-  <link rel="canonical" href="http://callahanchris.github.io/blog/page/2">
+  <link rel="canonical" href="http://callahanchris.github.io/posts/2">
   <link href="/favicon.png" rel="icon">
   <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
   <link href="/atom.xml" rel="alternate" title="Chris Callahan's Blog" type="application/atom+xml">
@@ -42,7 +42,7 @@
 
 <body   >
   <header role="banner"><hgroup>
-  <h1><a href="/">Chris Callahan's Blog</a></h1>
+  <h1><a href="/">Chris Callahan&#8217;s Blog</a></h1>
   
     <h2>Becoming a hacker.</h2>
   
@@ -79,6 +79,287 @@
       
   <header>
     
+      <h1 class="entry-title"><a href="/blog/2014/07/17/five-useful-ruby-array-methods/">Five Useful Ruby Array Methods</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-07-17T13:25:34-04:00" pubdate data-updated="true"></time>
+        
+           | <a href="/blog/2014/07/17/five-useful-ruby-array-methods/#disqus_thread"
+             data-disqus-identifier="http://callahanchris.github.io/blog/2014/07/17/five-useful-ruby-array-methods/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Arrays are a versatile and reliable data structure. The <code>Array</code> class in Ruby comes equipped with a number of extremely useful instance methods, including <code>pop</code>, <code>push</code>, <code>shift</code>, <code>unshift</code>, <code>length</code>, <code>reverse</code>, etc. With the <code>Enumerable</code> module mixin, Ruby arrays have access to even more iterators and other fun methods.</p>
+
+<p>Here are five great instance methods built in to Ruby&rsquo;s <code>Array</code> class that I&rsquo;ve come across recently.</p>
+
+<h3><code>Array#transpose</code></h3>
+
+<p>This is probably the fanciest method on this list. It is used to &ldquo;reflect&rdquo; an array across a diagonal axis. Wikipedia has a good explanation of <a href="http://en.wikipedia.org/wiki/Transpose">matrix transposition</a>, including this handy gif:</p>
+
+<p><img src="http://upload.wikimedia.org/wikipedia/commons/e/e4/Matrix_transpose.gif" alt="transpose" /></p>
+
+<p>Here is how the <code>transpose</code> method looks in Ruby:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="n">array</span> <span class="o">=</span> <span class="o">[</span>
+</span><span class='line'>          <span class="o">[</span> <span class="s2">&quot;a&quot;</span><span class="p">,</span>  <span class="s2">&quot;b&quot;</span><span class="p">,</span>  <span class="s2">&quot;c&quot;</span><span class="p">,</span>  <span class="s2">&quot;d&quot;</span><span class="p">,</span>   <span class="s2">&quot;e&quot;</span>  <span class="o">]</span><span class="p">,</span>
+</span><span class='line'>          <span class="o">[</span>  <span class="mi">1</span><span class="p">,</span>    <span class="mi">2</span><span class="p">,</span>    <span class="mi">3</span><span class="p">,</span>    <span class="mi">4</span><span class="p">,</span>     <span class="mi">5</span>   <span class="o">]</span><span class="p">,</span>
+</span><span class='line'>          <span class="o">[</span><span class="s2">&quot;cat&quot;</span><span class="p">,</span><span class="s2">&quot;dog&quot;</span><span class="p">,</span><span class="s2">&quot;cow&quot;</span><span class="p">,</span><span class="s2">&quot;pig&quot;</span><span class="p">,</span><span class="s2">&quot;horse&quot;</span><span class="o">]</span>
+</span><span class='line'>        <span class="o">]</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">array</span><span class="o">.</span><span class="n">transpose</span>
+</span><span class='line'><span class="c1">#    =&gt; [</span>
+</span><span class='line'><span class="c1">#         [&quot;a&quot;, 1,  &quot;cat&quot; ],</span>
+</span><span class='line'><span class="c1">#         [&quot;b&quot;, 2,  &quot;dog&quot; ],</span>
+</span><span class='line'><span class="c1">#         [&quot;c&quot;, 3,  &quot;cow&quot; ],</span>
+</span><span class='line'><span class="c1">#         [&quot;d&quot;, 4,  &quot;pig&quot; ], </span>
+</span><span class='line'><span class="c1">#         [&quot;e&quot;, 5, &quot;horse&quot;]</span>
+</span><span class='line'><span class="c1">#       ]</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Note that <code>transpose</code> can only be used when you have an array of arrays where all of the nested arrays are the same length.</p>
+
+<p>I got some use out of the <code>transpose</code> method when trying to rotate an array of arrays (a tic tac toe board) 90 degrees to the right. I first called <code>transpose</code> on the array and then chained on <code>map(&amp;:reverse)</code> to individually reverse each of the nested arrays.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="n">board</span> <span class="o">=</span> <span class="o">[</span>
+</span><span class='line'>          <span class="o">[</span><span class="s2">&quot;O&quot;</span><span class="p">,</span> <span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="s2">&quot;X&quot;</span><span class="o">]</span><span class="p">,</span>
+</span><span class='line'>          <span class="o">[</span><span class="s2">&quot;X&quot;</span><span class="p">,</span> <span class="s2">&quot;X&quot;</span><span class="p">,</span> <span class="s2">&quot;O&quot;</span><span class="o">]</span><span class="p">,</span>
+</span><span class='line'>          <span class="o">[</span><span class="s2">&quot;O&quot;</span><span class="p">,</span> <span class="s2">&quot;X&quot;</span><span class="p">,</span> <span class="s2">&quot; &quot;</span><span class="o">]</span>
+</span><span class='line'>        <span class="o">]</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">rotated_board</span> <span class="o">=</span> <span class="n">board</span><span class="o">.</span><span class="n">transpose</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="o">&amp;</span><span class="ss">:reverse</span><span class="p">)</span>
+</span><span class='line'><span class="c1">#    =&gt; [</span>
+</span><span class='line'><span class="c1">#         [&quot;O&quot;, &quot;X&quot;, &quot;O&quot;],</span>
+</span><span class='line'><span class="c1">#         [&quot;X&quot;, &quot;X&quot;, &quot; &quot;],</span>
+</span><span class='line'><span class="c1">#         [&quot; &quot;, &quot;O&quot;, &quot;X&quot;]</span>
+</span><span class='line'><span class="c1">#       ]</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>With access to both a <code>board</code> and a <code>rotated_board</code>, I was able to easily reuse methods in my tic tac toe game.</p>
+
+<h3><code>Array#fill</code></h3>
+
+<p><code>fill</code> does just what it says: it fills every element in an array with the argument passed to it.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="sx">%w{ a b c }</span><span class="o">.</span><span class="n">fill</span><span class="p">(</span><span class="s2">&quot;Hello world!&quot;</span><span class="p">)</span>
+</span><span class='line'><span class="c1"># =&gt; [&quot;Hello world!&quot;, &quot;Hello world!&quot;, &quot;Hello world!&quot;]</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>You can also pass a starting index and a length as arguments to <code>fill</code>:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="sx">%w{ an array full of words and things }</span><span class="o">.</span><span class="n">fill</span><span class="p">(</span><span class="s2">&quot;surprises&quot;</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+</span><span class='line'><span class="c1"># =&gt; [&quot;an&quot;, &quot;array&quot;, &quot;full&quot;, &quot;of&quot;, &quot;surprises&quot;, &quot;surprises&quot;, &quot;surprises&quot;]</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>You can even pass a block to <code>fill</code>, which yields the array&rsquo;s index as the block argument. Ruby is awesome!</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="sx">%w{ hello world my name is chris }</span><span class="o">.</span><span class="n">fill</span> <span class="p">{</span><span class="o">|</span><span class="n">i</span><span class="o">|</span> <span class="n">i</span> <span class="o">*</span> <span class="n">i</span> <span class="p">}</span>
+</span><span class='line'><span class="c1"># =&gt; [0, 1, 4, 9, 16, 25]</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Warning: <code>fill</code> is a destructive method. Once an array is <code>fill</code>ed, the old data is permanently gone.</p>
+
+<h3><code>Array#permutation</code></h3>
+
+<p>This method returns all permutations of the array it is sent to. If no block is used, then by default Ruby returns an <code>Enumerator</code> object, so it is useful to chain the <code>to_a</code> method on the end in order to return an array.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="o">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="o">].</span><span class="n">permutation</span>
+</span><span class='line'><span class="c1"># =&gt; #&lt;Enumerator: [1, 2, 3]:permutation&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="o">].</span><span class="n">permutation</span><span class="o">.</span><span class="n">to_a</span>
+</span><span class='line'><span class="c1"># =&gt; [[1, 2, 3], [1, 3, 2], [2, 1, 3], [2, 3, 1], [3, 1, 2], [3, 2, 1]]</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This method sounds a bit esoteric, but I have used it in practice when trying to find all possible anagrams of a string.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="n">all_permutations</span> <span class="o">=</span> <span class="s2">&quot;listen&quot;</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">permutation</span><span class="o">.</span><span class="n">map</span> <span class="p">{</span><span class="o">|</span><span class="n">letters</span><span class="o">|</span> <span class="n">letters</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span> <span class="p">}</span>
+</span><span class='line'><span class="c1"># =&gt; [&quot;listen&quot;,</span>
+</span><span class='line'><span class="c1">#     &quot;listne&quot;,</span>
+</span><span class='line'><span class="c1">#     &quot;lisetn&quot;,</span>
+</span><span class='line'><span class="c1">#     ... 716 more permutations! ...</span>
+</span><span class='line'><span class="c1">#     &quot;netsil&quot;]</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">all_permutations</span><span class="o">.</span><span class="n">include?</span><span class="p">(</span><span class="s2">&quot;silent&quot;</span><span class="p">)</span>
+</span><span class='line'><span class="c1"># =&gt; true</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">all_permutations</span><span class="o">.</span><span class="n">include?</span><span class="p">(</span><span class="s2">&quot;lentils&quot;</span><span class="p">)</span>
+</span><span class='line'><span class="c1"># =&gt; false</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3><code>Array#sample</code></h3>
+
+<p><code>sample</code> is a convenient way to randomly select one or more elements from an array. If you do not pass an argument to <code>sample</code>, it will return one object from the array. If you pass a number as an argument to <code>sample</code>, it will return an array including the number of elements specified.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="sx">%w{ cat dog pig pigeon dolphin walrus }</span><span class="o">.</span><span class="n">sample</span>
+</span><span class='line'><span class="c1"># =&gt; &quot;pigeon&quot;</span>
+</span><span class='line'>
+</span><span class='line'><span class="sx">%w{ cat dog pig pigeon dolphin walrus }</span><span class="o">.</span><span class="n">sample</span>
+</span><span class='line'><span class="c1"># =&gt; &quot;dolphin&quot;</span>
+</span><span class='line'>
+</span><span class='line'><span class="sx">%w{ cat dog pig pigeon dolphin walrus }</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+</span><span class='line'><span class="c1"># =&gt; [&quot;cat&quot;, &quot;pigeon&quot;]</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3><code>Array#flatten</code></h3>
+
+<p>This is probably the method I use the most on this list. When doing nested iteration in Ruby, you often end up with an array of arrays. If you want to compare each element in the larger array, you will be confounded by the fact that Ruby tries to compare the nested arrays with each other, rather than the values within these arrays.</p>
+
+<p>To get around this problem, the <code>flatten</code> method turns a nested array into an array one level deep.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="o">[[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="o">]</span><span class="p">,</span> <span class="o">[</span><span class="mi">3</span><span class="p">,</span> <span class="o">[</span><span class="mi">4</span><span class="o">]]</span><span class="p">,</span> <span class="o">[[[</span><span class="mi">5</span><span class="o">]]]].</span><span class="n">flatten</span>
+</span><span class='line'><span class="c1"># =&gt; [1, 2, 3, 4, 5]</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This method is not destructive (though it does have a destructive counterpart in <code>flatten!</code>), so it is mainly useful if you want to perform a specific operation on a flattened array. For example, if you wind up with a nested array after performing multiple <code>collects</code> and then want to perform an operation on the array, <code>flatten</code> can come in handy.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="n">dogs</span> <span class="o">=</span> <span class="o">[[</span><span class="c1">#&lt;Dog:0x00000101d52a30 @name=&quot;Fido&quot;&gt;,</span>
+</span><span class='line'>         <span class="c1">#&lt;Dog:0x00000101d01f90 @name=&quot;Fredo&quot;&gt;,</span>
+</span><span class='line'>         <span class="c1">#&lt;Dog:0x00000101ae2098 @name=&quot;Freida&quot;&gt;,</span>
+</span><span class='line'>         <span class="c1">#&lt;Dog:0x00000106187548 @name=&quot;Francis&quot;&gt;,</span>
+</span><span class='line'>         <span class="c1">#&lt;Dog:0x0000010615d630 @name=&quot;Bailey&quot;&gt;]]</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">dogs</span><span class="o">.</span><span class="n">sort_by</span><span class="p">(</span><span class="o">&amp;</span><span class="ss">:name</span><span class="p">)</span>
+</span><span class='line'><span class="c1"># =&gt; NoMethodError: undefined method `name&#39; for #&lt;Array:0x00000101ee5b18&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">dogs</span><span class="o">.</span><span class="n">flatten</span><span class="o">.</span><span class="n">sort_by</span><span class="p">(</span><span class="o">&amp;</span><span class="ss">:name</span><span class="p">)</span>
+</span><span class='line'><span class="c1"># =&gt; [#&lt;Dog:0x0000010615d630 @name=&quot;Bailey&quot;&gt;,</span>
+</span><span class='line'><span class="c1">#     #&lt;Dog:0x00000101d52a30 @name=&quot;Fido&quot;&gt;,</span>
+</span><span class='line'><span class="c1">#     #&lt;Dog:0x00000106187548 @name=&quot;Francis&quot;&gt;,</span>
+</span><span class='line'><span class="c1">#     #&lt;Dog:0x00000101d01f90 @name=&quot;Fredo&quot;&gt;,</span>
+</span><span class='line'><span class="c1">#     #&lt;Dog:0x00000101ae2098 @name=&quot;Freida&quot;&gt;]</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p><code>flatten</code> also takes an argument to specify how many levels to flatten the nested array by.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="o">[[[</span><span class="mi">1</span><span class="o">]</span><span class="p">,</span> <span class="mi">2</span><span class="o">]].</span><span class="n">flatten</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+</span><span class='line'><span class="c1">#=&gt; [[1], 2]</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>I&rsquo;m not sure how useful passing in an argument is, as I have only used <code>flatten</code> without an argument in practice.</p>
+
+<h3>Closing Thoughts</h3>
+
+<p>Arrays are an interesting Ruby class with a surprising amount of useful builtin methods. Read the Ruby documentation for more info and more unique methods to play around with.</p>
+
+<ul>
+<li><a href="http://www.ruby-doc.org/core-2.1.2/Array.html">Ruby Doc - Array</a></li>
+</ul>
+
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
       <h1 class="entry-title"><a href="/blog/2014/07/10/lessons-from-refactoring-tic-tac-toe/">Lessons From Refactoring Tic Tac Toe</a></h1>
     
     
@@ -95,7 +376,7 @@
   
 
 
-<time datetime="2014-07-10T18:02:50-04:00" pubdate data-updated="true">Jul 10<span>th</span>, 2014</time>
+<time datetime="2014-07-10T18:02:50-04:00" pubdate data-updated="true"></time>
         
            | <a href="/blog/2014/07/10/lessons-from-refactoring-tic-tac-toe/#disqus_thread"
              data-disqus-identifier="http://callahanchris.github.io/blog/2014/07/10/lessons-from-refactoring-tic-tac-toe/">Comments</a>
@@ -177,9 +458,9 @@
 
 <blockquote><p>&ldquo;Applications that are easy to change consist of classes that are easy to reuse. Reusable classes are pluggable units of well-defined behavior that have few entanglements. An application that is easy to change is like a box of building blocks; you can select just the pieces you need and assemble them in unanticipated ways.&rdquo;</p></blockquote>
 
-<p><em>&mdash; Practical Object-Oriented Design in Ruby, page 21</em></p>
+<p><em>&ndash; Practical Object-Oriented Design in Ruby, page 21</em></p>
 
-<p>I didn&rsquo;t understand the purpose of classes back in January when I first wrote my tic tac toe implementation. This partially explains why I originally only included one class (<code>TicTacToe</code>) that stood at a monstrous 405 lines &mdash; a veritable God object towering over my codebase.</p>
+<p>I didn&rsquo;t understand the purpose of classes back in January when I first wrote my tic tac toe implementation. This partially explains why I originally only included one class (<code>TicTacToe</code>) that stood at a monstrous 405 lines &ndash; a veritable God object towering over my codebase.</p>
 
 <p>I am still far from mastering the principles of object-oriented design, but I have come a long way over the last few months, thanks largely to <em>POODR</em> and <em>The Well-Grounded Rubyist</em>. One of the most important things I&rsquo;ve learned along the way is to not be afraid of classes. Watching tech talks by Sandi Metz, Ben Orenstein, and others showed me that the single responsibility principle also applies to classes.</p>
 
@@ -322,7 +603,7 @@
 
 <h3>Make Reusable Code</h3>
 
-<p>This is the overarching lesson I learned in the process of refactoring my tic tac toe code. Writing the original tic tac toe implementation was painful &mdash; not only because I didn&rsquo;t really understand how to code at the time, but also because the code I wrote was extremely resistant to change. My new implementation of tic tac toe, on the other hand, relies more on abstractions and is significantly more open to the possibility of change in the future.</p>
+<p>This is the overarching lesson I learned in the process of refactoring my tic tac toe code. Writing the original tic tac toe implementation was painful &ndash; not only because I didn&rsquo;t really understand how to code at the time, but also because the code I wrote was extremely resistant to change. My new implementation of tic tac toe, on the other hand, relies more on abstractions and is significantly more open to the possibility of change in the future.</p>
 
 <p>Take, for example, the <code>Computer</code> class&rsquo;s <code>move</code> algorithm:</p>
 
@@ -351,7 +632,7 @@
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>But what if I want to make the computer smarter and decide to implement a way for the computer to recognize opportunities to create a fork? In my original implementation, the cost of adding such a feature was simply too high. Not only would I be afraid of breaking my existing code, but I&rsquo;d also have to hardcode every single permutation possible &mdash; something I now know is avoidable.</p>
+<p>But what if I want to make the computer smarter and decide to implement a way for the computer to recognize opportunities to create a fork? In my original implementation, the cost of adding such a feature was simply too high. Not only would I be afraid of breaking my existing code, but I&rsquo;d also have to hardcode every single permutation possible &ndash; something I now know is avoidable.</p>
 
 <p>Instead, with the new code, I could make a <code>Forker</code> class that inherits from <code>Computer</code>. The most significant change I&rsquo;d have to make to <code>Computer</code> to accomplish this would be:</p>
 
@@ -395,12 +676,12 @@
 <h3>Links/Resources</h3>
 
 <ul>
-<li><a href="https://www.youtube.com/watch?v=8bZh5LMaSmE">Sandi Metz &ndash; All the Little Things (RailsConf 2014)</a></li>
+<li><a href="https://www.youtube.com/watch?v=8bZh5LMaSmE">Sandi Metz - All the Little Things (RailsConf 2014)</a></li>
 <li><a href="http://www.poodr.com/">Practical Object-Oriented Design in Ruby (POODR)</a></li>
 <li><a href="http://www.manning.com/black3/">The Well-Grounded Rubyist</a></li>
 <li><a href="http://rubyrogues.com/087-rr-book-clubpractical-object-oriented-design-in-ruby-with-sandi-metz/">Sandi Metz on the Ruby Rogues podcast</a></li>
-<li><a href="https://www.youtube.com/watch?v=DC-pQPq0acs">Ben Orenstein &ndash; Refactoring from Good to Great (Aloha Ruby Conf 2012)</a></li>
-<li><a href="https://www.youtube.com/watch?v=9LfmrkyP81M">David Heinemeier Hansson &ndash; Writing Software (RailsConf 2014)</a></li>
+<li><a href="https://www.youtube.com/watch?v=DC-pQPq0acs">Ben Orenstein - Refactoring from Good to Great (Aloha Ruby Conf 2012)</a></li>
+<li><a href="https://www.youtube.com/watch?v=9LfmrkyP81M">David Heinemeier Hansson - Writing Software (RailsConf 2014)</a></li>
 </ul>
 
 </div>
@@ -431,7 +712,7 @@
   
 
 
-<time datetime="2014-06-26T22:02:51-04:00" pubdate data-updated="true">Jun 26<span>th</span>, 2014</time>
+<time datetime="2014-06-26T22:02:51-04:00" pubdate data-updated="true"></time>
         
            | <a href="/blog/2014/06/26/better-understanding-ruby-modules-through-zombies/#disqus_thread"
              data-disqus-identifier="http://callahanchris.github.io/blog/2014/06/26/better-understanding-ruby-modules-through-zombies/">Comments</a>
@@ -786,7 +1067,7 @@
   
 
 
-<time datetime="2014-06-09T09:41:21-04:00" pubdate data-updated="true">Jun 9<span>th</span>, 2014</time>
+<time datetime="2014-06-09T09:41:21-04:00" pubdate data-updated="true"></time>
         
            | <a href="/blog/2014/06/09/abstraction-and-music-library-sorting/#disqus_thread"
              data-disqus-identifier="http://callahanchris.github.io/blog/2014/06/09/abstraction-and-music-library-sorting/">Comments</a>
@@ -1125,7 +1406,7 @@
   
 
 
-<time datetime="2014-05-23T14:52:35-04:00" pubdate data-updated="true">May 23<span>rd</span>, 2014</time>
+<time datetime="2014-05-23T14:52:35-04:00" pubdate data-updated="true"></time>
         
            | <a href="/blog/2014/05/23/i-dont-know-how-to-program/#disqus_thread"
              data-disqus-identifier="http://callahanchris.github.io/blog/2014/05/23/i-dont-know-how-to-program/">Comments</a>
@@ -1151,9 +1432,9 @@
 
 <p>Rails is a bit more complex. First, I installed the Rails gem, then when building the app I had to specify which gems I needed to use to get all aspects of the app up and running. Throughout this process, a number of dependencies were introduced and I had to do a bit of wrangling with version numbers to get everything working properly. I also installed the Ruby Version Manager (RVM) and got more familiar with using git, GitHub, and Heroku.</p>
 
-<p>I got burned by not paying close attention to my environment when going through the Hartl tutorial. I started off using the Rails 4.0 version of the tutorial, and I used Rails 4.1 &mdash; the latest version at the time &mdash; when making my first example app. I then went back and saw that the Flatiron School <a href="http://prework.flatironschool.com">prework site</a> recommended going through the Rails 3.2 edition of the tutorial. I went back, installed Rails 3.2 and Ruby 1.9.3, and then made it through the first couple chapters of the tutorial without much issue.</p>
+<p>I got burned by not paying close attention to my environment when going through the Hartl tutorial. I started off using the Rails 4.0 version of the tutorial, and I used Rails 4.1 &ndash; the latest version at the time &ndash; when making my first example app. I then went back and saw that the Flatiron School <a href="http://prework.flatironschool.com">prework site</a> recommended going through the Rails 3.2 edition of the tutorial. I went back, installed Rails 3.2 and Ruby 1.9.3, and then made it through the first couple chapters of the tutorial without much issue.</p>
 
-<p>The next day I was surprised to find that railstutorial.org had undergone a redesign, and the Rails 3.2 version of the book had gone behind a paywall. The Rails 4.0 version was still available for free &mdash; and what an incredible free resource it is! &mdash; so I tried to push forward by applying the instructions in the Rails 4.0 version to my Rails 3.2 app. This was a mistake. Eventually, I cut my losses and restarted the tutorial using Rails 4.0.</p>
+<p>The next day I was surprised to find that railstutorial.org had undergone a redesign, and the Rails 3.2 version of the book had gone behind a paywall. The Rails 4.0 version was still available for free &ndash; and what an incredible free resource it is! &ndash; so I tried to push forward by applying the instructions in the Rails 4.0 version to my Rails 3.2 app. This was a mistake. Eventually, I cut my losses and restarted the tutorial using Rails 4.0.</p>
 
 <p>(As a side note, after writing the first draft of this blog post I made the same mistake as described above, but in reverse, on a <a href="http://teamtreehouse.com">Treehouse</a> Rails tutorial. I ended up having to restart the tutorial using a different version of Rails. I really need to pay better attention to accurately setting up my dev environment!)</p>
 
@@ -1178,7 +1459,7 @@
 
 <h3>3. Power Through</h3>
 
-<p>Making a functioning Twitter-like app in Rails was hard. But that&rsquo;s OK &mdash; I have only done it one time, and had never done anything like it before going through Hartl&rsquo;s tutorial. I expected to be able to &ldquo;just get things&rdquo; before going in (remember, I &ldquo;knew&rdquo; about coding), and found that it was nowhere near that simple. After completing the tutorial, I realize that there are more areas that I don&rsquo;t understand than those I do. That&rsquo;s also OK &mdash; I am going to be learning all about Rails when I start at the <a href="http://flatironschool.com">Flatiron School</a> next month.</p>
+<p>Making a functioning Twitter-like app in Rails was hard. But that&rsquo;s OK &ndash; I have only done it one time, and had never done anything like it before going through Hartl&rsquo;s tutorial. I expected to be able to &ldquo;just get things&rdquo; before going in (remember, I &ldquo;knew&rdquo; about coding), and found that it was nowhere near that simple. After completing the tutorial, I realize that there are more areas that I don&rsquo;t understand than those I do. That&rsquo;s also OK &ndash; I am going to be learning all about Rails when I start at the <a href="http://flatironschool.com">Flatiron School</a> next month.</p>
 
 <p>I tend to be meticulous and work slowly if I am trying to fully grasp the subject matter at hand. I could have easily spent twice as much time on the Rails tutorial than I did, but it&rsquo;s probably a good thing that I didn&rsquo;t. Instead of dwelling on everything I didn&rsquo;t understand, I powered through and practiced &ldquo;getting used to&rdquo; the things I didn&rsquo;t understand. Rather than obsessively going down each rabbit hole, I tried to keep an eye on the big picture and take things in stride.</p>
 
@@ -1215,7 +1496,7 @@
   
 
 
-<time datetime="2014-05-20T15:29:04-04:00" pubdate data-updated="true">May 20<span>th</span>, 2014</time>
+<time datetime="2014-05-20T15:29:04-04:00" pubdate data-updated="true"></time>
         
            | <a href="/blog/2014/05/20/blog-equals-blog-dot-new/#disqus_thread"
              data-disqus-identifier="http://callahanchris.github.io/blog/2014/05/20/blog-equals-blog-dot-new/">Comments</a>
@@ -1227,7 +1508,7 @@
 
   <div class="entry-content"><p>This is the first post on my new blog. My name is Chris, and this blog will be about my journey from zero to hacker. As the first major step on the way to accomplishing this goal, I will be enrolling in the web development track at the Flatiron School in New York starting on June 2, 2014.</p>
 
-<p>Over the course of the past year, I have started learning how to program &mdash; mainly Ruby, but also bits of C, HTML, CSS, JavaScript, and most recently Ruby on Rails. I am now working through the Flatiron School&rsquo;s excellent <a href="http://prework.flatironschool.com/web-development/">prework curriculum</a> in preparation for the course.</p>
+<p>Over the course of the past year, I have started learning how to program &ndash; mainly Ruby, but also bits of C, HTML, CSS, JavaScript, and most recently Ruby on Rails. I am now working through the Flatiron School&rsquo;s excellent <a href="http://prework.flatironschool.com/web-development/">prework curriculum</a> in preparation for the course.</p>
 
 <p>I&rsquo;m looking forward to writing down my thoughts and experiences along the way to becoming a professional web dev in this blog. I know that learning how to program will be difficult, so I am also looking forward to sharing some of my problems and difficulties along the way.</p>
 </div>
@@ -1241,7 +1522,7 @@
     
     <a href="/blog/archives">Blog Archives</a>
     
-    <a class="next" href="/">Newer &rarr;</a>
+    <a class="next" href="1">Newer &rarr;</a>
     
   </div>
 </div>
@@ -1250,6 +1531,10 @@
     <section>
   <h1>Recent Posts</h1>
   <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2015/01/03/array-iteration-methods-in-javascript/">Array Iteration Methods in JavaScript</a>
+      </li>
     
       <li class="post">
         <a href="/blog/2014/11/23/88-mph-with-flux-and-react/">88 Mph With Flux and React</a>
@@ -1267,10 +1552,6 @@
         <a href="/blog/2014/09/18/getting-started-with-rspec/">Getting Started With RSpec</a>
       </li>
     
-      <li class="post">
-        <a href="/blog/2014/09/13/china-map-project-part-4-introducing-polymorphism/">China Map Project - Part 4: Introducing Polymorphism</a>
-      </li>
-    
   </ul>
 </section>
 
@@ -1284,7 +1565,7 @@
     </div>
   </div>
   <footer role="contentinfo"><p>
-  Copyright &copy; 2014 - Chris Callahan -
+  Copyright &copy; 2015 - Chris Callahan -
   <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
 </p>
 
