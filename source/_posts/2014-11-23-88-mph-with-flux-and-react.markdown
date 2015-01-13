@@ -133,7 +133,7 @@ For now we'll use just one CSS file, `css/styles.css`. However, if the app gets 
 
 Although the actions are at the top of the foodchain, it helps to conceptualize the flow of a Flux app starting from the View layer.
 
-At the top level of the View layer we have the "View-Controller". For our purposes, this will be the DeLorean component that will wrap the entire application. The View-Controller is responsible for registering event listeners with the Stores, retrieving state from the Stores when the Stores emit an event, rerending the application with this new state using `this.setState()`, and passing the state down to nested components through props.
+At the top level of the View layer we have the "Controller-View". For our purposes, this will be the DeLorean component that will wrap the entire application. The Controller-View is responsible for registering event listeners with the Stores, retrieving state from the Stores when the Stores emit an event, rerending the application with this new state using `this.setState()`, and passing the state down to nested components through props.
 
 ```javascript
 // js/components/DeLorean.js
