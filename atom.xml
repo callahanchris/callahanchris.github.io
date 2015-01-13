@@ -4,7 +4,7 @@
   <title><![CDATA[Chris Callahan's Blog]]></title>
   <link href="http://callahanchris.github.io/atom.xml" rel="self"/>
   <link href="http://callahanchris.github.io/"/>
-  <updated>2015-01-04T13:39:36-05:00</updated>
+  <updated>2015-01-13T11:28:33-05:00</updated>
   <id>http://callahanchris.github.io/</id>
   <author>
     <name><![CDATA[Chris Callahan]]></name>
@@ -575,7 +575,7 @@
 
 <p>Although the actions are at the top of the foodchain, it helps to conceptualize the flow of a Flux app starting from the View layer.</p>
 
-<p>At the top level of the View layer we have the &ldquo;View-Controller&rdquo;. For our purposes, this will be the DeLorean component that will wrap the entire application. The View-Controller is responsible for registering event listeners with the Stores, retrieving state from the Stores when the Stores emit an event, rerending the application with this new state using <code>this.setState()</code>, and passing the state down to nested components through props.</p>
+<p>At the top level of the View layer we have the &ldquo;Controller-View&rdquo;. For our purposes, this will be the DeLorean component that will wrap the entire application. The Controller-View is responsible for registering event listeners with the Stores, retrieving state from the Stores when the Stores emit an event, rerending the application with this new state using <code>this.setState()</code>, and passing the state down to nested components through props.</p>
 
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
