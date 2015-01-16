@@ -4,7 +4,7 @@
   <title><![CDATA[Chris Callahan's Blog]]></title>
   <link href="http://callahanchris.github.io/atom.xml" rel="self"/>
   <link href="http://callahanchris.github.io/"/>
-  <updated>2015-01-13T11:28:33-05:00</updated>
+  <updated>2015-01-16T12:06:02-05:00</updated>
   <id>http://callahanchris.github.io/</id>
   <author>
     <name><![CDATA[Chris Callahan]]></name>
@@ -12,6 +12,123 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Resources for Learning React &amp; Flux]]></title>
+    <link href="http://callahanchris.github.io/blog/2015/01/16/resources-for-learning-react-and-flux/"/>
+    <updated>2015-01-16T11:34:16-05:00</updated>
+    <id>http://callahanchris.github.io/blog/2015/01/16/resources-for-learning-react-and-flux</id>
+    <content type="html"><![CDATA[<p>I&rsquo;ve recently had a few people ask me about resources for learning React.js and Flux, so I figured I&rsquo;d put all of the resources I&rsquo;ve used in one spot. Please leave a comment if you find any of these useful/useless or have any good resources I&rsquo;ve left out!</p>
+
+<h3>Why React?</h3>
+
+<p><em>The unexamined 3rd party library is not worth using</em></p>
+
+<ul>
+<li><a href="http://facebook.github.io/react/docs/why-react.html">Abridged Version</a></li>
+<li><a href="http://jlongster.com/Removing-User-Interface-Complexity,-or-Why-React-is-Awesome">Unabridged Version</a></li>
+</ul>
+
+
+<h3>React Basics</h3>
+
+<p><em>React 101</em></p>
+
+<ul>
+<li><a href="http://www.jackcallister.com/2015/01/05/the-react-quick-start-guide.html">Basics on components, props, and state</a></li>
+<li><a href="http://facebook.github.io/react/docs/thinking-in-react.html">Turning mockups into React components</a></li>
+<li><a href="http://facebook.github.io/react/docs/multiple-components.html">Composing multiple components</a></li>
+</ul>
+
+
+<h3>Flux</h3>
+
+<p><em>Facebook&rsquo;s architecture pattern for organizing large React apps</em></p>
+
+<ul>
+<li>Shameless plug: <a href="http://callahanchris.github.io/blog/2014/11/23/88-mph-with-flux-and-react/">My Intro to Flux blog post</a>
+  &ndash; some helpful links on the bottom too</li>
+<li><a href="http://blog.andrewray.me/flux-for-stupid-people/">Flux for Stupid People</a></li>
+<li><a href="http://facebook.github.io/flux/docs/overview.html#content">Facebook&rsquo;s Flux Overview</a></li>
+<li><a href="https://github.com/facebook/flux/tree/master/examples/flux-chat/">Facebook&rsquo;s Flux chat sample app</a> &ndash; great code to dive into for a standard implementation of Facebook-flavored Flux</li>
+</ul>
+
+
+<h3>React Router</h3>
+
+<p><em>Inspired by Ember Router, a great addition to React apps</em></p>
+
+<ul>
+<li><a href="https://github.com/rackt/react-router/blob/master/docs/guides/overview.md">React Router overview</a></li>
+<li><a href="https://github.com/rackt/react-router">Github repo</a></li>
+</ul>
+
+
+<h3>Server-Side Rendering</h3>
+
+<p><em>Learn the way of <code>React.renderToString()</code></em></p>
+
+<ul>
+<li><a href="https://github.com/mhart/react-server-example">Simple React server example</a></li>
+<li><a href="https://github.com/zertosh/ssr-demo-kit">React server-side rendering demo kit</a></li>
+</ul>
+
+
+<h3>Tutorials</h3>
+
+<p><em>Learn by doing</em></p>
+
+<ul>
+<li><a href="https://github.com/mking/react-hn">Make Hacker News with React</a></li>
+<li>Scotch.io React &amp; Flux tutorials:
+
+<ol>
+<li> <a href="https://scotch.io/tutorials/learning-react-getting-started-and-concepts">Learning React: Getting started and concepts</a></li>
+<li> <a href="https://scotch.io/tutorials/build-a-real-time-twitter-stream-with-node-and-react-js">Build a real time Twitter stream with Node and React.js</a></li>
+<li> <a href="https://scotch.io/tutorials/getting-to-know-flux-the-react-js-architecture">Getting to know Flux, the React.js architecture</a></li>
+<li> <a href="https://scotch.io/tutorials/creating-a-simple-shopping-cart-with-react-js-and-flux">Creating a simple shopping cart with React.js and Flux</a></li>
+</ol>
+</li>
+<li><a href="https://twitter.com/biesnecker">John Biesnecker</a>&rsquo;s React Tutorials:
+
+<ol>
+<li> <a href="http://biesnecker.com/2014/10/21/building-a-card-game-war-in-react/">Building a card game (war) with React</a></li>
+<li> <a href="http://biesnecker.com/2014/10/22/using-reactjs-to-draw-dynamic-svgs/">Using React.js to draw dynamic SVGs</a></li>
+</ol>
+</li>
+</ul>
+
+
+<h3>Cool React Projects</h3>
+
+<p><em>React rocks</em></p>
+
+<ul>
+<li><a href="http://react.rocks/">react.rocks</a></li>
+</ul>
+
+
+<h3>Official Documentation</h3>
+
+<p><em>Still the best and most comprehensive resource out there</em></p>
+
+<ul>
+<li><a href="http://facebook.github.io/react/docs/getting-started.html">React docs</a></li>
+<li><a href="http://facebook.github.io/flux/docs/overview.html">Flux docs</a></li>
+</ul>
+
+
+<h3>Read the Source Code</h3>
+
+<p><em>Your great changes to React &amp; Flux are just a pull request away&hellip;</em></p>
+
+<ul>
+<li><a href="https://github.com/facebook/react">React source code</a></li>
+<li><a href="https://github.com/facebook/flux">Flux source code</a></li>
+</ul>
+
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Array Iteration Methods in JavaScript]]></title>
