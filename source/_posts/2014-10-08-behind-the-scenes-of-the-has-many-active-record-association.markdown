@@ -29,6 +29,8 @@ My first step was to go the source: [the Rails source code](https://github.com/r
 
 I started to feel differently about the code once it was on my local machine. Suddenly I felt like I had more control over the code, just as I would with any other Ruby files open in Sublime Text on my computer. Rather than getting distracted by the complexity and sheer magnitude of the Rails codebase, I relied on techniques that I was already confident with and worked my way through from there.
 
+**NOTE:** I have pinned the links down to a commit in the Rails 4.1.4 era (when this post was written). Plenty of changes have been made since then, so be sure check out the latest version of the repo and investigate the code for yourself!
+
 ### Starting With What I Know
 
 Let's make a basic Rails app using *Game of Thrones* as its domain model. At first, I have two classes, `House` and `Character`, both of which inherit from `ActiveRecord::Base`. I'd wire up the associations between these classes as such:
@@ -61,7 +63,7 @@ At this point, here's what I know about the code in the `House` model:
 
 * It then follows that `:characters` is a method argument passed to the `has_many` method. Ruby allows you to leave off the parentheses surrounding method arguments, though it is generally good practice to keep the parentheses in when defining a method with arguments.
 
-Knowing that `has_many` is a class method defined somewhere in Active Record helped to narrow things down. From here, it was very easy to track the method definition down by doing a global search for `def has_many` on the codebase using `Command + Shift + f` in Sublime Text! Only one result appeared -- a [two-line method](https://github.com/rails/rails/blob/master/activerecord/lib/active_record/associations.rb#L1245) in the `ActiveRecord::Associations::ClassMethods` module:
+Knowing that `has_many` is a class method defined somewhere in Active Record helped to narrow things down. From here, it was very easy to track the method definition down by doing a global search for `def has_many` on the codebase using `Command + Shift + f` in Sublime Text! Only one result appeared -- a [two-line method](https://github.com/rails/rails/tree/30ea1a70cba1124893b2479cb7f277cb260ddfcd/activerecord/lib/active_record/associations.rb#L1245) in the `ActiveRecord::Associations::ClassMethods` module:
 
 ```ruby
 def has_many(name, scope = nil, options = {}, &extension)
@@ -72,7 +74,7 @@ end
 
 ### Taking it One Line at a Time
 
-The `has_many` method signature is actually quite straightforward. Also, there is a copious amount (~200 lines) of [documentation](https://github.com/rails/rails/blob/master/activerecord/lib/active_record/associations.rb#L1054) directly above the method definition that describes what `has_many` is, gives examples of how to use it, details the methods that are added when a `has_many` association is declared, and describes what all of the method arguments it takes are.
+The `has_many` method signature is actually quite straightforward. Also, there is a copious amount (~200 lines) of [documentation](https://github.com/rails/rails/tree/30ea1a70cba1124893b2479cb7f277cb260ddfcd/activerecord/lib/active_record/associations.rb#L1054) directly above the method definition that describes what `has_many` is, gives examples of how to use it, details the methods that are added when a `has_many` association is declared, and describes what all of the method arguments it takes are.
 
 Here's a quick rundown of the arguments that `has_many` can take:
 
@@ -90,9 +92,9 @@ end
 
 * `options`: Defaults to an empty hash. Here you can further customize the nature of the association. Some common options to pass here are `through: :join_table`, `dependent: :destroy`, `polymorphic: true`, and `foreign_key: :uuid`.
 
-* `&extension`: Explicit block argument, as indicated by the ampersand. I have never used this before, but the comments [suggest](https://github.com/rails/rails/blob/master/activerecord/lib/active_record/associations.rb#L1149) that association extensions are "useful for adding new finders, creators and other factory-type methods to be used as part of the association."
+* `&extension`: Explicit block argument, as indicated by the ampersand. I have never used this before, but the comments [suggest](https://github.com/rails/rails/tree/30ea1a70cba1124893b2479cb7f277cb260ddfcd/activerecord/lib/active_record/associations.rb#L1149) that association extensions are "useful for adding new finders, creators and other factory-type methods to be used as part of the association."
 
-To figure out the next line, I first tracked down the `ActiveRecord::Associations::Builder::HasMany` class, which is quite slim, containing just three one-line methods! Unfortunately, `build` is not one of these methods. I traversed up the inheritance hierarchy, from `ActiveRecord::Associations::Builder::HasMany` to `ActiveRecord::Associations::Builder::CollectionAssociation` and finally to `ActiveRecord::Associations::Builder::Association`, where the class method `build` is [defined](https://github.com/rails/rails/blob/master/activerecord/lib/active_record/associations/builder/association.rb#L28).
+To figure out the next line, I first tracked down the `ActiveRecord::Associations::Builder::HasMany` class, which is quite slim, containing just three one-line methods! Unfortunately, `build` is not one of these methods. I traversed up the inheritance hierarchy, from `ActiveRecord::Associations::Builder::HasMany` to `ActiveRecord::Associations::Builder::CollectionAssociation` and finally to `ActiveRecord::Associations::Builder::Association`, where the class method `build` is [defined](https://github.com/rails/rails/tree/30ea1a70cba1124893b2479cb7f277cb260ddfcd/activerecord/lib/active_record/associations/builder/association.rb#L28).
 
 ```ruby
 def self.build(model, name, scope, options, &block)
@@ -116,7 +118,7 @@ The `ActiveRecord::Associations::Builder::Association::build` method takes 5 arg
 
 Given that the `has_many` method is inside the `ActiveRecord::Associations::ClassMethods` module, I assumed that somewhere along the line this module is being mixed into a class. The value of `self` inside a class method is the class itself -- that is, whichever class called the `has_many` method to begin with (in our case `House`).
 
-I had a difficult time tracking down where, if anywhere, this module is mixed in to the `House` class. Then I had a stunning (and obvious) realization: this module is mixed in to *every single Active Record model!* From here, it was easy to hunt down [the offending code](https://github.com/rails/rails/blob/master/activerecord/lib/active_record/base.rb#L304) in -- where else? -- `ActiveRecord::Base`.
+I had a difficult time tracking down where, if anywhere, this module is mixed in to the `House` class. Then I had a stunning (and obvious) realization: this module is mixed in to *every single Active Record model!* From here, it was easy to hunt down [the offending code](https://github.com/rails/rails/tree/30ea1a70cba1124893b2479cb7f277cb260ddfcd/activerecord/lib/active_record/base.rb#L304) in -- where else? -- `ActiveRecord::Base`.
 
 ```ruby
 module ActiveRecord
@@ -133,7 +135,7 @@ Now we know that in our example, `House` and `:characters` are being passed as t
 
 ### Locating the "Metaprogramming Magic"
 
-The `build` method first checks if the `name` parameter is "dangerous", and if so it throws an error. The [comment](https://github.com/rails/rails/blob/master/activerecord/lib/active_record/attribute_methods.rb#L128) above the `dangerous_attribute_name?` method states that "a method name is 'dangerous' if it is already (re)defined by Active Record, but not by any ancestors. (So 'puts' is not dangerous but 'save' is.)"
+The `build` method first checks if the `name` parameter is "dangerous", and if so it throws an error. The [comment](https://github.com/rails/rails/tree/30ea1a70cba1124893b2479cb7f277cb260ddfcd/activerecord/lib/active_record/attribute_methods.rb#L128) above the `dangerous_attribute_name?` method states that "a method name is 'dangerous' if it is already (re)defined by Active Record, but not by any ancestors. (So 'puts' is not dangerous but 'save' is.)"
 
 Barring any unforeseen danger, the `build` method then passes all of its method arguments to the `create_builder` method, which is called on an implicit receiver. In this context, `self` is referring to the `ActiveRecord::Associations::Builder::HasMany` class. The `create_builder` method checks that the `name` argument passed to it (`:characters`) is a symbol, then instantiates a new instance of the `ActiveRecord::Associations::Builder::HasMany` class. This object is stored as `builder`, a local variable in the `build` method above.
 
@@ -145,7 +147,7 @@ def build(model)
 end
 ```
 
-The only new thing here is `macro`, which is a method [defined](https://github.com/rails/rails/blob/master/activerecord/lib/active_record/associations/builder/has_many.rb#L3) on the `ActiveRecord::Associations::Builder::HasMany` model.
+The only new thing here is `macro`, which is a method [defined](https://github.com/rails/rails/tree/30ea1a70cba1124893b2479cb7f277cb260ddfcd/activerecord/lib/active_record/associations/builder/has_many.rb#L3) on the `ActiveRecord::Associations::Builder::HasMany` model.
 
 ```ruby
 def macro
@@ -153,13 +155,13 @@ def macro
 end
 ```
 
-The `ActiveRecord::Reflections::create` method [delegates](https://github.com/rails/rails/blob/master/activerecord/lib/active_record/reflection.rb#L15) based on the `macro` passed to it. In our case, it instantiates an instance of [the `ActiveRecord::Reflection::HasManyReflection` class](https://github.com/rails/rails/blob/master/activerecord/lib/active_record/reflection.rb#L570), which inherits from [the `ActiveRecord::Reflection::Association` class](https://github.com/rails/rails/blob/master/activerecord/lib/active_record/reflection.rb#L249). I'm still not totally clear what reflections in general do, but [this bit of documentation](https://github.com/rails/rails/blob/master/activerecord/lib/active_record/reflection.rb#L41) was helpful:
+The `ActiveRecord::Reflections::create` method [delegates](https://github.com/rails/rails/tree/30ea1a70cba1124893b2479cb7f277cb260ddfcd/activerecord/lib/active_record/reflection.rb#L15) based on the `macro` passed to it. In our case, it instantiates an instance of [the `ActiveRecord::Reflection::HasManyReflection` class](https://github.com/rails/rails/tree/30ea1a70cba1124893b2479cb7f277cb260ddfcd/activerecord/lib/active_record/reflection.rb#L570), which inherits from [the `ActiveRecord::Reflection::Association` class](https://github.com/rails/rails/tree/30ea1a70cba1124893b2479cb7f277cb260ddfcd/activerecord/lib/active_record/reflection.rb#L249). I'm still not totally clear what reflections in general do, but [this bit of documentation](https://github.com/rails/rails/tree/30ea1a70cba1124893b2479cb7f277cb260ddfcd/activerecord/lib/active_record/reflection.rb#L41) was helpful:
 
 > Reflection enables interrogating of Active Record classes and objects about their associations and aggregations. This information can, for example, be used in a form builder that takes an Active Record object and creates input fields for all of the attributes depending on their type and displays the associations to other objects.
 
 The value returned is this instance of the `ActiveRecord::Reflection::HasManyReflection` class, and the original method `ActiveRecord::Associations::Builder::HasMany::build` class method stores this object to a local variable `reflection`.
 
-Once I knew what the `model` and `reflection` local variables were, it was relatively easy to locate the `define_accessors`, `define_callbacks`, `define_validations`, and `define_extensions` methods, as they were all in [the same file as the `build` method](https://github.com/rails/rails/blob/master/activerecord/lib/active_record/associations/builder/association.rb#L99). In this blog post, I'll only get into the `define_accessors` method.
+Once I knew what the `model` and `reflection` local variables were, it was relatively easy to locate the `define_accessors`, `define_callbacks`, `define_validations`, and `define_extensions` methods, as they were all in [the same file as the `build` method](https://github.com/rails/rails/tree/30ea1a70cba1124893b2479cb7f277cb260ddfcd/activerecord/lib/active_record/associations/builder/association.rb#L99). In this blog post, I'll only get into the `define_accessors` method.
 
 ```ruby
 # Defines the setter and getter methods for the association
@@ -198,7 +200,7 @@ This was it. After much searching, I had found the "metaprogramming magic" at th
 
 Again, I had to start with what I know here. Two method arguments are passed to `define_accessors`: `model` and `reflection`. When the `build` method calls `define_accessors`, it uses the same names for these arguments. Back in the `build` method, `model` referred to the `House` Active Record model, and `reflection` referred to the instance of the `ActiveRecord::Reflection::HasManyReflection` class.
 
-Moving on to the next line, I found the `generated_association_methods` method is called on `House` and the return value is stored in a local variable `mixin`. I tracked down [the method definition](https://github.com/rails/rails/blob/master/activerecord/lib/active_record/core.rb#L194) of `generated_association_methods` in the `ActiveRecord::Core::ClassMethods` module, alongside classics such as `find` and `find_by`.
+Moving on to the next line, I found the `generated_association_methods` method is called on `House` and the return value is stored in a local variable `mixin`. I tracked down [the method definition](https://github.com/rails/rails/tree/30ea1a70cba1124893b2479cb7f277cb260ddfcd/activerecord/lib/active_record/core.rb#L194) of `generated_association_methods` in the `ActiveRecord::Core::ClassMethods` module, alongside classics such as `find` and `find_by`.
 
 ```ruby
 def generated_association_methods
@@ -220,7 +222,7 @@ On the next line of this method, the `House::GeneratedAssociationMethods` module
 
 Finally, the `House::GeneratedAssociationMethods` module is returned, and thus is set as the value of the `@generated_association_methods` class instance variable. Back in the `define_accessors` method, this constant is stored as the `mixin` variable.
 
-Going on to the next line of the `define_accessors` method, the `name` message is passed to the `reflection` variable (our instance of the `ActiveRecord::Reflection::HasManyReflection` class). This object has [an `attr_reader` for name](https://github.com/rails/rails/blob/master/activerecord/lib/active_record/reflection.rb#L176), which is [set upon initialization](https://github.com/rails/rails/blob/master/activerecord/lib/active_record/reflection.rb#L191). If it's not too far a stretch back to remember, the `name` attribute here is set to the original `name` passed as the first argument of the `has_many` method. A refresher:
+Going on to the next line of the `define_accessors` method, the `name` message is passed to the `reflection` variable (our instance of the `ActiveRecord::Reflection::HasManyReflection` class). This object has [an `attr_reader` for name](https://github.com/rails/rails/tree/30ea1a70cba1124893b2479cb7f277cb260ddfcd/activerecord/lib/active_record/reflection.rb#L176), which is [set upon initialization](https://github.com/rails/rails/tree/30ea1a70cba1124893b2479cb7f277cb260ddfcd/activerecord/lib/active_record/reflection.rb#L191). If it's not too far a stretch back to remember, the `name` attribute here is set to the original `name` passed as the first argument of the `has_many` method. A refresher:
 
 ```ruby
 class House < ActiveRecord::Base
@@ -274,7 +276,7 @@ Almost there! We've now got our method definitions, but what do `association` an
 
 ### Associations, Caching, and Reflections
 
-It turns out that `association` is an [instance method](https://github.com/rails/rails/blob/master/activerecord/lib/active_record/associations.rb#L150) of the `ActiveRecord::Associations` module.
+It turns out that `association` is an [instance method](https://github.com/rails/rails/tree/30ea1a70cba1124893b2479cb7f277cb260ddfcd/activerecord/lib/active_record/associations.rb#L150) of the `ActiveRecord::Associations` module.
 
 ```ruby
 def association(name) #:nodoc:
@@ -290,9 +292,9 @@ def association(name) #:nodoc:
 end
 ```
 
-The `association` method will pull the association specified by the `name` argument passed to it (in our case `:characters`)  out of the `@association_cache` instance variable if it has already been loaded into memory. As [defined](https://github.com/rails/rails/blob/master/activerecord/lib/active_record/core.rb#L533) in the `ActiveRecord::Core` module, `@association_cache` is initialized to an empty Hash. Interestingly, this happens whenever you [instantiate an Active Record object](https://github.com/rails/rails/blob/master/activerecord/lib/active_record/core.rb#L266) using the `House.new` syntax!
+The `association` method will pull the association specified by the `name` argument passed to it (in our case `:characters`)  out of the `@association_cache` instance variable if it has already been loaded into memory. As [defined](https://github.com/rails/rails/tree/30ea1a70cba1124893b2479cb7f277cb260ddfcd/activerecord/lib/active_record/core.rb#L533) in the `ActiveRecord::Core` module, `@association_cache` is initialized to an empty Hash. Interestingly, this happens whenever you [instantiate an Active Record object](https://github.com/rails/rails/tree/30ea1a70cba1124893b2479cb7f277cb260ddfcd/activerecord/lib/active_record/core.rb#L266) using the `House.new` syntax!
 
-If the association is not in the `@association_cache` (i.e. it hasn't been loaded into memory), then the `association` method checks whether the class where the association is defined (`House`) lists the associated class (`Character`) as one of its `_reflections` (a `class_attribute` which is also [initialized to an empty hash](https://github.com/rails/rails/blob/master/activerecord/lib/active_record/reflection.rb#L11)). The only way to [add a reflection](https://github.com/rails/rails/blob/master/activerecord/lib/active_record/reflection.rb#L33) to this hash is through the `add_reflection` module method. Remember where this is called?
+If the association is not in the `@association_cache` (i.e. it hasn't been loaded into memory), then the `association` method checks whether the class where the association is defined (`House`) lists the associated class (`Character`) as one of its `_reflections` (a `class_attribute` which is also [initialized to an empty hash](https://github.com/rails/rails/tree/30ea1a70cba1124893b2479cb7f277cb260ddfcd/activerecord/lib/active_record/reflection.rb#L11)). The only way to [add a reflection](https://github.com/rails/rails/tree/30ea1a70cba1124893b2479cb7f277cb260ddfcd/activerecord/lib/active_record/reflection.rb#L33) to this hash is through the `add_reflection` module method. Remember where this is called?
 
 ```ruby
 def has_many(name, scope = nil, options = {}, &extension)
@@ -311,7 +313,7 @@ stark = House.create(surname: "Stark", sigil: "Direwolf", motto: "Winter is comi
 # => #<House id: 1, surname: "Stark", sigil: "Direwolf", motto: "Winter is coming.", created_at: "2014-10-09 20:05:01", updated_at: "2014-10-09 20:05:01">
 ```
 
-If we call `stark.characters`, Rails first checks whether `"characters"` is a key in `House`'s `_reflections` hash. If so, a new object is instantiated based on the type of this reflection -- in the case of `has_many`, it's an instance of the `ActiveRecord::Associations::HasManyAssociation` class. The `association` method then calls `association_instance_set`, passing `:characters` and this instance of `ActiveRecord::Associations::HasManyAssociation` as its parameters. This key value pair is then [added to the `@association_cache` instance variable](https://github.com/rails/rails/blob/master/activerecord/lib/active_record/associations.rb#L169):
+If we call `stark.characters`, Rails first checks whether `"characters"` is a key in `House`'s `_reflections` hash. If so, a new object is instantiated based on the type of this reflection -- in the case of `has_many`, it's an instance of the `ActiveRecord::Associations::HasManyAssociation` class. The `association` method then calls `association_instance_set`, passing `:characters` and this instance of `ActiveRecord::Associations::HasManyAssociation` as its parameters. This key value pair is then [added to the `@association_cache` instance variable](https://github.com/rails/rails/tree/30ea1a70cba1124893b2479cb7f277cb260ddfcd/activerecord/lib/active_record/associations.rb#L169):
 
 ```ruby
 def association_instance_set(name, association)
@@ -319,7 +321,7 @@ def association_instance_set(name, association)
 end
 ```
 
-The `association` local variable is returned from the `association` method above, and then is sent the `reader` message, which is [defined](https://github.com/rails/rails/blob/master/activerecord/lib/active_record/associations/collection_association.rb#L29) in the `ActiveRecord::Associations::CollectionAssociations` class, the superclass of `ActiveRecord::Associations::HasManyAssociation`.
+The `association` local variable is returned from the `association` method above, and then is sent the `reader` message, which is [defined](https://github.com/rails/rails/tree/30ea1a70cba1124893b2479cb7f277cb260ddfcd/activerecord/lib/active_record/associations/collection_association.rb#L29) in the `ActiveRecord::Associations::CollectionAssociations` class, the superclass of `ActiveRecord::Associations::HasManyAssociation`.
 
 ```ruby
 # Implements the reader method, e.g. foo.items for Foo.has_many :items
@@ -338,7 +340,7 @@ end
 
 Here on the last line of the `reader` method was `@proxy`, the final value that is returned by the newly minted `characters` method. This `@proxy` instance variable is also the one alluded to by Obie Fernandez when he says "proxy collection objects are created that let you manipulate the relationship easily."
 
-Here is where it gets interesting: the `ActiveRecord::Associations::CollectionProxy` class [inherits from](https://github.com/rails/rails/blob/master/activerecord/lib/active_record/associations/collection_proxy.rb#L30) `ActiveRecord::Relation`, which is the main class in Rails that deals with [database operations](https://github.com/rails/rails/blob/master/activerecord/lib/active_record/relation.rb). From here, we have to go all the way up the inheritance chain to the `ActiveRecord::Delegation::ClassMethods` module to find [the `create` method used here](https://github.com/rails/rails/blob/master/activerecord/lib/active_record/relation/delegation.rb#L105).
+Here is where it gets interesting: the `ActiveRecord::Associations::CollectionProxy` class [inherits from](https://github.com/rails/rails/tree/30ea1a70cba1124893b2479cb7f277cb260ddfcd/activerecord/lib/active_record/associations/collection_proxy.rb#L30) `ActiveRecord::Relation`, which is the main class in Rails that deals with [database operations](https://github.com/rails/rails/tree/30ea1a70cba1124893b2479cb7f277cb260ddfcd/activerecord/lib/active_record/relation.rb). From here, we have to go all the way up the inheritance chain to the `ActiveRecord::Delegation::ClassMethods` module to find [the `create` method used here](https://github.com/rails/rails/tree/30ea1a70cba1124893b2479cb7f277cb260ddfcd/activerecord/lib/active_record/relation/delegation.rb#L105).
 
 Now when we call `stark.characters`, we know without a shadow of a doubt what our return value will be!
 
