@@ -1280,6 +1280,8 @@
 
 <p>I started to feel differently about the code once it was on my local machine. Suddenly I felt like I had more control over the code, just as I would with any other Ruby files open in Sublime Text on my computer. Rather than getting distracted by the complexity and sheer magnitude of the Rails codebase, I relied on techniques that I was already confident with and worked my way through from there.</p>
 
+<p><strong>NOTE:</strong> I have pinned the links down to a commit in the Rails 4.1.4 era (when this post was written). Plenty of changes have been made since then, so be sure check out the latest version of the repo and investigate the code for yourself!</p>
+
 <h3>Starting With What I Know</h3>
 
 <p>Let&rsquo;s make a basic Rails app using <em>Game of Thrones</em> as its domain model. At first, I have two classes, <code>House</code> and <code>Character</code>, both of which inherit from <code>ActiveRecord::Base</code>. I&rsquo;d wire up the associations between these classes as such:</p>
@@ -1321,7 +1323,7 @@
 </ul>
 
 
-<p>Knowing that <code>has_many</code> is a class method defined somewhere in Active Record helped to narrow things down. From here, it was very easy to track the method definition down by doing a global search for <code>def has_many</code> on the codebase using <code>Command + Shift + f</code> in Sublime Text! Only one result appeared &ndash; a <a href="https://github.com/rails/rails/blob/master/activerecord/lib/active_record/associations.rb#L1245">two-line method</a> in the <code>ActiveRecord::Associations::ClassMethods</code> module:</p>
+<p>Knowing that <code>has_many</code> is a class method defined somewhere in Active Record helped to narrow things down. From here, it was very easy to track the method definition down by doing a global search for <code>def has_many</code> on the codebase using <code>Command + Shift + f</code> in Sublime Text! Only one result appeared &ndash; a <a href="https://github.com/rails/rails/tree/30ea1a70cba1124893b2479cb7f277cb260ddfcd/activerecord/lib/active_record/associations.rb#L1245">two-line method</a> in the <code>ActiveRecord::Associations::ClassMethods</code> module:</p>
 
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -1336,7 +1338,7 @@
 
 <h3>Taking it One Line at a Time</h3>
 
-<p>The <code>has_many</code> method signature is actually quite straightforward. Also, there is a copious amount (~200 lines) of <a href="https://github.com/rails/rails/blob/master/activerecord/lib/active_record/associations.rb#L1054">documentation</a> directly above the method definition that describes what <code>has_many</code> is, gives examples of how to use it, details the methods that are added when a <code>has_many</code> association is declared, and describes what all of the method arguments it takes are.</p>
+<p>The <code>has_many</code> method signature is actually quite straightforward. Also, there is a copious amount (~200 lines) of <a href="https://github.com/rails/rails/tree/30ea1a70cba1124893b2479cb7f277cb260ddfcd/activerecord/lib/active_record/associations.rb#L1054">documentation</a> directly above the method definition that describes what <code>has_many</code> is, gives examples of how to use it, details the methods that are added when a <code>has_many</code> association is declared, and describes what all of the method arguments it takes are.</p>
 
 <p>Here&rsquo;s a quick rundown of the arguments that <code>has_many</code> can take:</p>
 
@@ -1359,11 +1361,11 @@
 
 <ul>
 <li><p><code>options</code>: Defaults to an empty hash. Here you can further customize the nature of the association. Some common options to pass here are <code>through: :join_table</code>, <code>dependent: :destroy</code>, <code>polymorphic: true</code>, and <code>foreign_key: :uuid</code>.</p></li>
-<li><p><code>&amp;extension</code>: Explicit block argument, as indicated by the ampersand. I have never used this before, but the comments <a href="https://github.com/rails/rails/blob/master/activerecord/lib/active_record/associations.rb#L1149">suggest</a> that association extensions are &ldquo;useful for adding new finders, creators and other factory-type methods to be used as part of the association.&rdquo;</p></li>
+<li><p><code>&amp;extension</code>: Explicit block argument, as indicated by the ampersand. I have never used this before, but the comments <a href="https://github.com/rails/rails/tree/30ea1a70cba1124893b2479cb7f277cb260ddfcd/activerecord/lib/active_record/associations.rb#L1149">suggest</a> that association extensions are &ldquo;useful for adding new finders, creators and other factory-type methods to be used as part of the association.&rdquo;</p></li>
 </ul>
 
 
-<p>To figure out the next line, I first tracked down the <code>ActiveRecord::Associations::Builder::HasMany</code> class, which is quite slim, containing just three one-line methods! Unfortunately, <code>build</code> is not one of these methods. I traversed up the inheritance hierarchy, from <code>ActiveRecord::Associations::Builder::HasMany</code> to <code>ActiveRecord::Associations::Builder::CollectionAssociation</code> and finally to <code>ActiveRecord::Associations::Builder::Association</code>, where the class method <code>build</code> is <a href="https://github.com/rails/rails/blob/master/activerecord/lib/active_record/associations/builder/association.rb#L28">defined</a>.</p>
+<p>To figure out the next line, I first tracked down the <code>ActiveRecord::Associations::Builder::HasMany</code> class, which is quite slim, containing just three one-line methods! Unfortunately, <code>build</code> is not one of these methods. I traversed up the inheritance hierarchy, from <code>ActiveRecord::Associations::Builder::HasMany</code> to <code>ActiveRecord::Associations::Builder::CollectionAssociation</code> and finally to <code>ActiveRecord::Associations::Builder::Association</code>, where the class method <code>build</code> is <a href="https://github.com/rails/rails/tree/30ea1a70cba1124893b2479cb7f277cb260ddfcd/activerecord/lib/active_record/associations/builder/association.rb#L28">defined</a>.</p>
 
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -1402,7 +1404,7 @@
 
 <p>Given that the <code>has_many</code> method is inside the <code>ActiveRecord::Associations::ClassMethods</code> module, I assumed that somewhere along the line this module is being mixed into a class. The value of <code>self</code> inside a class method is the class itself &ndash; that is, whichever class called the <code>has_many</code> method to begin with (in our case <code>House</code>).</p>
 
-<p>I had a difficult time tracking down where, if anywhere, this module is mixed in to the <code>House</code> class. Then I had a stunning (and obvious) realization: this module is mixed in to <em>every single Active Record model!</em> From here, it was easy to hunt down <a href="https://github.com/rails/rails/blob/master/activerecord/lib/active_record/base.rb#L304">the offending code</a> in &ndash; where else? &ndash; <code>ActiveRecord::Base</code>.</p>
+<p>I had a difficult time tracking down where, if anywhere, this module is mixed in to the <code>House</code> class. Then I had a stunning (and obvious) realization: this module is mixed in to <em>every single Active Record model!</em> From here, it was easy to hunt down <a href="https://github.com/rails/rails/tree/30ea1a70cba1124893b2479cb7f277cb260ddfcd/activerecord/lib/active_record/base.rb#L304">the offending code</a> in &ndash; where else? &ndash; <code>ActiveRecord::Base</code>.</p>
 
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -1427,7 +1429,7 @@
 
 <h3>Locating the &ldquo;Metaprogramming Magic&rdquo;</h3>
 
-<p>The <code>build</code> method first checks if the <code>name</code> parameter is &ldquo;dangerous&rdquo;, and if so it throws an error. The <a href="https://github.com/rails/rails/blob/master/activerecord/lib/active_record/attribute_methods.rb#L128">comment</a> above the <code>dangerous_attribute_name?</code> method states that &ldquo;a method name is &lsquo;dangerous&rsquo; if it is already (re)defined by Active Record, but not by any ancestors. (So &lsquo;puts&rsquo; is not dangerous but &lsquo;save&rsquo; is.)&rdquo;</p>
+<p>The <code>build</code> method first checks if the <code>name</code> parameter is &ldquo;dangerous&rdquo;, and if so it throws an error. The <a href="https://github.com/rails/rails/tree/30ea1a70cba1124893b2479cb7f277cb260ddfcd/activerecord/lib/active_record/attribute_methods.rb#L128">comment</a> above the <code>dangerous_attribute_name?</code> method states that &ldquo;a method name is &lsquo;dangerous&rsquo; if it is already (re)defined by Active Record, but not by any ancestors. (So &lsquo;puts&rsquo; is not dangerous but &lsquo;save&rsquo; is.)&rdquo;</p>
 
 <p>Barring any unforeseen danger, the <code>build</code> method then passes all of its method arguments to the <code>create_builder</code> method, which is called on an implicit receiver. In this context, <code>self</code> is referring to the <code>ActiveRecord::Associations::Builder::HasMany</code> class. The <code>create_builder</code> method checks that the <code>name</code> argument passed to it (<code>:characters</code>) is a symbol, then instantiates a new instance of the <code>ActiveRecord::Associations::Builder::HasMany</code> class. This object is stored as <code>builder</code>, a local variable in the <code>build</code> method above.</p>
 
@@ -1442,7 +1444,7 @@
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>The only new thing here is <code>macro</code>, which is a method <a href="https://github.com/rails/rails/blob/master/activerecord/lib/active_record/associations/builder/has_many.rb#L3">defined</a> on the <code>ActiveRecord::Associations::Builder::HasMany</code> model.</p>
+<p>The only new thing here is <code>macro</code>, which is a method <a href="https://github.com/rails/rails/tree/30ea1a70cba1124893b2479cb7f277cb260ddfcd/activerecord/lib/active_record/associations/builder/has_many.rb#L3">defined</a> on the <code>ActiveRecord::Associations::Builder::HasMany</code> model.</p>
 
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -1453,13 +1455,13 @@
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>The <code>ActiveRecord::Reflections::create</code> method <a href="https://github.com/rails/rails/blob/master/activerecord/lib/active_record/reflection.rb#L15">delegates</a> based on the <code>macro</code> passed to it. In our case, it instantiates an instance of <a href="https://github.com/rails/rails/blob/master/activerecord/lib/active_record/reflection.rb#L570">the <code>ActiveRecord::Reflection::HasManyReflection</code> class</a>, which inherits from <a href="https://github.com/rails/rails/blob/master/activerecord/lib/active_record/reflection.rb#L249">the <code>ActiveRecord::Reflection::Association</code> class</a>. I&rsquo;m still not totally clear what reflections in general do, but <a href="https://github.com/rails/rails/blob/master/activerecord/lib/active_record/reflection.rb#L41">this bit of documentation</a> was helpful:</p>
+<p>The <code>ActiveRecord::Reflections::create</code> method <a href="https://github.com/rails/rails/tree/30ea1a70cba1124893b2479cb7f277cb260ddfcd/activerecord/lib/active_record/reflection.rb#L15">delegates</a> based on the <code>macro</code> passed to it. In our case, it instantiates an instance of <a href="https://github.com/rails/rails/tree/30ea1a70cba1124893b2479cb7f277cb260ddfcd/activerecord/lib/active_record/reflection.rb#L570">the <code>ActiveRecord::Reflection::HasManyReflection</code> class</a>, which inherits from <a href="https://github.com/rails/rails/tree/30ea1a70cba1124893b2479cb7f277cb260ddfcd/activerecord/lib/active_record/reflection.rb#L249">the <code>ActiveRecord::Reflection::Association</code> class</a>. I&rsquo;m still not totally clear what reflections in general do, but <a href="https://github.com/rails/rails/tree/30ea1a70cba1124893b2479cb7f277cb260ddfcd/activerecord/lib/active_record/reflection.rb#L41">this bit of documentation</a> was helpful:</p>
 
 <blockquote><p>Reflection enables interrogating of Active Record classes and objects about their associations and aggregations. This information can, for example, be used in a form builder that takes an Active Record object and creates input fields for all of the attributes depending on their type and displays the associations to other objects.</p></blockquote>
 
 <p>The value returned is this instance of the <code>ActiveRecord::Reflection::HasManyReflection</code> class, and the original method <code>ActiveRecord::Associations::Builder::HasMany::build</code> class method stores this object to a local variable <code>reflection</code>.</p>
 
-<p>Once I knew what the <code>model</code> and <code>reflection</code> local variables were, it was relatively easy to locate the <code>define_accessors</code>, <code>define_callbacks</code>, <code>define_validations</code>, and <code>define_extensions</code> methods, as they were all in <a href="https://github.com/rails/rails/blob/master/activerecord/lib/active_record/associations/builder/association.rb#L99">the same file as the <code>build</code> method</a>. In this blog post, I&rsquo;ll only get into the <code>define_accessors</code> method.</p>
+<p>Once I knew what the <code>model</code> and <code>reflection</code> local variables were, it was relatively easy to locate the <code>define_accessors</code>, <code>define_callbacks</code>, <code>define_validations</code>, and <code>define_extensions</code> methods, as they were all in <a href="https://github.com/rails/rails/tree/30ea1a70cba1124893b2479cb7f277cb260ddfcd/activerecord/lib/active_record/associations/builder/association.rb#L99">the same file as the <code>build</code> method</a>. In this blog post, I&rsquo;ll only get into the <code>define_accessors</code> method.</p>
 
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -1526,7 +1528,7 @@
 
 <p>Again, I had to start with what I know here. Two method arguments are passed to <code>define_accessors</code>: <code>model</code> and <code>reflection</code>. When the <code>build</code> method calls <code>define_accessors</code>, it uses the same names for these arguments. Back in the <code>build</code> method, <code>model</code> referred to the <code>House</code> Active Record model, and <code>reflection</code> referred to the instance of the <code>ActiveRecord::Reflection::HasManyReflection</code> class.</p>
 
-<p>Moving on to the next line, I found the <code>generated_association_methods</code> method is called on <code>House</code> and the return value is stored in a local variable <code>mixin</code>. I tracked down <a href="https://github.com/rails/rails/blob/master/activerecord/lib/active_record/core.rb#L194">the method definition</a> of <code>generated_association_methods</code> in the <code>ActiveRecord::Core::ClassMethods</code> module, alongside classics such as <code>find</code> and <code>find_by</code>.</p>
+<p>Moving on to the next line, I found the <code>generated_association_methods</code> method is called on <code>House</code> and the return value is stored in a local variable <code>mixin</code>. I tracked down <a href="https://github.com/rails/rails/tree/30ea1a70cba1124893b2479cb7f277cb260ddfcd/activerecord/lib/active_record/core.rb#L194">the method definition</a> of <code>generated_association_methods</code> in the <code>ActiveRecord::Core::ClassMethods</code> module, alongside classics such as <code>find</code> and <code>find_by</code>.</p>
 
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -1555,7 +1557,7 @@
 
 <p>Finally, the <code>House::GeneratedAssociationMethods</code> module is returned, and thus is set as the value of the <code>@generated_association_methods</code> class instance variable. Back in the <code>define_accessors</code> method, this constant is stored as the <code>mixin</code> variable.</p>
 
-<p>Going on to the next line of the <code>define_accessors</code> method, the <code>name</code> message is passed to the <code>reflection</code> variable (our instance of the <code>ActiveRecord::Reflection::HasManyReflection</code> class). This object has <a href="https://github.com/rails/rails/blob/master/activerecord/lib/active_record/reflection.rb#L176">an <code>attr_reader</code> for name</a>, which is <a href="https://github.com/rails/rails/blob/master/activerecord/lib/active_record/reflection.rb#L191">set upon initialization</a>. If it&rsquo;s not too far a stretch back to remember, the <code>name</code> attribute here is set to the original <code>name</code> passed as the first argument of the <code>has_many</code> method. A refresher:</p>
+<p>Going on to the next line of the <code>define_accessors</code> method, the <code>name</code> message is passed to the <code>reflection</code> variable (our instance of the <code>ActiveRecord::Reflection::HasManyReflection</code> class). This object has <a href="https://github.com/rails/rails/tree/30ea1a70cba1124893b2479cb7f277cb260ddfcd/activerecord/lib/active_record/reflection.rb#L176">an <code>attr_reader</code> for name</a>, which is <a href="https://github.com/rails/rails/tree/30ea1a70cba1124893b2479cb7f277cb260ddfcd/activerecord/lib/active_record/reflection.rb#L191">set upon initialization</a>. If it&rsquo;s not too far a stretch back to remember, the <code>name</code> attribute here is set to the original <code>name</code> passed as the first argument of the <code>has_many</code> method. A refresher:</p>
 
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -1627,7 +1629,7 @@
 
 <h3>Associations, Caching, and Reflections</h3>
 
-<p>It turns out that <code>association</code> is an <a href="https://github.com/rails/rails/blob/master/activerecord/lib/active_record/associations.rb#L150">instance method</a> of the <code>ActiveRecord::Associations</code> module.</p>
+<p>It turns out that <code>association</code> is an <a href="https://github.com/rails/rails/tree/30ea1a70cba1124893b2479cb7f277cb260ddfcd/activerecord/lib/active_record/associations.rb#L150">instance method</a> of the <code>ActiveRecord::Associations</code> module.</p>
 
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -1654,9 +1656,9 @@
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>The <code>association</code> method will pull the association specified by the <code>name</code> argument passed to it (in our case <code>:characters</code>)  out of the <code>@association_cache</code> instance variable if it has already been loaded into memory. As <a href="https://github.com/rails/rails/blob/master/activerecord/lib/active_record/core.rb#L533">defined</a> in the <code>ActiveRecord::Core</code> module, <code>@association_cache</code> is initialized to an empty Hash. Interestingly, this happens whenever you <a href="https://github.com/rails/rails/blob/master/activerecord/lib/active_record/core.rb#L266">instantiate an Active Record object</a> using the <code>House.new</code> syntax!</p>
+<p>The <code>association</code> method will pull the association specified by the <code>name</code> argument passed to it (in our case <code>:characters</code>)  out of the <code>@association_cache</code> instance variable if it has already been loaded into memory. As <a href="https://github.com/rails/rails/tree/30ea1a70cba1124893b2479cb7f277cb260ddfcd/activerecord/lib/active_record/core.rb#L533">defined</a> in the <code>ActiveRecord::Core</code> module, <code>@association_cache</code> is initialized to an empty Hash. Interestingly, this happens whenever you <a href="https://github.com/rails/rails/tree/30ea1a70cba1124893b2479cb7f277cb260ddfcd/activerecord/lib/active_record/core.rb#L266">instantiate an Active Record object</a> using the <code>House.new</code> syntax!</p>
 
-<p>If the association is not in the <code>@association_cache</code> (i.e. it hasn&rsquo;t been loaded into memory), then the <code>association</code> method checks whether the class where the association is defined (<code>House</code>) lists the associated class (<code>Character</code>) as one of its <code>_reflections</code> (a <code>class_attribute</code> which is also <a href="https://github.com/rails/rails/blob/master/activerecord/lib/active_record/reflection.rb#L11">initialized to an empty hash</a>). The only way to <a href="https://github.com/rails/rails/blob/master/activerecord/lib/active_record/reflection.rb#L33">add a reflection</a> to this hash is through the <code>add_reflection</code> module method. Remember where this is called?</p>
+<p>If the association is not in the <code>@association_cache</code> (i.e. it hasn&rsquo;t been loaded into memory), then the <code>association</code> method checks whether the class where the association is defined (<code>House</code>) lists the associated class (<code>Character</code>) as one of its <code>_reflections</code> (a <code>class_attribute</code> which is also <a href="https://github.com/rails/rails/tree/30ea1a70cba1124893b2479cb7f277cb260ddfcd/activerecord/lib/active_record/reflection.rb#L11">initialized to an empty hash</a>). The only way to <a href="https://github.com/rails/rails/tree/30ea1a70cba1124893b2479cb7f277cb260ddfcd/activerecord/lib/active_record/reflection.rb#L33">add a reflection</a> to this hash is through the <code>add_reflection</code> module method. Remember where this is called?</p>
 
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -1682,7 +1684,7 @@
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>If we call <code>stark.characters</code>, Rails first checks whether <code>"characters"</code> is a key in <code>House</code>&rsquo;s <code>_reflections</code> hash. If so, a new object is instantiated based on the type of this reflection &ndash; in the case of <code>has_many</code>, it&rsquo;s an instance of the <code>ActiveRecord::Associations::HasManyAssociation</code> class. The <code>association</code> method then calls <code>association_instance_set</code>, passing <code>:characters</code> and this instance of <code>ActiveRecord::Associations::HasManyAssociation</code> as its parameters. This key value pair is then <a href="https://github.com/rails/rails/blob/master/activerecord/lib/active_record/associations.rb#L169">added to the <code>@association_cache</code> instance variable</a>:</p>
+<p>If we call <code>stark.characters</code>, Rails first checks whether <code>"characters"</code> is a key in <code>House</code>&rsquo;s <code>_reflections</code> hash. If so, a new object is instantiated based on the type of this reflection &ndash; in the case of <code>has_many</code>, it&rsquo;s an instance of the <code>ActiveRecord::Associations::HasManyAssociation</code> class. The <code>association</code> method then calls <code>association_instance_set</code>, passing <code>:characters</code> and this instance of <code>ActiveRecord::Associations::HasManyAssociation</code> as its parameters. This key value pair is then <a href="https://github.com/rails/rails/tree/30ea1a70cba1124893b2479cb7f277cb260ddfcd/activerecord/lib/active_record/associations.rb#L169">added to the <code>@association_cache</code> instance variable</a>:</p>
 
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -1693,7 +1695,7 @@
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>The <code>association</code> local variable is returned from the <code>association</code> method above, and then is sent the <code>reader</code> message, which is <a href="https://github.com/rails/rails/blob/master/activerecord/lib/active_record/associations/collection_association.rb#L29">defined</a> in the <code>ActiveRecord::Associations::CollectionAssociations</code> class, the superclass of <code>ActiveRecord::Associations::HasManyAssociation</code>.</p>
+<p>The <code>association</code> local variable is returned from the <code>association</code> method above, and then is sent the <code>reader</code> message, which is <a href="https://github.com/rails/rails/tree/30ea1a70cba1124893b2479cb7f277cb260ddfcd/activerecord/lib/active_record/associations/collection_association.rb#L29">defined</a> in the <code>ActiveRecord::Associations::CollectionAssociations</code> class, the superclass of <code>ActiveRecord::Associations::HasManyAssociation</code>.</p>
 
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -1722,7 +1724,7 @@
 
 <p>Here on the last line of the <code>reader</code> method was <code>@proxy</code>, the final value that is returned by the newly minted <code>characters</code> method. This <code>@proxy</code> instance variable is also the one alluded to by Obie Fernandez when he says &ldquo;proxy collection objects are created that let you manipulate the relationship easily.&rdquo;</p>
 
-<p>Here is where it gets interesting: the <code>ActiveRecord::Associations::CollectionProxy</code> class <a href="https://github.com/rails/rails/blob/master/activerecord/lib/active_record/associations/collection_proxy.rb#L30">inherits from</a> <code>ActiveRecord::Relation</code>, which is the main class in Rails that deals with <a href="https://github.com/rails/rails/blob/master/activerecord/lib/active_record/relation.rb">database operations</a>. From here, we have to go all the way up the inheritance chain to the <code>ActiveRecord::Delegation::ClassMethods</code> module to find <a href="https://github.com/rails/rails/blob/master/activerecord/lib/active_record/relation/delegation.rb#L105">the <code>create</code> method used here</a>.</p>
+<p>Here is where it gets interesting: the <code>ActiveRecord::Associations::CollectionProxy</code> class <a href="https://github.com/rails/rails/tree/30ea1a70cba1124893b2479cb7f277cb260ddfcd/activerecord/lib/active_record/associations/collection_proxy.rb#L30">inherits from</a> <code>ActiveRecord::Relation</code>, which is the main class in Rails that deals with <a href="https://github.com/rails/rails/tree/30ea1a70cba1124893b2479cb7f277cb260ddfcd/activerecord/lib/active_record/relation.rb">database operations</a>. From here, we have to go all the way up the inheritance chain to the <code>ActiveRecord::Delegation::ClassMethods</code> module to find <a href="https://github.com/rails/rails/tree/30ea1a70cba1124893b2479cb7f277cb260ddfcd/activerecord/lib/active_record/relation/delegation.rb#L105">the <code>create</code> method used here</a>.</p>
 
 <p>Now when we call <code>stark.characters</code>, we know without a shadow of a doubt what our return value will be!</p>
 
