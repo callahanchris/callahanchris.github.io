@@ -3,7 +3,8 @@ layout: post
 title: "Extracting Text From the DOM with JS and jQuery"
 date: 2015-03-01 16:09:00 -0500
 comments: true
-categories: 
+published: false
+categories:
 ---
 
 Recently, I've been doing a lot of HTML and XML parsing. At first this was a bit tricky, but after getting familiar with the DOM API and some of the libraries out there, it turns out it's not so bad!
@@ -75,7 +76,7 @@ function extractText($nodes) {
   .join(' ');
 }
 
-var textContent = 
+var textContent =
 ```
 
 
