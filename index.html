@@ -369,296 +369,6 @@ $ curl 127.0.0.1:5984/test/_design/test/_view/greetingDocs
       
   <header>
     
-      <h1 class="entry-title"><a href="/blog/2016/05/08/debugging-couchdb-design-documents/">Debugging CouchDB Design Documents</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2016-05-08T12:56:30-04:00" pubdate data-updated="true"></time>
-        
-           | <a href="/blog/2016/05/08/debugging-couchdb-design-documents/#disqus_thread"
-             data-disqus-identifier="http://callahanchris.github.io/blog/2016/05/08/debugging-couchdb-design-documents/">Comments</a>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>When making changes to a CouchDB design document (or ddoc), I often use <code>curl</code> to make queries and see if the data returned is what I expected. Sometimes, however, this does not provide enough information to help me get to the bottom of why the ddoc does not behave as anticipated. Here is my process for debugging JavaScript code in CouchDB design documents. (Note: This blog post assumes CouchDB is <a href="https://pouchdb.com/guides/setup-couchdb.html#installing-couchdb">installed</a> and running on  your machine.)</p>
-
-<p><strong>TL;DR: I show you how to use <code>console.log</code> debugging inside of CouchDB design documents.</strong></p>
-
-<h2>How to Configure CouchDB</h2>
-
-<p>The first step is to locate CouchDB&rsquo;s configuration settings on your machine. Type <code>couchdb -c</code> into the command line:</p>
-
-<pre>
-$ couchdb -c
-/usr/local/etc/couchdb/default.ini
-/usr/local/etc/couchdb/local.ini
-/usr/local/etc/couchdb/local.d/couchdb-lucene.ini
-</pre>
-
-
-<p>This output is a list files containint of CouchDB&rsquo;s default configurations and any custom overrides you define. Open the <code>local.ini</code> file in your preferred text editor and navigate down to the <code>[log]</code> section. You may see the following text:</p>
-
-<pre>
-[log]
-;level = debug
-</pre>
-
-
-<p>The leading semicolon indicates this line is commented out. I am not totally sure why CouchDB uses <code>.ini</code> files for its config files, as the database is primarily written in Erlang and contains a JavaScript runtime (SpiderMonkey).</p>
-
-<p>Uncomment this line (delete the semicolon), restart CouchDB, and you will see quite a bit of output in the console, starting with something like this:</p>
-
-<pre>
-$ couchdb
-Apache CouchDB 1.6.1 (LogLevel=debug) is starting.
-Configuration Settings ["/usr/local/etc/couchdb/default.ini",
-                        "/usr/local/etc/couchdb/local.ini",
-                        "/usr/local/etc/couchdb/local.d/couchdb-lucene.ini"]:
-# About 100 more lines of lots of nice config info follows
-</pre>
-
-
-<p>This being CouchDB, we can of course set the log level using Couch&rsquo;s HTTP API:</p>
-
-<pre>
-$ curl -X PUT 127.0.0.1:5984/_config/log/level -d '"info"'
-"info"
-</pre>
-
-
-<p>(Note that you will have to pass in admin credentials here if the CouchDB you&rsquo;re running is not in <a href="http://guide.couchdb.org/draft/security.html#party">admin party</a> mode.)</p>
-
-<p>The best part about this is that you don&rsquo;t have to restart the database, logging will begin immediately. Thanks, Erlang!</p>
-
-<p>The CouchDB configuration settings can also be changed in the admin UI of Futon. Visit <code>http://localhost:5984/_utils</code>, log in if necessary, then click on &ldquo;Configuration&rdquo; on the righthand panel. If this looks familiar, it is because it is a web interface for the local config files listed when you ran <code>couchdb -c</code> above. You can edit the log level here as well &ndash; navigate down to the &ldquo;log&rdquo; section, double click on the text next to &ldquo;level&rdquo; (should be &ldquo;info&rdquo;), type in &ldquo;debug&rdquo;, and click the green check mark. You&rsquo;ll notice the following output gets logged by CouchDB:</p>
-
-<pre>
-=SUPERVISOR REPORT==== 4-Jun-2016::15:23:18 ===
-     Supervisor: {local,couch_primary_services}
-     Context:    child_terminated
-     Reason:     normal
-     Offender:   [{pid,<0.258.0>},
-                  {id,couch_log},
-                  {mfargs,{couch_log,start_link,[]}},
-                  {restart_type,permanent},
-                  {shutdown,brutal_kill},
-                  {child_type,worker}]
-
-[info] [<0.157.0>] 127.0.0.1 - - PUT /_config/log/level 200
-</pre>
-
-
-<p>The last line shows that under the hood the Futon UI is simply making the same <code>PUT</code> request over HTTP you made above using <code>curl</code> to change the log level. Above that there is a &ldquo;Supervisor Report&rdquo; from the CouchDB internals stating that the <code>couch_log</code> worker process was&hellip; abruptly?&hellip; restarted by the <code>couch_primary_services</code> supervisor process.</p>
-
-<p>The CouchDB docs has a good roundup of <a href="http://docs.couchdb.org/en/1.6.1/config/logging.html">all of the different log levels</a> Couch supports. I typically stick with &ldquo;info&rdquo; in development to have a window into all of the incoming requests to CouchDB being logged in real time, but I&rsquo;ll sometimes switch to &ldquo;debug&rdquo; mode to view in more detail all of the headers that are included in incoming HTTP requests. (Note that neither of these settings are recommended for logging in production.)</p>
-
-<p>Now that you&rsquo;ve set up CouchDB to be a bit more verbose, run:</p>
-
-<pre>
-$ curl 127.0.0.1:5984
-</pre>
-
-
-<p>Back in CouchDB, you&rsquo;ll see the following output:</p>
-
-<pre>
-[debug] [<0.225.0>] 'GET' / {1,1} from "127.0.0.1"
-Headers: [{'Accept',"*/*"},
-          {'Host',"127.0.0.1:5984"},
-          {'User-Agent',"curl/7.43.0"}]
-[debug] [<0.225.0>] OAuth Params: []
-[info] [<0.225.0>] 127.0.0.1 - - GET / 200
-</pre>
-
-
-<p>Simpy perusing the logs of incoming requests and outgoing responses can be very informative and helpful if something is going wrong. But you can also take the debugging one step further with <code>log</code>.</p>
-
-<h2>&ldquo;<code>console.log</code> Debugging&rdquo; Inside CouchDB</h2>
-
-<p>CouchDB exposes a global <code>log</code> function inside of design documents that allows you to write custom messages to CouchDB&rsquo;s logs. This is similar to using <code>console.log()</code> in the dev tools console in the browser or in node.</p>
-
-<p>To see how this works in action, first create a new database and insert a design document:</p>
-
-<pre>
-$ curl -X PUT 127.0.0.1:5984/test
-{
-  "ok": true
-}
-$ curl -X PUT 127.0.0.1:5984/test/_design/test \
-> -d '{ "_id": "_design/test", "views": { "greetingDocs": { "map": "function(doc) { if (doc.hello) { log(\"This doc says hello, \" + doc.hello); emit(doc._id, null); } }", "reduce": "_count" } } }'
-{
-  "ok": true,
-  "id": "_design/test",
-  "rev": "1-ea73ae4cba8ca3ca7618c23185ef92d2"
-}
-</pre>
-
-
-<p>Here&rsquo;s roughly how that ddoc looks in JavaScript (sans stringified functions):</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-</pre></td><td class='code'><pre><code class='js'><span class='line'><span class="p">{</span>
-</span><span class='line'>  <span class="nx">_id</span><span class="o">:</span> <span class="s2">&quot;_design/test&quot;</span><span class="p">,</span>
-</span><span class='line'>  <span class="nx">views</span><span class="o">:</span> <span class="p">{</span>
-</span><span class='line'>    <span class="nx">greetingDocs</span><span class="o">:</span> <span class="p">{</span>
-</span><span class='line'>      <span class="nx">map</span><span class="o">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">doc</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>        <span class="k">if</span> <span class="p">(</span><span class="nx">doc</span><span class="p">.</span><span class="nx">hello</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>          <span class="nx">log</span><span class="p">(</span><span class="s2">&quot;This doc says hello, &quot;</span> <span class="o">+</span> <span class="nx">doc</span><span class="p">.</span><span class="nx">hello</span><span class="p">);</span>
-</span><span class='line'>          <span class="nx">emit</span><span class="p">(</span><span class="nx">doc</span><span class="p">.</span><span class="nx">_id</span><span class="p">,</span> <span class="kc">null</span><span class="p">);</span>
-</span><span class='line'>        <span class="p">}</span>
-</span><span class='line'>      <span class="p">},</span>
-</span><span class='line'>      <span class="nx">reduce</span><span class="o">:</span> <span class="s2">&quot;_count&quot;</span>
-</span><span class='line'>    <span class="p">}</span>
-</span><span class='line'>  <span class="p">}</span>
-</span><span class='line'><span class="p">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Now that you&rsquo;ve got a barebones design doc, you can see the logging at work by adding a new document to the <code>test</code> database:</p>
-
-<pre>
-$ curl -X PUT 127.0.0.1:5984/test/one \
-> -d '{ "_id": "one", "hello": "I am log" }'
-{
-  "ok": true,
-  "id": "one",
-  "rev": "1-6feff67ca27f6cc570f9ae43385730f8"
-}
-$ curl 127.0.0.1:5984/test/_design/test/_view/greetingDocs
-{
-  "rows": [
-    { "key": null, "value" : 1 }
-  ]
-}
-</pre>
-
-
-<p>In the couch logs you will see something like this:</p>
-
-<pre>
-[debug] [<0.99.0>] 'GET' /test/_design/test/_view/greetingDocs {1,1} from "127.0.0.1"
-Headers: [{'Accept',"*/*"},
-          {'Host',"127.0.0.1:5984"},
-          {'User-Agent',"curl/7.43.0"}]
-[debug] [<0.99.0>] OAuth Params: []
-[info] [<0.991.0>] Opening index for db: test idx: _design/test sig: "eff5145ec110e4f61dbe8a2b446588e8"
-[info] [<0.996.0>] Starting index update for db: test idx: _design/test
-[debug] [<0.715.0>] OS Process #Port<0.3200> Input  :: ["reset",{"reduce_limit":false,"timeout":5000}]
-[debug] [<0.715.0>] OS Process #Port<0.3200> Output :: true
-[debug] [<0.715.0>] OS Process #Port<0.3200> Input  :: ["add_fun","function(doc) { if (doc.hello) { log(\"This doc says hello, \" + doc.hello); emit(doc._id, null); } }"]
-[debug] [<0.715.0>] OS Process #Port<0.3200> Output :: true
-[debug] [<0.84.0>] New task status for <0.1001.0>: [{changes_done,3},
-                                                    {database,<<"test">>},
-                                                    {design_document,
-                                                     <<"_design/test">>},
-                                                    {progress,150},
-                                                    {started_on,1465068874},
-                                                    {total_changes,2},
-                                                    {type,indexer},
-                                                    {updated_on,1465068874}]
-[debug] [<0.715.0>] OS Process #Port<0.3200> Input  :: ["map_doc",{"_id":"one","_rev":"1-6feff67ca27f6cc570f9ae43385730f8","hello":"I am log"}]
-[debug] [<0.715.0>] OS Process #Port<0.3200> Output :: ["log","This doc says hello, I am log"]
-[info] [<0.715.0>] OS Process #Port<0.3200> Log :: This doc says hello, I am log
-[debug] [<0.715.0>] OS Process #Port<0.3200> Output :: [[["one",null]]]
-[debug] [<0.991.0>] Updated index for db: test idx: _design/test seq: 2
-[info] [<0.996.0>] Index update finished for db: test idx: _design/test
-[debug] [<0.991.0>] Updated index for db: test idx: _design/test seq: 2
-[info] [<0.99.0>] 127.0.0.1 - - GET /test/_design/test/_view/greetingDocs 200
-</pre>
-
-
-<p>It looks a bit cryptic, but towards the bottom you might notice four lines in particular:</p>
-
-<pre>
-[debug] [<0.715.0>] OS Process #Port<0.3200> Input  :: ["map_doc",{"_id":"one","_rev":"1-6feff67ca27f6cc570f9ae43385730f8","hello":"I am log"}]
-[debug] [<0.715.0>] OS Process #Port<0.3200> Output :: ["log","This doc says hello, I am log"]
-[info] [<0.715.0>] OS Process #Port<0.3200> Log :: This doc says hello, I am log
-[debug] [<0.715.0>] OS Process #Port<0.3200> Output :: [[["one",null]]]
-</pre>
-
-
-<p>On the third line (with <code>Log ::</code>) we can see our message from <code>log</code>! It&rsquo;s also interesting to see the <code>Input</code> and <code>Output</code> CouchDB is writing here. First, in the <code>Input</code> line, the doc with <code>_id</code> of <code>"one"</code> that you just <code>PUT</code> to the database is being run through something called <code>map_doc</code>. This produces two <code>Output</code>s: first the log, and then the doc&rsquo;s <code>_id</code> and <code>null</code>, which were emitted using <code>emit(doc._id, null)</code> in the <code>map</code> function of the <code>greetingDocs</code> view.</p>
-
-<p>Running the same query on the view again will <em>not</em> write the same message to the log. My speculation is that CouchDB caches the results of the <code>map</code> and <code>reduce</code> functions in its views, so the <code>map</code> function won&rsquo;t be run again (and therefore our message won&rsquo;t be logged again) until either the ddoc changes or a new document is added to / updated in the database.</p>
-
-<p>Let&rsquo;s update the doc to test this assumption:</p>
-
-<pre>
-$ curl -X PUT 127.0.0.1:5984/test/one \
-> -d '{ "_id": "one", "_rev": "1-6feff67ca27f6cc570f9ae43385730f8", "hello": "this is log()" }'
-{
-  "ok": true,
-  "id": "one",
-  "rev": "2-83ba9fe4df631f7e1af0b079baf1948b"
-}
-</pre>
-
-
-<p>Indeed, when we query the view again, the CouchDB logs contain what we&rsquo;re looking for:</p>
-
-<pre>
-$ curl 127.0.0.1:5984/test/_design/test/_view/greetingDocs
-{
-  "rows": [
-    { "key": null, "value" : 1 }
-  ]
-}
-</pre>
-
-
-
-
-<pre>
-[debug] [<0.715.0>] OS Process #Port<0.3200> Input  :: ["map_doc",{"_id":"one","_rev":"2-83ba9fe4df631f7e1af0b079baf1948b","hello":"this is log()"}]
-[debug] [<0.715.0>] OS Process #Port<0.3200> Output :: ["log","This doc says hello, this is log()"]
-[info] [<0.715.0>] OS Process #Port<0.3200> Log :: This doc says hello, this is log()
-[debug] [<0.715.0>] OS Process #Port<0.3200> Output :: [[["one",null]]]
-</pre>
-
-
-<h2>Wrapping up</h2>
-
-<p><code>log</code> is a convenient way to quickly do <code>console.log</code> debugging inside of your CouchDB design documents. While a full-fledged debugger REPL like the one shown in <a href="https://jhs.iriscouch.com/files/debugger/debug.html">this video</a> seems quite amazing, you can still get quite far with good old <code>log</code>!</p>
-</div>
-  
-  
-
-
-    </article>
-  
-  
-    <article>
-      
-  <header>
-    
       <h1 class="entry-title"><a href="/blog/2015/01/16/resources-for-learning-react-and-flux/">Resources for Learning React &amp; Flux</a></h1>
     
     
@@ -3772,6 +3482,231 @@ $ curl 127.0.0.1:5984/test/_design/test/_view/greetingDocs
 
     </article>
   
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/09/11/china-map-project-part-2-bringing-the-map-to-life-with-jvectormap/">China Map Project - Part 2: Bringing the Map to Life With jVectorMap</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-09-11T12:35:18-04:00" pubdate data-updated="true"></time>
+        
+           | <a href="/blog/2014/09/11/china-map-project-part-2-bringing-the-map-to-life-with-jvectormap/#disqus_thread"
+             data-disqus-identifier="http://callahanchris.github.io/blog/2014/09/11/china-map-project-part-2-bringing-the-map-to-life-with-jvectormap/">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p><em>This post is the second in a series about my recent side project, <a href="http://amapofchina.herokuapp.com">A Map of China</a>. Check out the <a href="http://callahanchris.github.io/blog/2014/09/11/china-map-project-part-1-nokogiri/">first post</a> and the <a href="https://github.com/callahanchris/china-map">project repo</a> on Github.</em></p>
+
+<h3>Setting up jVectorMap</h3>
+
+<p>I used the <a href="http://jvectormap.com/">jVectorMap JavaScript library</a> to render a vector map of China on my website. I considered using the Leaflet and/or D3.js JavaScript libraries, but I found it a bit easier to get started with jVectorMap. jVectorMap has maps of a couple dozen countries, a map of the whole world (as seen on their homepage), and even maps of New York City and Chicago, which may be fun to play around with in the future. Importantly for my project, they also have <a href="http://jvectormap.com/maps/countries/china/">a map of mainland China</a>.</p>
+
+<p>To get this map displayed on the index page of my Rails app, I downloaded both the main jVectorMap JS file as well as the China map JS file, put these files into the <code>app/assets/javascripts</code> directory, and included them in the <code>application.js</code> file:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='js'><span class='line'><span class="c1">//= require jquery-jvectormap-1.2.2.min</span>
+</span><span class='line'><span class="c1">//= require jquery-jvectormap-cn-merc-en</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Then in the <code>index.html.erb</code> file in the <code>app/views/main</code> directory, I added an empty div for the map to be drawn in:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='html'><span class='line'><span class="nt">&lt;div</span> <span class="na">id=</span><span class="s">&quot;map&quot;</span> <span class="na">class=</span><span class="s">&quot;center-block&quot;</span> <span class="na">style=</span><span class="s">&quot;width: 960px; height: 720px&quot;</span><span class="nt">&gt;&lt;/div&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>From here, I was able to draw the map in this div using the jQuery plugin <code>vectorMap()</code>, which was defined in the jVectorMap China map file.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='js'><span class='line'><span class="nx">$</span><span class="p">(</span> <span class="s1">&#39;#map&#39;</span> <span class="p">).</span><span class="nx">vectorMap</span><span class="p">(</span> <span class="p">{</span><span class="nx">map</span><span class="o">:</span> <span class="s1">&#39;cn_merc_en&#39;</span><span class="p">}</span> <span class="p">);</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>Customizing the Map</h3>
+
+<p>At this point, I was able to display the map exactly as I saw it on the jVectorMap website. The next step was to customize the styling of the map and incorporate the data from the JSON API that I had output from the Rails backend.</p>
+
+<p>The jVectorMap API documentation was relatively easy to navigate and made it clear what I had to do to accomplish this goal. The <code>vectorMap()</code> plugin takes a JavaScript object of options that alter how the map is displayed.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+</pre></td><td class='code'><pre><code class='js'><span class='line'><span class="kd">var</span> <span class="nx">showPopulationDensity</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span> <span class="nx">popDensity</span> <span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>  <span class="nx">$</span><span class="p">(</span> <span class="s1">&#39;#map&#39;</span> <span class="p">).</span><span class="nx">vectorMap</span><span class="p">({</span>
+</span><span class='line'>    <span class="nx">map</span><span class="o">:</span> <span class="s1">&#39;cn_merc_en&#39;</span><span class="p">,</span>
+</span><span class='line'>    <span class="nx">backgroundColor</span><span class="o">:</span> <span class="s1">&#39;none&#39;</span><span class="p">,</span>
+</span><span class='line'>    <span class="nx">series</span><span class="o">:</span> <span class="p">{</span>
+</span><span class='line'>      <span class="nx">regions</span><span class="o">:</span> <span class="p">[{</span>
+</span><span class='line'>        <span class="nx">values</span><span class="o">:</span> <span class="nx">popDensity</span><span class="p">,</span>
+</span><span class='line'>        <span class="nx">scale</span><span class="o">:</span> <span class="p">[</span><span class="s1">&#39;#FFF0F0&#39;</span><span class="p">,</span> <span class="s1">&#39;#F5442C&#39;</span><span class="p">],</span>
+</span><span class='line'>        <span class="nx">max</span><span class="o">:</span> <span class="mi">600</span>
+</span><span class='line'>      <span class="p">}]</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>  <span class="p">});</span>
+</span><span class='line'><span class="p">};</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>When the <code>showPopulationDensity()</code> function is called, the map is populated with the <code>popDensity</code> dataset that is passed as an argument to the function. By specifying options in the <code>regions</code> parameter, jVectorMap colors in the regions on a gradient (from light to dark) based on their population densities, capping out at the maximum value provided.</p>
+
+<p>The jVectorMap API provides several other helper functions that can be passed to the <code>mapVector()</code> plugin. I used several of these, including <code>onRegionLabelShow</code> to customize the text displayed when you mouse over a region and <code>markers</code>, <code>markerStyle</code>, and <code>onMarkerLabelShow</code> to display data on Hong Kong and Macau, which are not included in the jVectorMap map of China.</p>
+
+<h3><code>$.getJSON()</code> to the Rescue</h3>
+
+<p>In order to pass the data output by my API into a function like <code>showPopulationDensity()</code>, I had to retrieve the JSON on the frontend using AJAX. Because this was a relatively simple case where I was only making a GET request to one URL &ndash; <code>/regions</code>, the lone endpoint of my API &ndash; I used the <code>$.getJSON()</code> jQuery function.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='js'><span class='line'><span class="nx">$</span><span class="p">.</span><span class="nx">getJSON</span><span class="p">(</span> <span class="s1">&#39;/regions&#39;</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span> <span class="nx">data</span> <span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>  <span class="c1">// ...</span>
+</span><span class='line'><span class="p">});</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Inside of this function, I iterated over the JSON returned from this API call and stored the data into JavaScript objects according to the region&rsquo;s code specified in the jVectorMap library.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+</pre></td><td class='code'><pre><code class='js'><span class='line'><span class="kd">var</span> <span class="nx">regionNames</span> <span class="o">=</span> <span class="p">{},</span>
+</span><span class='line'>    <span class="nx">population</span>    <span class="o">=</span> <span class="p">{},</span>
+</span><span class='line'>    <span class="nx">popDensity</span>    <span class="o">=</span> <span class="p">{},</span>
+</span><span class='line'>    <span class="nx">gdpUsd</span>        <span class="o">=</span> <span class="p">{},</span>
+</span><span class='line'>    <span class="nx">gdpPerCap</span>     <span class="o">=</span> <span class="p">{},</span>
+</span><span class='line'>    <span class="nx">areaKmSq</span>      <span class="o">=</span> <span class="p">{};</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">for</span> <span class="p">(</span> <span class="kd">var</span> <span class="nx">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">i</span> <span class="o">&lt;</span> <span class="nx">data</span><span class="p">.</span><span class="nx">length</span><span class="p">;</span> <span class="nx">i</span><span class="o">++</span> <span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>  <span class="nx">regionNames</span><span class="p">[</span><span class="nx">data</span><span class="p">[</span><span class="nx">i</span><span class="p">][</span><span class="s2">&quot;jvector_code&quot;</span><span class="p">]]</span> <span class="o">=</span> <span class="nx">data</span><span class="p">[</span><span class="nx">i</span><span class="p">][</span><span class="s2">&quot;name&quot;</span><span class="p">];</span>
+</span><span class='line'>  <span class="nx">population</span><span class="p">[</span><span class="nx">data</span><span class="p">[</span><span class="nx">i</span><span class="p">][</span><span class="s2">&quot;jvector_code&quot;</span><span class="p">]]</span>    <span class="o">=</span> <span class="nx">data</span><span class="p">[</span><span class="nx">i</span><span class="p">][</span><span class="s2">&quot;population&quot;</span><span class="p">];</span>
+</span><span class='line'>  <span class="nx">popDensity</span><span class="p">[</span><span class="nx">data</span><span class="p">[</span><span class="nx">i</span><span class="p">][</span><span class="s2">&quot;jvector_code&quot;</span><span class="p">]]</span>    <span class="o">=</span> <span class="nx">data</span><span class="p">[</span><span class="nx">i</span><span class="p">][</span><span class="s2">&quot;population_density&quot;</span><span class="p">];</span>
+</span><span class='line'>  <span class="nx">gdpUsd</span><span class="p">[</span><span class="nx">data</span><span class="p">[</span><span class="nx">i</span><span class="p">][</span><span class="s2">&quot;jvector_code&quot;</span><span class="p">]]</span>        <span class="o">=</span> <span class="nx">data</span><span class="p">[</span><span class="nx">i</span><span class="p">][</span><span class="s2">&quot;gdp_usd&quot;</span><span class="p">];</span>
+</span><span class='line'>  <span class="nx">gdpPerCap</span><span class="p">[</span><span class="nx">data</span><span class="p">[</span><span class="nx">i</span><span class="p">][</span><span class="s2">&quot;jvector_code&quot;</span><span class="p">]]</span>     <span class="o">=</span> <span class="nx">data</span><span class="p">[</span><span class="nx">i</span><span class="p">][</span><span class="s2">&quot;gdp_per_capita&quot;</span><span class="p">];</span>
+</span><span class='line'>  <span class="nx">areaKmSq</span><span class="p">[</span><span class="nx">data</span><span class="p">[</span><span class="nx">i</span><span class="p">][</span><span class="s2">&quot;jvector_code&quot;</span><span class="p">]]</span>      <span class="o">=</span> <span class="nx">data</span><span class="p">[</span><span class="nx">i</span><span class="p">][</span><span class="s2">&quot;area_km_sq&quot;</span><span class="p">];</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The main focus here was transforming the JSON output from the backend into simple JavaScript objects that could be easily plugged into the jVectorMap helper functions to display different datasets on the map.</p>
+
+<p>Finally, I put a few event listeners on the page so that when a certain bit of text on the page (e.g., &ldquo;Population&rdquo;) is clicked, jVectorMap will display the correct dataset.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+</pre></td><td class='code'><pre><code class='js'><span class='line'><span class="nx">$</span><span class="p">(</span> <span class="s1">&#39;#population&#39;</span> <span class="p">).</span><span class="nx">on</span><span class="p">(</span> <span class="s1">&#39;click&#39;</span><span class="p">,</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>  <span class="nx">clearMap</span><span class="p">();</span>
+</span><span class='line'>  <span class="nx">showPopulation</span><span class="p">(</span> <span class="nx">data</span><span class="p">,</span> <span class="nx">regionNames</span><span class="p">,</span> <span class="nx">population</span> <span class="p">);</span>
+</span><span class='line'><span class="p">});</span>
+</span><span class='line'>
+</span><span class='line'><span class="nx">$</span><span class="p">(</span> <span class="s1">&#39;#pop-density&#39;</span> <span class="p">).</span><span class="nx">on</span><span class="p">(</span> <span class="s1">&#39;click&#39;</span><span class="p">,</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>  <span class="nx">clearMap</span><span class="p">();</span>
+</span><span class='line'>  <span class="nx">showPopulationDensity</span><span class="p">(</span> <span class="nx">data</span><span class="p">,</span> <span class="nx">regionNames</span><span class="p">,</span> <span class="nx">popDensity</span> <span class="p">);</span>
+</span><span class='line'><span class="p">});</span>
+</span><span class='line'>
+</span><span class='line'><span class="nx">$</span><span class="p">(</span> <span class="s1">&#39;#gdp-usd&#39;</span> <span class="p">).</span><span class="nx">on</span><span class="p">(</span> <span class="s1">&#39;click&#39;</span><span class="p">,</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>  <span class="nx">clearMap</span><span class="p">();</span>
+</span><span class='line'>  <span class="nx">showGdp</span><span class="p">(</span> <span class="nx">data</span><span class="p">,</span> <span class="nx">regionNames</span><span class="p">,</span> <span class="nx">gdpUsd</span> <span class="p">);</span>
+</span><span class='line'><span class="p">});</span>
+</span><span class='line'>
+</span><span class='line'><span class="nx">$</span><span class="p">(</span> <span class="s1">&#39;#gdp-per-cap&#39;</span> <span class="p">).</span><span class="nx">on</span><span class="p">(</span> <span class="s1">&#39;click&#39;</span><span class="p">,</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>  <span class="nx">clearMap</span><span class="p">();</span>
+</span><span class='line'>  <span class="nx">showGdpPerCap</span><span class="p">(</span> <span class="nx">data</span><span class="p">,</span> <span class="nx">regionNames</span><span class="p">,</span> <span class="nx">gdpPerCap</span> <span class="p">);</span>
+</span><span class='line'><span class="p">});</span>
+</span><span class='line'>
+</span><span class='line'><span class="nx">$</span><span class="p">(</span> <span class="s1">&#39;#area-km-sq&#39;</span> <span class="p">).</span><span class="nx">on</span><span class="p">(</span> <span class="s1">&#39;click&#39;</span><span class="p">,</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>  <span class="nx">clearMap</span><span class="p">();</span>
+</span><span class='line'>  <span class="nx">showArea</span><span class="p">(</span> <span class="nx">data</span><span class="p">,</span> <span class="nx">regionNames</span><span class="p">,</span> <span class="nx">areaKmSq</span> <span class="p">);</span>
+</span><span class='line'><span class="p">});</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>I was unable to figure out how change the dataset displayed on the map without entirely redrawing the vector graphic. Therefore, I call the <code>clearMap()</code> function, which removes the currently displayed map from the page, and then call the desired function to redraw the appropriate map on the page.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='js'><span class='line'><span class="kd">var</span> <span class="nx">clearMap</span> <span class="o">=</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>  <span class="nx">$</span><span class="p">(</span> <span class="s1">&#39;#map&#39;</span> <span class="p">).</span><span class="nx">contents</span><span class="p">().</span><span class="nx">remove</span><span class="p">();</span>
+</span><span class='line'><span class="p">};</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>Closing Thoughts</h3>
+
+<p>This was my first project using a JavaScript map, and it was really fun! I definitely learned a lot about integrating JavaScript libraries into Rails apps, got more comfortable using AJAX on the frontend, and became more confident in my ability to create and consume JSON APIs.</p>
+
+<p>Check out the next <a href="http://callahanchris.github.io/blog/2014/09/12/china-map-project-part-3-refactoring-using-replace-method-with-method-object/">two</a> <a href="http://callahanchris.github.io/blog/2014/09/13/china-map-project-part-4-introducing-polymorphism/">posts</a> in this series about one of my favorite topics: refactoring!</p>
+</div>
+  
+  
+
+
+    </article>
+  
   <div class="pagination">
     
       <a class="prev" href="2">&larr; Older</a>
@@ -3791,10 +3726,6 @@ $ curl 127.0.0.1:5984/test/_design/test/_view/greetingDocs
       </li>
     
       <li class="post">
-        <a href="/blog/2016/05/08/debugging-couchdb-design-documents/">Debugging CouchDB Design Documents</a>
-      </li>
-    
-      <li class="post">
         <a href="/blog/2015/01/16/resources-for-learning-react-and-flux/">Resources for Learning React &amp; Flux</a>
       </li>
     
@@ -3804,6 +3735,10 @@ $ curl 127.0.0.1:5984/test/_design/test/_view/greetingDocs
     
       <li class="post">
         <a href="/blog/2014/11/23/88-mph-with-flux-and-react/">88 Mph With Flux and React</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/10/08/behind-the-scenes-of-the-has-many-active-record-association/">Behind the Scenes of the &#8216;Has Many&#8217; Active Record Association</a>
       </li>
     
   </ul>
