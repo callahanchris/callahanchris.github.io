@@ -2,10 +2,10 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
 
   <title><![CDATA[Chris Callahan's Blog]]></title>
-  <link href="http://callahanchris.github.io/atom.xml" rel="self"/>
-  <link href="http://callahanchris.github.io/"/>
-  <updated>2016-06-04T15:58:54-04:00</updated>
-  <id>http://callahanchris.github.io/</id>
+  <link href="http://callahan.io/atom.xml" rel="self"/>
+  <link href="http://callahan.io/"/>
+  <updated>2016-06-04T16:14:01-04:00</updated>
+  <id>http://callahan.io/</id>
   <author>
     <name><![CDATA[Chris Callahan]]></name>
     
@@ -15,9 +15,9 @@
   
   <entry>
     <title type="html"><![CDATA[Debugging CouchDB Design Documents]]></title>
-    <link href="http://callahanchris.github.io/blog/2016/06/04/debugging-couchdb-design-documents/"/>
+    <link href="http://callahan.io/blog/2016/06/04/debugging-couchdb-design-documents/"/>
     <updated>2016-06-04T15:40:09-04:00</updated>
-    <id>http://callahanchris.github.io/blog/2016/06/04/debugging-couchdb-design-documents</id>
+    <id>http://callahan.io/blog/2016/06/04/debugging-couchdb-design-documents</id>
     <content type="html"><![CDATA[<p>When making changes to a CouchDB design document (or ddoc), I often use <code>curl</code> to make queries and see if the data returned is what I expected. Sometimes, however, this does not provide enough information to help me get to the bottom of why the ddoc does not behave as anticipated. Here is my process for debugging JavaScript code in CouchDB design documents. (Note: This blog post assumes CouchDB is <a href="https://pouchdb.com/guides/setup-couchdb.html#installing-couchdb">installed</a> and running on  your machine.)</p>
 
 <p><strong>TL;DR: I show you how to use <code>console.log</code> debugging inside of CouchDB design documents.</strong></p>
@@ -275,9 +275,9 @@ $ curl 127.0.0.1:5984/test/_design/test/_view/greetingDocs
   
   <entry>
     <title type="html"><![CDATA[Resources for Learning React &amp; Flux]]></title>
-    <link href="http://callahanchris.github.io/blog/2015/01/16/resources-for-learning-react-and-flux/"/>
+    <link href="http://callahan.io/blog/2015/01/16/resources-for-learning-react-and-flux/"/>
     <updated>2015-01-16T11:34:16-05:00</updated>
-    <id>http://callahanchris.github.io/blog/2015/01/16/resources-for-learning-react-and-flux</id>
+    <id>http://callahan.io/blog/2015/01/16/resources-for-learning-react-and-flux</id>
     <content type="html"><![CDATA[<p>I&rsquo;ve recently had a few people ask me about resources for learning React.js and Flux, so I figured I&rsquo;d put all of the resources I&rsquo;ve used in one spot. Please leave a comment if you find any of these useful/useless or have any good resources I&rsquo;ve left out!</p>
 
 <h3>Why React?</h3>
@@ -306,7 +306,7 @@ $ curl 127.0.0.1:5984/test/_design/test/_view/greetingDocs
 <p><em>Facebook&rsquo;s architecture pattern for organizing large React apps</em></p>
 
 <ul>
-<li>Shameless plug: <a href="http://callahanchris.github.io/blog/2014/11/23/88-mph-with-flux-and-react/">My Intro to Flux blog post</a>
+<li>Shameless plug: <a href="http://callahan.io/blog/2014/11/23/88-mph-with-flux-and-react/">My Intro to Flux blog post</a>
   &ndash; some helpful links on the bottom too</li>
 <li><a href="http://blog.andrewray.me/flux-for-stupid-people/">Flux for Stupid People</a></li>
 <li><a href="http://facebook.github.io/flux/docs/overview.html#content">Facebook&rsquo;s Flux Overview</a></li>
@@ -392,9 +392,9 @@ $ curl 127.0.0.1:5984/test/_design/test/_view/greetingDocs
   
   <entry>
     <title type="html"><![CDATA[Array Iteration Methods in JavaScript]]></title>
-    <link href="http://callahanchris.github.io/blog/2015/01/03/array-iteration-methods-in-javascript/"/>
+    <link href="http://callahan.io/blog/2015/01/03/array-iteration-methods-in-javascript/"/>
     <updated>2015-01-03T15:55:19-05:00</updated>
-    <id>http://callahanchris.github.io/blog/2015/01/03/array-iteration-methods-in-javascript</id>
+    <id>http://callahan.io/blog/2015/01/03/array-iteration-methods-in-javascript</id>
     <content type="html"><![CDATA[<p>When I first started learning JavaScript, I went through a number of tutorials that showed how to iterate over collections in an imperative style using a <code>for</code> loop:</p>
 
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
@@ -766,9 +766,9 @@ $ curl 127.0.0.1:5984/test/_design/test/_view/greetingDocs
   
   <entry>
     <title type="html"><![CDATA[88 Mph With Flux and React]]></title>
-    <link href="http://callahanchris.github.io/blog/2014/11/23/88-mph-with-flux-and-react/"/>
+    <link href="http://callahan.io/blog/2014/11/23/88-mph-with-flux-and-react/"/>
     <updated>2014-11-23T22:41:11-05:00</updated>
-    <id>http://callahanchris.github.io/blog/2014/11/23/88-mph-with-flux-and-react</id>
+    <id>http://callahan.io/blog/2014/11/23/88-mph-with-flux-and-react</id>
     <content type="html"><![CDATA[<p><a href="https://github.com/facebook/react">React.js</a> has gained a lot of attention since it was open sourced by Facebook last year, and with its recent version 0.12 release, it appears that a version 1.0 may soon be on the horizon. React is a lightweight front end toolkit for handling the view layer of web applications that emphasizes a unidirectional data flow to simplify logic about state and data binding. Under the hood, React utilizes a virtual DOM, diffing this with the <a href="http://www.w3.org/DOM/">plain old DOM</a> (PODOM) and rerendering the page with the minimal effort necessary to reflect the updated state of the application. This is an interesting abstraction that makes it easier to reason about state in an application and relieves the need for developers to directly manipulate the DOM.</p>
 
 <p>This year, Facebook introduced Flux, the application architecture they use for React apps. Flux is more of a pattern for separating concerns and organizing files in large React applications than it is a full-blown front end framework like Angular or Ember. Flux provides a roadmap for ensuring the unidirectional flow of data in apps and allows for more modular processing of state changes, event handling, and interfacing with external services.</p>
@@ -1337,9 +1337,9 @@ $ curl 127.0.0.1:5984/test/_design/test/_view/greetingDocs
   
   <entry>
     <title type="html"><![CDATA[Behind the Scenes of the 'Has Many' Active Record Association]]></title>
-    <link href="http://callahanchris.github.io/blog/2014/10/08/behind-the-scenes-of-the-has-many-active-record-association/"/>
+    <link href="http://callahan.io/blog/2014/10/08/behind-the-scenes-of-the-has-many-active-record-association/"/>
     <updated>2014-10-08T16:17:09-04:00</updated>
-    <id>http://callahanchris.github.io/blog/2014/10/08/behind-the-scenes-of-the-has-many-active-record-association</id>
+    <id>http://callahan.io/blog/2014/10/08/behind-the-scenes-of-the-has-many-active-record-association</id>
     <content type="html"><![CDATA[<p>In <em>The Rails 4 Way</em>, Obie Fernandez describes what happens when you &ldquo;wire up&rdquo; associations (like <code>has_many</code> and <code>belongs_to</code>) between Active Record models:</p>
 
 <blockquote><p>When these relationship declarations are executed, Rails uses some metaprogramming magic to dynamically add code to your models. In particular, proxy collection objects are created that let you manipulate the relationship easily.</p>
@@ -1853,9 +1853,9 @@ $ curl 127.0.0.1:5984/test/_design/test/_view/greetingDocs
   
   <entry>
     <title type="html"><![CDATA[My Favorite Sublime Text Keyboard Shortcuts]]></title>
-    <link href="http://callahanchris.github.io/blog/2014/09/23/my-favorite-sublime-text-keyboard-shortcuts/"/>
+    <link href="http://callahan.io/blog/2014/09/23/my-favorite-sublime-text-keyboard-shortcuts/"/>
     <updated>2014-09-23T20:55:44-04:00</updated>
-    <id>http://callahanchris.github.io/blog/2014/09/23/my-favorite-sublime-text-keyboard-shortcuts</id>
+    <id>http://callahan.io/blog/2014/09/23/my-favorite-sublime-text-keyboard-shortcuts</id>
     <content type="html"><![CDATA[<p>Like many software developers, <a href="http://www.sublimetext.com/">Sublime Text</a> is my preferred text editor. I do almost all of my coding and blogging in Sublime, and as such there are a few convenient keyboard shortcuts I&rsquo;ve picked up along the way. <em>[Note: All keyboard shortcuts are for the OS X version of Sublime Text 2.02, YMMV.]</em></p>
 
 <h3>1. Command + Enter = New Line Below</h3>
@@ -1996,9 +1996,9 @@ $ curl 127.0.0.1:5984/test/_design/test/_view/greetingDocs
   
   <entry>
     <title type="html"><![CDATA[Getting Started With RSpec]]></title>
-    <link href="http://callahanchris.github.io/blog/2014/09/18/getting-started-with-rspec/"/>
+    <link href="http://callahan.io/blog/2014/09/18/getting-started-with-rspec/"/>
     <updated>2014-09-18T11:56:23-04:00</updated>
-    <id>http://callahanchris.github.io/blog/2014/09/18/getting-started-with-rspec</id>
+    <id>http://callahan.io/blog/2014/09/18/getting-started-with-rspec</id>
     <content type="html"><![CDATA[<p>RSpec is tool to test Ruby code using a very English-like syntax. RSpec is one of the most popular testing frameworks in the Ruby and Rails communities today, along with minitest (the default testing framework used in Rails 4) and Test::Unit.</p>
 
 <p>Testing is essential to writing reliable code. Not only does it establish a rapid feedback loop, but it also gives you the freedom to refactor your code to your heart&rsquo;s content while ensuring that the code retains its original functionality.</p>
@@ -2505,10 +2505,10 @@ $ curl 127.0.0.1:5984/test/_design/test/_view/greetingDocs
   
   <entry>
     <title type="html"><![CDATA[China Map Project - Part 4: Introducing Polymorphism]]></title>
-    <link href="http://callahanchris.github.io/blog/2014/09/13/china-map-project-part-4-introducing-polymorphism/"/>
+    <link href="http://callahan.io/blog/2014/09/13/china-map-project-part-4-introducing-polymorphism/"/>
     <updated>2014-09-13T17:33:42-04:00</updated>
-    <id>http://callahanchris.github.io/blog/2014/09/13/china-map-project-part-4-introducing-polymorphism</id>
-    <content type="html"><![CDATA[<p><em>This the fourth and final post in a series about my recent side project, <a href="http://amapofchina.herokuapp.com">A Map of China</a>. Check out the <a href="http://callahanchris.github.io/blog/2014/09/11/china-map-project-part-1-nokogiri/">first post</a>, <a href="http://callahanchris.github.io/blog/2014/09/11/china-map-project-part-2-bringing-the-map-to-life-with-jvectormap/">second post</a>, <a href="http://callahanchris.github.io/blog/2014/09/12/china-map-project-part-3-refactoring-using-replace-method-with-method-object/">third post</a>, and the <a href="https://github.com/callahanchris/china-map">project repo</a> on Github.</em></p>
+    <id>http://callahan.io/blog/2014/09/13/china-map-project-part-4-introducing-polymorphism</id>
+    <content type="html"><![CDATA[<p><em>This the fourth and final post in a series about my recent side project, <a href="http://amapofchina.herokuapp.com">A Map of China</a>. Check out the <a href="http://callahan.io/blog/2014/09/11/china-map-project-part-1-nokogiri/">first post</a>, <a href="http://callahan.io/blog/2014/09/11/china-map-project-part-2-bringing-the-map-to-life-with-jvectormap/">second post</a>, <a href="http://callahan.io/blog/2014/09/12/china-map-project-part-3-refactoring-using-replace-method-with-method-object/">third post</a>, and the <a href="https://github.com/callahanchris/china-map">project repo</a> on Github.</em></p>
 
 <h3>The Road to Polymorphism</h3>
 
@@ -2539,7 +2539,7 @@ $ curl 127.0.0.1:5984/test/_design/test/_view/greetingDocs
 
 <h3>Extract Method</h3>
 
-<p>Before I was able to implement the Replace Type Code with Polymorphism refactoring, I needed to continue refactoring the lengthy <code>compute</code> method in the <code>RegionAssembler</code> class from the <a href="http://callahanchris.github.io/blog/2014/09/12/china-map-project-part-3-refactoring-using-replace-method-with-method-object/">last post</a>. Within the <code>compute</code> method, I had been assigning about ten different pieces of data to the <code>Region</code> objects and saving them to the database. In order to preserve the <code>compute</code> API set up in the last post, I had <code>compute</code> delegate to a number of smaller methods, which I removed from <code>compute</code> using Extract Method.</p>
+<p>Before I was able to implement the Replace Type Code with Polymorphism refactoring, I needed to continue refactoring the lengthy <code>compute</code> method in the <code>RegionAssembler</code> class from the <a href="http://callahan.io/blog/2014/09/12/china-map-project-part-3-refactoring-using-replace-method-with-method-object/">last post</a>. Within the <code>compute</code> method, I had been assigning about ten different pieces of data to the <code>Region</code> objects and saving them to the database. In order to preserve the <code>compute</code> API set up in the last post, I had <code>compute</code> delegate to a number of smaller methods, which I removed from <code>compute</code> using Extract Method.</p>
 
 <p>Quoting Martin Fowler:</p>
 
@@ -2923,10 +2923,10 @@ $ curl 127.0.0.1:5984/test/_design/test/_view/greetingDocs
   
   <entry>
     <title type="html"><![CDATA[China Map Project - Part 3: Refactoring Using Replace Method With Method Object]]></title>
-    <link href="http://callahanchris.github.io/blog/2014/09/12/china-map-project-part-3-refactoring-using-replace-method-with-method-object/"/>
+    <link href="http://callahan.io/blog/2014/09/12/china-map-project-part-3-refactoring-using-replace-method-with-method-object/"/>
     <updated>2014-09-12T15:05:42-04:00</updated>
-    <id>http://callahanchris.github.io/blog/2014/09/12/china-map-project-part-3-refactoring-using-replace-method-with-method-object</id>
-    <content type="html"><![CDATA[<p><em>This post is the third in a series about my recent side project, <a href="http://amapofchina.herokuapp.com">A Map of China</a>. Check out the <a href="http://callahanchris.github.io/blog/2014/09/11/china-map-project-part-1-nokogiri/">first post</a>, <a href="http://callahanchris.github.io/blog/2014/09/11/china-map-project-part-2-bringing-the-map-to-life-with-jvectormap/">second post</a>, and the <a href="https://github.com/callahanchris/china-map">project repo</a> on Github.</em></p>
+    <id>http://callahan.io/blog/2014/09/12/china-map-project-part-3-refactoring-using-replace-method-with-method-object</id>
+    <content type="html"><![CDATA[<p><em>This post is the third in a series about my recent side project, <a href="http://amapofchina.herokuapp.com">A Map of China</a>. Check out the <a href="http://callahan.io/blog/2014/09/11/china-map-project-part-1-nokogiri/">first post</a>, <a href="http://callahan.io/blog/2014/09/11/china-map-project-part-2-bringing-the-map-to-life-with-jvectormap/">second post</a>, and the <a href="https://github.com/callahanchris/china-map">project repo</a> on Github.</em></p>
 
 <h3>Refactoring!</h3>
 
@@ -3147,16 +3147,16 @@ $ curl 127.0.0.1:5984/test/_design/test/_view/greetingDocs
 
 <p>This initial refactoring made all subsequent refactorings to the <code>db/seeds.rb</code> file significantly easier. It seems like a pretty minimal refactoring at this point, but replacing the <code>scrape_all_regions</code> method with a class was a great first step of breaking the problem up into smaller pieces. This allowed me to think more freely about the problem and began the process of reducing the clutter in my code.</p>
 
-<p>As I alluded to above, the regional classifications of China that led to a glut of conditional statements were also an open door to a polymorphic refactoring, which is the topic of the <a href="http://callahanchris.github.io/blog/2014/09/13/china-map-project-part-4-introducing-polymorphism/">next</a> (and last!) post in this series.</p>
+<p>As I alluded to above, the regional classifications of China that led to a glut of conditional statements were also an open door to a polymorphic refactoring, which is the topic of the <a href="http://callahan.io/blog/2014/09/13/china-map-project-part-4-introducing-polymorphism/">next</a> (and last!) post in this series.</p>
 ]]></content>
   </entry>
   
   <entry>
     <title type="html"><![CDATA[China Map Project - Part 2: Bringing the Map to Life With jVectorMap]]></title>
-    <link href="http://callahanchris.github.io/blog/2014/09/11/china-map-project-part-2-bringing-the-map-to-life-with-jvectormap/"/>
+    <link href="http://callahan.io/blog/2014/09/11/china-map-project-part-2-bringing-the-map-to-life-with-jvectormap/"/>
     <updated>2014-09-11T12:35:18-04:00</updated>
-    <id>http://callahanchris.github.io/blog/2014/09/11/china-map-project-part-2-bringing-the-map-to-life-with-jvectormap</id>
-    <content type="html"><![CDATA[<p><em>This post is the second in a series about my recent side project, <a href="http://amapofchina.herokuapp.com">A Map of China</a>. Check out the <a href="http://callahanchris.github.io/blog/2014/09/11/china-map-project-part-1-nokogiri/">first post</a> and the <a href="https://github.com/callahanchris/china-map">project repo</a> on Github.</em></p>
+    <id>http://callahan.io/blog/2014/09/11/china-map-project-part-2-bringing-the-map-to-life-with-jvectormap</id>
+    <content type="html"><![CDATA[<p><em>This post is the second in a series about my recent side project, <a href="http://amapofchina.herokuapp.com">A Map of China</a>. Check out the <a href="http://callahan.io/blog/2014/09/11/china-map-project-part-1-nokogiri/">first post</a> and the <a href="https://github.com/callahanchris/china-map">project repo</a> on Github.</em></p>
 
 <h3>Setting up jVectorMap</h3>
 
@@ -3342,15 +3342,15 @@ $ curl 127.0.0.1:5984/test/_design/test/_view/greetingDocs
 
 <p>This was my first project using a JavaScript map, and it was really fun! I definitely learned a lot about integrating JavaScript libraries into Rails apps, got more comfortable using AJAX on the frontend, and became more confident in my ability to create and consume JSON APIs.</p>
 
-<p>Check out the next <a href="http://callahanchris.github.io/blog/2014/09/12/china-map-project-part-3-refactoring-using-replace-method-with-method-object/">two</a> <a href="http://callahanchris.github.io/blog/2014/09/13/china-map-project-part-4-introducing-polymorphism/">posts</a> in this series about one of my favorite topics: refactoring!</p>
+<p>Check out the next <a href="http://callahan.io/blog/2014/09/12/china-map-project-part-3-refactoring-using-replace-method-with-method-object/">two</a> <a href="http://callahan.io/blog/2014/09/13/china-map-project-part-4-introducing-polymorphism/">posts</a> in this series about one of my favorite topics: refactoring!</p>
 ]]></content>
   </entry>
   
   <entry>
     <title type="html"><![CDATA[China Map Project - Part 1: Nokogiri, Regular Expressions, and a JSON API]]></title>
-    <link href="http://callahanchris.github.io/blog/2014/09/11/china-map-project-part-1-nokogiri/"/>
+    <link href="http://callahan.io/blog/2014/09/11/china-map-project-part-1-nokogiri/"/>
     <updated>2014-09-11T11:43:03-04:00</updated>
-    <id>http://callahanchris.github.io/blog/2014/09/11/china-map-project-part-1-nokogiri</id>
+    <id>http://callahan.io/blog/2014/09/11/china-map-project-part-1-nokogiri</id>
     <content type="html"><![CDATA[<p>Over the past couple months I&rsquo;ve been working on a side project to create an <a href="http://amapofchina.herokuapp.com">interactive, data-rich map of China</a>. (<a href="https://github.com/callahanchris/china-map">Check out the source code on Github!</a>) To accomplish this goal, I made a Ruby on Rails app that scrapes Wikipedia for data about all of the regions in China, stores this information in a database, and outputs the data as a JSON API. On the frontend, I used JavaScript to create a vector map of China and populate the map with the data consumed from the API. I saw this project as something that could both challenge me technically and bring together two of my main interests: China and coding.</p>
 
 <h3>Gathering the Data</h3>
@@ -3551,15 +3551,15 @@ $ curl 127.0.0.1:5984/test/_design/test/_view/greetingDocs
 
 <p>Though this was not my first web scraping project, it was challenging given the HTML/CSS inconsistencies across different Wikipedia articles. After solving the problem in a brute force fashion using hardcoded region data, I was able to bring the code to a more abstract level and learn a lot about parsing text with regular expressions in the process.</p>
 
-<p>Check out the <a href="http://callahanchris.github.io/blog/2014/09/11/china-map-project-part-2-bringing-the-map-to-life-with-jvectormap/">next post</a> in this series where I talk about the JavaScript frontend and the <a href="http://callahanchris.github.io/blog/2014/09/12/china-map-project-part-3-refactoring-using-replace-method-with-method-object/">third</a> and <a href="http://callahanchris.github.io/blog/2014/09/13/china-map-project-part-4-introducing-polymorphism/">fourth</a> posts where I talk about refactoring the <code>db/seeds.rb</code> file!</p>
+<p>Check out the <a href="http://callahan.io/blog/2014/09/11/china-map-project-part-2-bringing-the-map-to-life-with-jvectormap/">next post</a> in this series where I talk about the JavaScript frontend and the <a href="http://callahan.io/blog/2014/09/12/china-map-project-part-3-refactoring-using-replace-method-with-method-object/">third</a> and <a href="http://callahan.io/blog/2014/09/13/china-map-project-part-4-introducing-polymorphism/">fourth</a> posts where I talk about refactoring the <code>db/seeds.rb</code> file!</p>
 ]]></content>
   </entry>
   
   <entry>
     <title type="html"><![CDATA[How to Write an Immediately-Invoked Anonymous Function Expression in JavaScript]]></title>
-    <link href="http://callahanchris.github.io/blog/2014/07/24/how-to-write-an-immediately-invoked-anonymous-function-expression-in-javascript/"/>
+    <link href="http://callahan.io/blog/2014/07/24/how-to-write-an-immediately-invoked-anonymous-function-expression-in-javascript/"/>
     <updated>2014-07-24T10:43:07-04:00</updated>
-    <id>http://callahanchris.github.io/blog/2014/07/24/how-to-write-an-immediately-invoked-anonymous-function-expression-in-javascript</id>
+    <id>http://callahan.io/blog/2014/07/24/how-to-write-an-immediately-invoked-anonymous-function-expression-in-javascript</id>
     <content type="html"><![CDATA[<p>Anonymous functions sound mysterious and a bit dangerous, but in fact they are just functions that have not been given a name. In JavaScript, a named function looks like this:</p>
 
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
@@ -3775,9 +3775,9 @@ $ curl 127.0.0.1:5984/test/_design/test/_view/greetingDocs
   
   <entry>
     <title type="html"><![CDATA[Five Useful Ruby Array Methods]]></title>
-    <link href="http://callahanchris.github.io/blog/2014/07/17/five-useful-ruby-array-methods/"/>
+    <link href="http://callahan.io/blog/2014/07/17/five-useful-ruby-array-methods/"/>
     <updated>2014-07-17T13:25:34-04:00</updated>
-    <id>http://callahanchris.github.io/blog/2014/07/17/five-useful-ruby-array-methods</id>
+    <id>http://callahan.io/blog/2014/07/17/five-useful-ruby-array-methods</id>
     <content type="html"><![CDATA[<p>Arrays are a versatile and reliable data structure. The <code>Array</code> class in Ruby comes equipped with a number of extremely useful instance methods, including <code>pop</code>, <code>push</code>, <code>shift</code>, <code>unshift</code>, <code>length</code>, <code>reverse</code>, etc. With the <code>Enumerable</code> module mixin, Ruby arrays have access to even more iterators and other fun methods.</p>
 
 <p>Here are five great instance methods built in to Ruby&rsquo;s <code>Array</code> class that I&rsquo;ve come across recently.</p>
@@ -4026,9 +4026,9 @@ $ curl 127.0.0.1:5984/test/_design/test/_view/greetingDocs
   
   <entry>
     <title type="html"><![CDATA[Lessons From Refactoring Tic Tac Toe]]></title>
-    <link href="http://callahanchris.github.io/blog/2014/07/10/lessons-from-refactoring-tic-tac-toe/"/>
+    <link href="http://callahan.io/blog/2014/07/10/lessons-from-refactoring-tic-tac-toe/"/>
     <updated>2014-07-10T18:02:50-04:00</updated>
-    <id>http://callahanchris.github.io/blog/2014/07/10/lessons-from-refactoring-tic-tac-toe</id>
+    <id>http://callahan.io/blog/2014/07/10/lessons-from-refactoring-tic-tac-toe</id>
     <content type="html"><![CDATA[<p><em><a href="https://github.com/callahanchris/tic-tac-toe">Check out my tic tac toe code on github!</a></em></p>
 
 <p>As part of my application to the Flatiron School in January of this year, I had to write a tic tac toe computer program. The assignment was purposely left vague; it was up to me to decide what programming language to use, how complex it was, whether it was one-player or two-player, etc.</p>
@@ -4332,9 +4332,9 @@ $ curl 127.0.0.1:5984/test/_design/test/_view/greetingDocs
   
   <entry>
     <title type="html"><![CDATA[Better Understanding Ruby Modules Through Zombies]]></title>
-    <link href="http://callahanchris.github.io/blog/2014/06/26/better-understanding-ruby-modules-through-zombies/"/>
+    <link href="http://callahan.io/blog/2014/06/26/better-understanding-ruby-modules-through-zombies/"/>
     <updated>2014-06-26T22:02:51-04:00</updated>
-    <id>http://callahanchris.github.io/blog/2014/06/26/better-understanding-ruby-modules-through-zombies</id>
+    <id>http://callahan.io/blog/2014/06/26/better-understanding-ruby-modules-through-zombies</id>
     <content type="html"><![CDATA[<p>Modules in Ruby are a great place to store shared behavior and data used throughout a program. Writing a module is a convenient way to abstract out shared methods from multiple classes, thereby making the classes more DRY and manageable.</p>
 
 <p>Some of the most popular modules in the Ruby core are <code>Comparable</code>, <code>Math</code>, and <code>Enumerable</code>. Yes, <a href="http://ruby-doc.org/core-2.1.2/Enumerable.html">a module</a> is the reason Rubyists across the world can enjoy <code>each</code> and other higher level iterators like <code>all?</code>, <code>collect</code>, and <code>inject</code>! <code>ActiveRecord</code> and <code>Sinatra</code> are two other popular modules used in the Rails and Sinatra web frameworks, respectively.</p>
@@ -4657,9 +4657,9 @@ $ curl 127.0.0.1:5984/test/_design/test/_view/greetingDocs
   
   <entry>
     <title type="html"><![CDATA[Abstraction and Music Library Sorting]]></title>
-    <link href="http://callahanchris.github.io/blog/2014/06/09/abstraction-and-music-library-sorting/"/>
+    <link href="http://callahan.io/blog/2014/06/09/abstraction-and-music-library-sorting/"/>
     <updated>2014-06-09T09:41:21-04:00</updated>
-    <id>http://callahanchris.github.io/blog/2014/06/09/abstraction-and-music-library-sorting</id>
+    <id>http://callahan.io/blog/2014/06/09/abstraction-and-music-library-sorting</id>
     <content type="html"><![CDATA[<p>Last week at the Flatiron School, <a href="https://twitter.com/aviflombaum">Avi Flombaum</a> talked about the merits of abstraction in code. As Avi mentioned, code can become much more idiomatic when it utilizes abstraction instead of relying on specific details.</p>
 
 <p>The Ruby core comes equipped with a whole toolbox of nicely abstracted methods that can be used to write some great and expressive code. This one of the reasons that programmers love to write code in Ruby.</p>
@@ -4966,9 +4966,9 @@ $ curl 127.0.0.1:5984/test/_design/test/_view/greetingDocs
   
   <entry>
     <title type="html"><![CDATA[I Don't Know How to Program]]></title>
-    <link href="http://callahanchris.github.io/blog/2014/05/23/i-dont-know-how-to-program/"/>
+    <link href="http://callahan.io/blog/2014/05/23/i-dont-know-how-to-program/"/>
     <updated>2014-05-23T14:52:35-04:00</updated>
-    <id>http://callahanchris.github.io/blog/2014/05/23/i-dont-know-how-to-program</id>
+    <id>http://callahan.io/blog/2014/05/23/i-dont-know-how-to-program</id>
     <content type="html"><![CDATA[<p>I was struck by this realization recently when going through Michael Hartl&rsquo;s <a href="http://railstutorial.org"><em>Ruby on Rails Tutorial</em></a>. This was my first exposure to Rails; however, I had learned a bit of Ruby before, and as such was under the impression that I knew a thing or two about coding.</p>
 
 <p>Overall, the tutorial was difficult and intense, but at the end I felt very accomplished for having made it all the way through. I learned a ton about Rails, test-driven development (TDD), ERb, and Ruby. Of critical importance to this was my brother, <a href="http://andrewcallahan.github.io">Andrew Callahan</a>, who was on hand to help me with my questions and problems and to offer his insights on programming.</p>
@@ -5026,9 +5026,9 @@ $ curl 127.0.0.1:5984/test/_design/test/_view/greetingDocs
   
   <entry>
     <title type="html"><![CDATA[Blog = Blog.new]]></title>
-    <link href="http://callahanchris.github.io/blog/2014/05/20/blog-equals-blog-dot-new/"/>
+    <link href="http://callahan.io/blog/2014/05/20/blog-equals-blog-dot-new/"/>
     <updated>2014-05-20T15:29:04-04:00</updated>
-    <id>http://callahanchris.github.io/blog/2014/05/20/blog-equals-blog-dot-new</id>
+    <id>http://callahan.io/blog/2014/05/20/blog-equals-blog-dot-new</id>
     <content type="html"><![CDATA[<p>This is the first post on my new blog. My name is Chris, and this blog will be about my journey from zero to hacker. As the first major step on the way to accomplishing this goal, I will be enrolling in the web development track at the Flatiron School in New York starting on June 2, 2014.</p>
 
 <p>Over the course of the past year, I have started learning how to program &ndash; mainly Ruby, but also bits of C, HTML, CSS, JavaScript, and most recently Ruby on Rails. I am now working through the Flatiron School&rsquo;s excellent <a href="http://prework.flatironschool.com/web-development/">prework curriculum</a> in preparation for the course.</p>
