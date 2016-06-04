@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "Debugging CouchDB Design Documents"
-date: 2016-05-08 12:56:30 -0400
+date: 2016-06-04 15:40:09 -0400
 comments: true
 categories: 
 ---
@@ -70,12 +70,12 @@ The CouchDB configuration settings can also be changed in the admin UI of Futon.
 
 The last line shows that under the hood the Futon UI is simply making the same `PUT` request over HTTP you made above using `curl` to change the log level. Above that there is a "Supervisor Report" from the CouchDB internals stating that the `couch_log` worker process was... abruptly?... restarted by the `couch_primary_services` supervisor process.
 
-The CouchDB docs has a good roundup of [all of the different log levels](http://docs.couchdb.org/en/1.6.1/config/logging.html) Couch supports. I typically stick with "info" in development to have a window into all of the incoming requests to CouchDB being logged in real time, but I'll sometimes switch to "debug" mode to view in more detail all of the headers that are included in incoming HTTP requests. (Note that neither of these settings are recommended for logging in production.) 
+The CouchDB docs has a good roundup of [all of the different log levels](http://docs.couchdb.org/en/1.6.1/config/logging.html) Couch supports. I typically stick with "info" in development to have a window into all of the incoming requests to CouchDB being logged in real time, but I'll sometimes switch to "debug" mode to view in more detail all of the headers / cookies that are part of the incoming HTTP requests. (Note that neither of these settings are recommended for logging in production.) 
 
 Now that you've set up CouchDB to be a bit more verbose, run:
 
 <pre>
-$ curl 127.0.0.1:5984
+curl 127.0.0.1:5984
 </pre>
 
 Back in CouchDB, you'll see the following output:
