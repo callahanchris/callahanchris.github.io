@@ -4,6 +4,7 @@ title: "How to Write an Immediately-Invoked Anonymous Function Expression in Jav
 date: 2014-07-24 10:43:07 -0400
 comments: true
 categories: 
+redirect_from: "/blog/2014/07/24/how-to-write-an-immediately-invoked-anonymous-function-expression-in-javascript/"
 ---
 
 Anonymous functions sound mysterious and a bit dangerous, but in fact they are just functions that have not been given a name. In JavaScript, a named function looks like this:

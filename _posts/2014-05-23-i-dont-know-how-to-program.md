@@ -4,6 +4,7 @@ title: "I Don't Know How To Program"
 date: 2014-05-23 14:52:35 -0400
 comments: true
 categories: 
+redirect_from: "/blog/2014/05/23/i-dont-know-how-to-program/"
 ---
 
 I was struck by this realization recently when going through Michael Hartl's [*Ruby on Rails Tutorial*](http://railstutorial.org). This was my first exposure to Rails; however, I had learned a bit of Ruby before, and as such was under the impression that I knew a thing or two about coding.

@@ -4,6 +4,7 @@ title: "Lessons From Refactoring Tic Tac Toe"
 date: 2014-07-10 18:02:50 -0400
 comments: true
 categories: 
+redirect_from: "/blog/2014/07/10/lessons-from-refactoring-tic-tac-toe/"
 ---
 
 *[Check out my tic tac toe code on github!](https://github.com/callahanchris/tic-tac-toe)*

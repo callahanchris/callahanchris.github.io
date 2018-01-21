@@ -4,6 +4,7 @@ title: "React.Children and the React Top-Level API"
 date: 2016-09-16 14:06:19 -0400
 comments: true
 categories:
+redirect_from: "/blog/2016/09/16/react-dot-children-and-the-react-top-level-api/"
 ---
 
 One of the features that drew me in to React was the explicit intention by its authors to create an API with a [minimal surface area](http://2014.jsconf.eu/speakers/sebastian-markbage-minimal-api-surface-area-learning-patterns-instead-of-frameworks.html). This is a great goal, because it allows you to keep the full React API [in your head](http://www.paulgraham.com/head.html) when developing your application with React. Writing React code is often focused on creating components and using the [component API](https://facebook.github.io/react/docs/component-api.html) and [lifecycle methods](https://facebook.github.io/react/docs/component-specs.html), but there are a few other useful top-level utilities provided in the React API. Below I'll cover the `React.Children` methods for handling the `this.props.children` opaque data structure and how I've used them in my React apps.

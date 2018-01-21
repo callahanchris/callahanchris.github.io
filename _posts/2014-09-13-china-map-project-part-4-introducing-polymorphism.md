@@ -4,6 +4,7 @@ title: "China Map Project - Part 4: Introducing Polymorphism"
 date: 2014-09-13 17:33:42 -0400
 comments: true
 categories: 
+redirect_from: "/blog/2014/09/13/china-map-project-part-4-introducing-polymorphism/"
 ---
 
 

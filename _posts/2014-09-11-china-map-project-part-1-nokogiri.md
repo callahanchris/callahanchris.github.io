@@ -4,6 +4,7 @@ title: "China Map Project - Part 1: Nokogiri, Regular Expressions, and a JSON AP
 date: 2014-09-11 11:43:03 -0400
 comments: true
 categories: 
+redirect_from: "/blog/2014/09/11/china-map-project-part-1-nokogiri/"
 ---
 
 Over the past couple months I've been working on a side project to create an [interactive, data-rich map of China](http://amapofchina.herokuapp.com). ([Check out the source code on Github!](https://github.com/callahanchris/china-map)) To accomplish this goal, I made a Ruby on Rails app that scrapes Wikipedia for data about all of the regions in China, stores this information in a database, and outputs the data as a JSON API. On the frontend, I used JavaScript to create a vector map of China and populate the map with the data consumed from the API. I saw this project as something that could both challenge me technically and bring together two of my main interests: China and coding.

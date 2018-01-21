@@ -4,6 +4,7 @@ title: "Five Useful Ruby Array Methods"
 date: 2014-07-17 13:25:34 -0400
 comments: true
 categories: 
+redirect_from: "/blog/2014/07/17/five-useful-ruby-array-methods/"
 ---
 
 Arrays are a versatile and reliable data structure. The `Array` class in Ruby comes equipped with a number of extremely useful instance methods, including `pop`, `push`, `shift`, `unshift`, `length`, `reverse`, etc. With the `Enumerable` module mixin, Ruby arrays have access to even more iterators and other fun methods.

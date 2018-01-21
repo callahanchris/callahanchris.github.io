@@ -4,6 +4,7 @@ title: "Resources for Learning React &amp; Flux"
 date: 2015-01-16 11:34:16 -0500
 comments: true
 categories: 
+redirect_from: "/blog/2015/01/16/resources-for-learning-react-and-flux/"
 ---
 
 I've recently had a few people ask me about resources for learning React.js and Flux, so I figured I'd put all of the resources I've used in one spot. Please leave a comment if you find any of these useful/useless or have any good resources I've left out!

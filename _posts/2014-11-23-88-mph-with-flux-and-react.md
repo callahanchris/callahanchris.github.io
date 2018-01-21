@@ -4,6 +4,7 @@ title: "88 mph With Flux and React"
 date: 2014-11-23 22:41:11 -0500
 comments: true
 categories: 
+redirect_from: "/blog/2014/11/23/88-mph-with-flux-and-react/"
 ---
 
 [React.js](https://github.com/facebook/react) has gained a lot of attention since it was open sourced by Facebook last year, and with its recent version 0.12 release, it appears that a version 1.0 may soon be on the horizon. React is a lightweight front end toolkit for handling the view layer of web applications that emphasizes a unidirectional data flow to simplify logic about state and data binding. Under the hood, React utilizes a virtual DOM, diffing this with the [plain old DOM](http://www.w3.org/DOM/) (PODOM) and rerendering the page with the minimal effort necessary to reflect the updated state of the application. This is an interesting abstraction that makes it easier to reason about state in an application and relieves the need for developers to directly manipulate the DOM.

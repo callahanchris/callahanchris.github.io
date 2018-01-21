@@ -4,6 +4,7 @@ title: "Better Understanding Ruby Modules Through Zombies"
 date: 2014-06-26 22:02:51 -0400
 comments: true
 categories: 
+redirect_from: "/blog/2014/06/26/better-understanding-ruby-modules-through-zombies/"
 ---
 
 Modules in Ruby are a great place to store shared behavior and data used throughout a program. Writing a module is a convenient way to abstract out shared methods from multiple classes, thereby making the classes more DRY and manageable.

@@ -4,6 +4,7 @@ title: "My Favorite Sublime Text Keyboard Shortcuts"
 date: 2014-09-23 20:55:44 -0400
 comments: true
 categories: 
+redirect_from: "/blog/2014/09/23/my-favorite-sublime-text-keyboard-shortcuts/"
 ---
 
 Like many software developers, [Sublime Text](http://www.sublimetext.com/) is my preferred text editor. I do almost all of my coding and blogging in Sublime, and as such there are a few convenient keyboard shortcuts I've picked up along the way. *[Note: All keyboard shortcuts are for the OS X version of Sublime Text 2.02, YMMV.]*

@@ -4,7 +4,7 @@ title: "Behind the Scenes of the 'Has Many' Active Record Association"
 date: 2014-10-08 16:17:09 -0400
 comments: true
 categories: 
-
+redirect_from: "/blog/2014/10/08/behind-the-scenes-of-the-has-many-active-record-association/"
 ---
 
 In *The Rails 4 Way*, Obie Fernandez describes what happens when you "wire up" associations (like `has_many` and `belongs_to`) between Active Record models:

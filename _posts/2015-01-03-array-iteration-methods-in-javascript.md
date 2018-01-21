@@ -4,6 +4,7 @@ title: "Array Iteration Methods in JavaScript"
 date: 2015-01-03 15:55:19 -0500
 comments: true
 categories: 
+redirect_from: "/blog/2015/01/03/array-iteration-methods-in-javascript/"
 ---
 
 When I first started learning JavaScript, I went through a number of tutorials that showed how to iterate over collections in an imperative style using a `for` loop:

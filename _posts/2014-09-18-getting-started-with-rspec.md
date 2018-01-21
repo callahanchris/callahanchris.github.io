@@ -4,6 +4,7 @@ title: "Getting Started With RSpec"
 date: 2014-09-18 11:56:23 -0400
 comments: true
 categories: 
+redirect_from: "/blog/2014/09/18/getting-started-with-rspec/"
 ---
 
 RSpec is tool to test Ruby code using a very English-like syntax. RSpec is one of the most popular testing frameworks in the Ruby and Rails communities today, along with minitest (the default testing framework used in Rails 4) and Test::Unit.

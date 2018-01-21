@@ -4,6 +4,7 @@ title: "blog = Blog.new"
 date: 2014-05-20 15:29:04 -0400
 comments: true
 categories: 
+redirect_from: "/blog/2014/05/20/blog-equals-blog-dot-new/"
 ---
 
 This is the first post on my new blog. My name is Chris, and this blog will be about my journey from zero to hacker. As the first major step on the way to accomplishing this goal, I will be enrolling in the web development track at the Flatiron School in New York starting on June 2, 2014.

@@ -4,6 +4,7 @@ title: "Debugging CouchDB Design Documents"
 date: 2016-06-04 15:40:09 -0400
 comments: true
 categories: 
+redirect_from: "/blog/2016/06/04/debugging-couchdb-design-documents/"
 ---
 
 When making changes to a CouchDB design document (or ddoc), I often use `curl` to make queries and see if the data returned is what I expected. Sometimes, however, this does not provide enough information to help me get to the bottom of why the ddoc does not behave as anticipated. Here is my process for debugging JavaScript code in CouchDB design documents. (Note: This blog post assumes CouchDB is [installed](https://pouchdb.com/guides/setup-couchdb.html#installing-couchdb) and running on  your machine.)

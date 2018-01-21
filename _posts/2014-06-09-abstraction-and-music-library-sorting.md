@@ -4,6 +4,7 @@ title: "Abstraction and Music Library Sorting"
 date: 2014-06-09 09:41:21 -0400
 comments: true
 categories: 
+redirect_from: "/blog/2014/06/09/abstraction-and-music-library-sorting/"
 ---
 
 Last week at the Flatiron School, [Avi Flombaum](https://twitter.com/aviflombaum) talked about the merits of abstraction in code. As Avi mentioned, code can become much more idiomatic when it utilizes abstraction instead of relying on specific details.
