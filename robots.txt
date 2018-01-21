@@ -1,4 +1,0 @@
-User-agent: *
-Disallow: 
-
-Sitemap: http://callahanchris.github.io/sitemap.xml 
