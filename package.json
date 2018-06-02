@@ -1,0 +1,23 @@
+{
+  "name": "callahanchris.github.io",
+  "version": "1.0.0",
+  "description": "scripts for my blog",
+  "main": "index.js",
+  "scripts": {
+    "start": "node compress-images.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/callahanchris/callahanchris.github.io.git"
+  },
+  "author": "Chris Callahan",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/callahanchris/callahanchris.github.io/issues"
+  },
+  "homepage": "https://github.com/callahanchris/callahanchris.github.io#readme",
+  "dependencies": {
+    "imagemin": "^5.3.1",
+    "imagemin-mozjpeg": "^7.0.0"
+  }
+}
